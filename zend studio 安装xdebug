@@ -1,0 +1,36 @@
+下载php对应版本的xdebug扩展
+修改php.ini配置
+
+[Xdebug]
+zend_extension="E:\wamp\bin\php\ext\php_xdebug.dll"
+xdebug.var_display_max_depth=10
+;是否允许Xdebug跟踪函数调用，跟踪信息以文件形式存储，默认值为0
+xdebug.auto_trace=1 
+;是否允许Xdebug跟踪函数参数，默认值为0
+xdebug.collect_params=1
+;是否允许Xdebug跟踪函数返回值，默认值为0
+xdebug.collect_return=1
+;函数调用跟踪信息输出文件目录，默认值为/tmp
+xdebug.trace_output_dir="E:\xdebug"
+;打开xdebug的性能分析器，以文件形式存储，这项配置是不能以ini_set()函数配置的，默认值为0
+xdebug.profiler_enable=1
+;性能分析文件的存放位置，默认值为/tmp
+xdebug.profiler_output_dir="E:\xdebug"
+;Xdebug允许远程IDE连接
+xdebug.remote_enable=true
+;允许连接的zend studio的IP地址
+xdebug.remote_host=127.0.0.1
+;反向连接zend studio使用的端口
+xdebug.remote_port=9000
+;用于zend studio远程调试的应用层通信协议
+xdebug.remote_handler=dbgp
+
+;xdebug.profiler_output_name
+;性能分析文件的命名规则，默认值为cachegrind.out.%p
+;xdebug.trace_output_name
+;函数调用跟踪信息输出文件命名规则，默认为t
+
+重起apache
+这里容易忽视的一个问题是xdebug.remote_host信息的配置，如果你使用的是局域网或无线路由器，将xdebug.remote_host配置为127.0.0.1是无用的，会导致无法使用zend studio调试PHP，zend studio的单步调试按钮也无效！必须将xdebug.remote_host配置为zend studio安装机器的实际地址，IP地址可以通过ipconfig查看，由于我使用的是无线路由器，所以我将xdebug.remote_host配置为192.168.1.100。
+http://www.phptogether.com/xdebugdoc/all_settings.html 参数中午帮助文档
+http://hoarn.blog.51cto.com/1642678/1184441

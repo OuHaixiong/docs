@@ -1,0 +1,81 @@
+
+git add . && git commit -m "删除log" && git push origin master 添加索引并提交更新到线上
+
+apt-get install libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
+$ tar -zxf git-1.7.2.2.tar.gz
+$ cd git-1.7.2.2
+$ make prefix=/usr/local all
+$ sudo make prefix=/usr/local install
+(apt-get install git git-core)
+
+获取Git配置信息，执行以下命令：git config --list
+
+git init 创建一个Git仓库
+git init --bare example.git 创建一个远端仓库
+git add . 添加所有文件（包括文件夹和文件）到仓库的索引中
+git commit -m "提交" 提交更改到本地仓库
+git log 查看提交记录
+git diff 查看更改
+git commit -a -m "These are new changes" 提交修改的文件，-a 表示只提交修改的文件，新增的文件无法提交（注意：这里的提交信息不能为空）
+git add . && git commit -m "More chaanges - typo in the commit message" 添加所有文件到索引中，并提交修改
+git commit --amend -m "More changes - now correct" 更正最后提交的信息
+cd ~/test   进入本地仓库，然后：git clone --bare . ../t2 设置一个远端的Git仓库
+git push --set-upstream ../t2 master 推送更改到远端仓库 
+git remote add abcd ../t2 为仓库添加一个短名称
+git push abcd master 推送到远端仓库  git push ../remote-repository.git
+git remote 查看已经存在的远端仓库 
+mkdir t3 / cd t3 / git clone ../t2 克隆仓库
+git pull ../t2 拉取（Pull）更改
+git remote add bieming bear@192.168.17.130:example.git 为本地仓库起个短名叫bieming,并用用户bear链接到192.168.17.130的example.git仓库
+git push bieming master 通过短名提交修改到远端仓库的主干上（下面会要求输入密码）
+git clone bear@192.168.17.130:example.git bb  克隆远端仓库到本地文件夹bb
+
+特别注意：使用ssh链接github.com时，需要在本机生成ssh key，然后把key贴到github.com上，具体如下：
+ssh-keygen -t rsa -C "258333309@163.com"
+第一次直接回车，第二次输入密码，第三次重复密码
+然后将 /home/u32/.ssh/id_rsa.pub 的内容复制到github.com的SSH Keys中
+git clone git@github.com:OuHaixiong/yiitest.git yiitest 克隆github.com的一个库
+
+git clean -n
+git clean -f 通过以上两个命令，可以还原更改
+git checkout 46657577382c23d0cf2d51fb5d5ea54a32d5126c 通commit id 提取老版本的代码
+
+git tag version1.6 -m 'version 1.6'  创建一个标记    
+git checkout <tag_name> 恢复到一个标记
+
+git branch 列出了所有的本地分支 当前所在的分支前带有*号
+git branch -a 远端仓库的分支
+
+下面是一串命令操作：建本地仓库，提交，并链接到github.com的远端仓库，提交修改到远端仓库
+touch README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin git@github.com:OuHaixiong/libs.git
+git push -u origin master
+
+
+可以通过下面的命令来创建一个新的分支
+复制代码
+
+# Syntax: git branch <name> <hash>
+# <hash> in the above is optional 
+# if not specified the last commit will be used
+# If specified the corresponding commit will be used
+git branch testing
+# Switch to your new branch
+git checkout testing
+# Some changes
+echo "Cool new feature in this branch" > test01
+git commit -a -m "new feature"
+# Switch to the master branch
+git checkout master
+# Check that the content of test01 is the old one
+cat test01
+
+
+git merge testing
+
+一旦合并发生了冲突，Git会标志出来，开发人员需要手工的去解决这些冲突。解决冲突以后，就可以将文件添加到索引中，然后提交更改
+
+

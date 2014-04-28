@@ -1,0 +1,41 @@
+# 文件相关（不包括解压缩文件，解压缩请看“解压缩相关”文件）
+tail -f logs/log  查看文件
+cat /etc/hosts 查看文件内容
+mkdir newdir 创建一个目录
+touch newfile 新建文件
+chmod -R 0775 share 改变目录和其所有的子文件、子目录的权限
+rm -r abc.zip phpMyAdmin-4.1.13-all-languages/ 递归删除文件或文件夹（子文件、子文件夹全删除）
+cp -r phpMyAdmin-4.1.13-all-languages/ /home/u32 拷贝文件夹和其所有的子文件（子文件夹）
+ls ~/t2 查看home目录下的t2目录下的所有文件（文件夹）
+
+删除目录、文件 rm(remove)
+功能说明：删除文件或目录。
+语　　法：rm [-dfirv][--help][--version][文件或目录...]
+补充说明：执行rm指令可删除文件或目录，如欲删除目录必须加上参数”-r”，否则预设仅会删除文件。 
+参　　数：
+　-d或–directory 　直接把欲删除的目录的硬连接数据删成0，删除该目录。 
+　-f或–force 　强制删除文件或目录。 
+　-i或–interactive 　删除既有文件或目录之前先询问用户。 
+　-r或-R或–recursive 　递归处理，将指定目录下的所有文件及子目录一并处理。 
+　-v或–verbose 　显示指令执行过程。 
+
+
+# 用户相关
+useradd bear 添加新用户  (sudo adduser bear 貌似一样的)
+smbpasswd -a bear 为samba服务器的用户设置一个秘密（修改密码也一样）
+smbpasswd -x bear 删除samba服务器中的一个账号
+
+sudo /etc/init.d/smbd restart 重启samba服务器
+sudo /etc/init.d/ssh restart 重启ssh服务器
+
+# 定时任务相关
+
+
+# mysql 数据库操作相关
+mysql -hlocalhost -uroot -p 链接mysql数据库
+show databases; 显示已存在的数据库
+create database My; 创建数据库
+grant select,insert,update,delete,create,alter on test.* to 'test'@'localhost' IDENTIFIED BY 'userpasswd'; 创建一个受限用户 这个用户(testuser)只有一个数据库(这里是test库)的访问写入权限，这个数据库创建与删除表的权限，并且只能在本地登入，密码为userpasswd
+
+date 查看时间
+date -s "2008-08-08 12:00:00" 修改时间

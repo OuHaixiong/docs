@@ -1,0 +1,293 @@
+Linux压缩/解压缩命令使用方法
+
+compress 命令
+[root@ASM01 ~]# compress [-dcr] 文件或目录
+参数：
+-d ：用来解压缩的参数
+-r ：可以连同目录下的文件也同时给予压缩[此参数慎用比较危险]
+-c ：将压缩资料输出成为 standard output (输出到屏幕)
+范例：
+范例一：将 /etc/install.log 复制到 /tmp ，并加以压缩
+[root@ASM01 ~]# cd /tmp
+[root@ASM01 tmp]# cp /etc/install.log
+[root@ASM01 tmp]# compress install.log
+[root@ASM01 tmp]# ls -l
+-rw-r--r-- 1 root root 2605 Jul 27 11:43 install.log.Z
+范例二：将刚刚的压缩文件解开
+[root@ASM01 tmp]# compress -d install.log.Z
+
+或者uncompress install.log.Z
+范例三：将 install.log 压缩成另外一个文件来备份
+[root@ASM01 tmp]# compress -c install.log > install.log.back.Z
+[root@ASM01 tmp]# ll install.log*
+-rw-r--r-- 1 root root 4506 Jul 27 11:43 install.log
+-rw-r--r-- 1 root root 2605 Jul 27 11:46 install.log.back.Z
+
+# 这个 -c 的参数比较有趣，他会将压缩过程的资料输出到屏幕上，而不是写入成为file.Z 文件。所以，我们可以透过资料流重导向的方法将资料输出成为另一个文件名。
+
+范例四：将tmp目录下的每个文件都压缩
+[root@ASM01 tmp]# compress -r /tmp/
+
+此命令会将tmp目录及下级目录下的每个文件全部压缩成.Z文件，
+
+对于带-r的这个命令在平时测试的时候都要少用，我就杯具的一次将整个/etc目录全部压缩了，导致系统出问题。
+
+注意：compress是最简单的压缩命令，并且在目前也很少被使用了因为后面基本也已经被gzip压缩命令给代替掉了，compress的压缩文件可以被gzip,zcat命令操作。
+
+gzip, zcat 命令
+[root@ASM01 ~]# gzip [-cdt#] 文件名
+[root@ASM01 ~]# zcat文件名.gz
+参数：
+-c ：将压缩的数据输出到屏幕上，可通过数据流重导向来处理；
+-d ：解压缩的参数；
+-t ：可以用来检验一个压缩文件的一致性，看看文件有无错误；
+-# ：压缩等级，-1 最快，但是压缩比最差、-9 最慢，但是压缩比最好，预设是 -6 。
+范例：
+范例一：将 install.log 复制到 /tmp ，并且以 gzip 压缩
+[root@ASM01 tmp]# cp ~/install.log .
+[root@ASM01 tmp]# gzip install.log
+# 此时 install.log 会变成 install.log.gz
+范例二：将范例一的文件内容读出来
+[root@ASM01 tmp]# zcat install.log.gz
+# 此时屏幕上会显示 install.log.gz 解压缩之后的文件内容
+范例三：将范例一的文件解压缩
+[root@ASM01 tmp]# gzip -d install.log.gz
+
+或者gunzip  install.log.gz
+
+# 此时install.log.gz会变成install.log
+范例四：将范例三解开的 install.log用最佳的压缩比压缩，并保留原本的文件
+[root@ASM01 tmp]# gzip -9 -c install.log >install.log.gz
+
+注：由于gzip这个压缩命令主要是用来代替compress的，所以compress的压缩文件也可以用gzip来进行解压。zcat也是可以同时读取compress与gzip的压缩文件。
+bzip2, bzcat 命令
+[root@ASM01 ~]# bzip2 [-cdz] 文件名
+[root@ASM01 ~]# bzcat 文件名.bz2
+参数：
+-c ：将压缩的过程产生的资料输出到屏幕上
+-d ：解压缩的参数
+-z ：压缩的参数
+-# ：与 gzip 同样的，都是在计算压缩比的参数， -9 最佳， -1 最快。
+范例：
+范例一：将刚刚的 /tmp/ install.log 以 bzip2 压缩
+[root@ASM01 tmp]# bzip2 -z install.log
+# 此时 install.log 会变成 install.log.bz2 ！
+范例二：将范例一的文件内容读出来
+[root@ASM01 tmp]# bzcat install.log.bz2
+# 此时屏幕上会显示 install.log.bz2 解压缩之后的文件内容
+范例三：将范例一的文件解压缩
+[root@ASM01 tmp]# bzip2 -d install.log.bz2
+
+或者bunzip  install.log.bz2
+范例四：将范例三解开的 install.log 用最佳的压缩比压缩，并保留原文件
+[root@ASM01 tmp]# bzip2 -9 -c install.log > install.log.bz2
+
+注：如果在解压缩文件时，发现文件名称为.bz,bz2,tbz,tbz2时，都可以尝试用bzip2进行解压操作，用bzcat也可以尝试阅读被压缩文件的内容；对于bzip2,gzip这个两个命令经过测试发现bzip2压缩比要好于gzip。
+
+tar命令
+[root@ASM01 ~]# tar [-cxtzjvfpPN] 文件或目录 ....
+参数：
+-c ：建立一个压缩文件的参数指令(create 的意思)；
+-x ：解开一个压缩文件的参数指令
+-t ：查看 tarfile 里面的文件
+特别注意，在参数的下达中， c/x/t 仅能存在一个！不可同时存在！
+因为不可能同时压缩与解压缩。
+-z ：是否同时具有 gzip 的属性？亦即是否需要用 gzip 压缩？
+-j ：是否同时具有 bzip2 的属性？亦即是否需要用 bzip2 压缩
+-v ：压缩的过程中显示每个被打包压缩的文件这个常用，但不建议
+
+用在背景执行过程
+-f ：使用文件名，请留意，在 f 之后要立即接文件名不要再加参数
+　　 例如使用[tar -zcvfP tfile sfile]就是错误的写法，要写成
+　　 [tar -zcvPf tfile sfile]才对
+-p ：使用原文件的原来属性（被打包文件属性不会依据使用者而变）
+-P(大写)：可以使用绝对路径来压缩[这个参数尽量不要用可以说是一个比较危险的参数，如果加入这个参数打包压缩后别人拿到这个压缩文件去解压，碰巧他在这个绝对路径下也有这些文件那么解压缩后他原来的文件就会被覆盖]
+-N ：比后面接的日期(yyyy/mm/dd)还要新的才会被打包进新建的 
+
+文件中 (tar -cvf /tmp/etc.tar /etc -N 20110321)
+--exclude FILE：在压缩的过程中，不要将 FILE 打包！
+范例：
+范例一：将整个 /etc 目录下的文件全部打包成为 /tmp/etc.tar
+[root@ASM01 ~]# tar -cvf /tmp/etc.tar /etc  <==仅打包，不压缩
+[root@ASM01 tmp]# tar -czvf /tmp/etc.tar.gz /etc  <==打包后，以 gzip 压缩
+[root@ASM01 tmp]# tar -cjvf /tmp/etc.tar.bz2 /etc  <==打包后，以 bzip2 压缩
+# 特别注意，在参数 f 之后的文件名是自己取的，我们习惯上都用 .tar 来作为辨识；如果加 z 参数，则以 .tar.gz 或 .tgz 来代表 gzip 压缩过的 tar file ；如果加 j 参数，则以 .tar.bz2 来作为文件名，其实本身这个文件名后辍没什么实际的意义只是为了以后方便记忆此文件是用什么命令压缩的。
+# 上述指令在执行的时候，会显示一个警告讯息：
+# 『tar: Removing leading `/' from member names』那是关於绝对路径的特殊设定。
+范例二：查阅上述 /tmp/etc.tar.gz 文件内有哪些文件
+[root@ASM01 tmp]# tar -ztvf etc.tar.gz
+由於我们使用 gzip 压缩，所以要查阅该 tar file 内的文件时，就得要加上 z 这个参数了这很重要的
+
+[root@ASM01 tmp]# tar -jtvf etc.tar.bz2
+
+由於我们使用 bzip2 压缩，所以要查阅该 tar file 内的文件时，就得要加上 j 这个参数了
+范例三：将 /tmp/etc.tar.gz 文件解压缩在 /usr/local/src 底下
+[root@ASM01 src]# cd /usr/local/src/
+[root@ASM01 src]# tar -xzvf /tmp/etc.tar.gz
+
+或者
+
+tar -xzvf  /tmp/etc.tar.gz  <  /usr/local/src/
+# 在预设的情况下，我们可以将压缩档在任何地方解开的！以这个范例来说，我先将工作目录变换到 /usr/local/src 底下，并且解开 /tmp/etc.tar.gz ，则解开的目录会在 /usr/local/src/etc 中。另外，如果您进入 /usr/local/src/etc则会发现，该目录下的文件属性与 /etc/ 可能会有所不同。
+范例四：在 /tmp 底下，我只想要将 /tmp/etc.tar.gz 内的 etc/passwd 解开而已
+[root@ASM01 etc]# tar -zxvf /tmp/etc.targ etc/passwd
+# 我可以透过 tar -ztvf 来查阅 tarfile 内的文件名称，如果单只要一个文件，就可以透过这个方式来下达，注意，etc.tar.gz 内的根目录 / 是被拿掉了！
+范例五：将 /etc/ 内的所有文件备份下来，并且保存其权限
+[root@ASM01 /]# tar -zxvpf /tmp/etc.tar.gz /etc
+# 这个 -p 的属性是很重要的，尤其是当您要保留原本文件的属性时
+范例六：在 /home 当中，比 2005/06/01 新的文件才备份
+[root@ASM01 /]# tar -N '2005/06/01' -zcvf home.tar.gz /home
+范例七：我要备份 /home, /etc ，但不要 /home/oracle
+[root@ASM01 /]# tar --exclude /home/oracle -zcvf myfile.tar.gz /home/* /etc
+范例八：将 /etc/ 打包后直接解开在 /tmp 底下，而不产生文件
+[root@ ASM01~]# cd /tmp
+[root@ ASM01 tmp]# tar -cvf - /etc | tar -xvf -
+# 这个动作有点像是 cp -r /etc /tmp 依旧是有其有用途的
+# 要注意的地方在于输出文件名变成 - 而输入文件名也变成 - ，又有一个 | 存在，这分别代表 standard output, standard input 与管道命令。
+
+zip
+zip是个使用广泛的压缩程序，文件经它压缩后会产生具有".zip"扩展名的压缩文件；在压缩时，不需先打包，打包后再压缩，压缩效率反而还更低，默认是-9，即最大效率。
+zip  [-options]  目标文件  源文件
+参　　数：
+  -d   从压缩文件内删除指定的文件。  
+
+  -f   此参数的效果和指定"-u"参数类似，但不仅更新既有文件，如
+
+果某些文件原本不存在于压缩文件内，使用本参数会一并将其
+
+加入压缩文件中。 
+
+  -F   尝试修复已损坏的压缩文件。
+  -g   将文件压缩后附加在既有的压缩文件之后，而非另行建立新的
+
+压缩文件。
+  -I   范本样式>   只压缩符合条件的文件。
+  -j   只保存文件名称及其内容，而不存放任何目录名称。
+  -J   删除压缩文件前面不必要的数据。
+  -L   显示版权信息。
+  -m  将文件压缩并加入压缩文件后，删除原始文件，即把文件移到
+
+压缩文件中
+  -n   字尾字符串>   不压缩具有特定字尾字符串的文件。
+  -o   以压缩文件内拥有最新更改时间的文件为准，将压缩文件的更改时间设成和该文件相同。
+  -q   不列出指令执行过程中被压缩的文件名。
+  -r    递归处理，将指定目录下的所有文件和子目录一并处理
+  -t   日期时间>   把压缩文件的日期设成指定的日期。
+  -T   检查备份文件内的每个文件是否正确无误。
+  -u   更换较新的文件到压缩文件内。
+  -v   显示指令执行过程或显示版本信息。
+  -x   范本样式>   压缩时排除符合条件的文件。
+  -X   不保存额外的文件属性。
+  -z   替压缩文件加上注释。
+  -$   保存第一个被压缩文件所在磁盘的卷册名称。
+  -#   压缩效率是一个介于1-9的数值。数越大压缩效率越高
+
+（默认为9） 
+
+范例1:将database目录压缩到/usr目录下
+
+[root@ASM01 ~]# zip -rq /usr/database.zip database
+
+范例2:检查压缩文件的准确性
+
+[root@ASMTEST usr]# zip -T database.zip
+
+范例3：将install目录及子目录下的所有文件全部提取出来不保留原目录
+
+[root@ASMTEST images]# zip -rqj /usr/test install
+unzip
+
+unzip为.zip压缩文件的解压缩程序。
+语　　法：unzip [-cflptuvz][-agCjLMnoqsVX][-P 密码>][.zip文件][文件][-d 目录>][-x 文件>] 或 unzip [-Z]
+参　　数：
+  -c   将解压缩的结果显示到屏幕上，并对字符做适当的转换。
+  -f   更新现有的文件。
+  -l   显示压缩文件内所包含的文件。
+  -p   与-c参数类似，会将解压缩的结果显示到屏幕上，但不会执行任何的转换。
+  -t   检查压缩文件是否正确。
+  -u   与-f参数类似，但是除了更新现有的文件外，也会将压缩文件中的其他文件解压缩到目录中。
+  -v   执行时显示详细的信息。
+  -z   仅显示压缩文件的备注文字。
+  -a   对文本文件进行必要的字符转换。
+  -b   不要对文本文件进行字符转换。
+  -C   压缩文件中的文件名称区分大小写。
+  -j   不处理压缩文件中原有的目录路径。
+  -L   将压缩文件中的全部文件名改为小写。
+  -M   将输出结果送到more程序处理。
+  -n   解压缩时不要覆盖原有的文件。
+  -o   不必先询问用户，unzip执行后覆盖原有文件。（默认是询问用户）
+  -q   执行时不显示任何信息。
+  -s   将文件名中的空白字符转换为底线字符。
+  -X   解压缩时同时回存文件原来的UID/GID。
+  [文件]   指定要处理.zip压缩文件中的哪些文件。
+  -d目录>   指定文件解压缩后所要存储的目录。
+  -x文件>   指定不要处理.zip压缩文件中的哪些文件。
+  -Z   unzip -Z等于执行zipinfo指令。
+例如，对上面压缩的文件解压到当前目录
+unzip files.zip
+如果你想将压缩的文件解压到当前主目录下的hat目录下：
+unzip -d ~/hat files.zip
+dd 命令
+
+dd可以读取设备的内容，然后可将整个设备备份成一个文件，它的用途其实很多下面仅介绍一些比较重要的参数。
+
+[root@ASM01 ~]# dd if="input_file" of="outptu_file" bs="block_size" \  count="number"
+参数：
+if ：就是  input file(输入文件)，也可以是设备
+of ：就是 output file(输出文件)，也可以是设备
+bs ：规划的一个块的大小，如果没有设定时，预设是 512字节
+count：多少个 bs 的意思。
+范例：
+范例一：将 /etc/passwd 备份到 /tmp/passwd.back 中
+
+[root@ASM01~]#dd if=/etc/passwd of=/tmp/passwd.back
+
+5+1 records in
+
+5+1 records out
+[root@ASM01 ~]# ll /etc/passwd /tmp/passwd.back
+-rw-r--r--  1 root root 2765 Mar 24 13:17 /etc/passwd
+
+-rw-r--r--  1 root root 2765 Mar 24 13:51 /tmp/passwd.back
+# 仔细的看一下，我的 /etc/passwd 文件大小为 2756 bytes，因为我没有设定 bs ，所以预设是 512 bytes 为一个单位，因此，上面那个 5+1 表示有 5 个完整的512 bytes，以及未满 512 bytes 的另一个 block 的意思，事实上，感觉好像是 cp 这个指令。
+范例二：备份 /dev/sda 的 MBR
+[root@ASM01~]# dd if=/dev/sda of=/tmp/mbr.back bs=512 count=1;
+
+1+0 records in
+
+1+0 records out
+# 这就得好好了解一下，我们知道每颗硬盘的 MBR 为 512 bytes，就是放在硬盘的第一个扇区，因此，我可以利用这个方式来将 MBR 内的所有资料都纪录下来，真的很厉害吧！
+范例三：将整个 /dev/sda1 partition 备份下来
+[root@ASM01~]# dd if=/dev/sda1 of=/tmp/filename bs=1024
+# 这个指令很厉害啊,将整个 partition 的内容全部备份下来。后面接的 of 必须要不是在 /dev/sda1的目录内啊否则，怎么读也读不完的。这个动作是很有作用的，如果改天你必须要完整的将整个 partition 的内容填回去，则可以利用 dd if=/some/file of=/dev/sda1 来将资料写入到硬盘当中。 如果想要整个硬盘备份的话，就类似 Norton 的 ghost 软体一般， 由 disk 到 disk ,利用 dd 就可以完成了。不过dd中说可以备份整个分区或磁盘，但如果要将数据回写到文件系统，则可能需要原来的文件系统才能成功。
+cpio 命令
+[root@ASM01 ~]# cpio -covB > [file|device] <==备份
+[root@ASM01 ~]# cpio -icduv < [file|device] <==还原
+参数：
+-o ：将数据 copy 输出到文件或设备上
+-i ：将数据自文件或设备 copy 到系统当中
+-t ：查看 cpio 建立的文件或设备的内容
+-c ：一种较新的可移值格式的存储
+-v ：让存储过程中的文件名称可以在屏幕上显示
+
+-m：preserve-modification-time 当创建文件时, 保留以前的文件修改时间
+-B ：让预设的 Blocks 可以增加至 5120 bytes ，预设是 512 bytes，这样的好处是可以让大文件的储存速度加快(请参考 i-nodes 的观念)
+-d ：自动建立目录，由于cpio 的内容可能不是在同一个目录内，
+如此在还原过程会有问题， 这个时候加上 -d 的话，就可以自动的将需要的目录建立起来了
+-u ：自动的将较新的文件覆盖较旧的文件
+范例：
+范例一：将所有系统上的资料通通写入磁带机内
+[root@ASM01 ~]# find / -print | cpio -covB > /dev/st0
+# 一般来说，使用 SCSI 接口的磁带机，代号是 /dev/st0 
+范例二：检查磁带机上面有什么文件
+[root@ASM01 ~]# cpio -icdvt < /dev/st0
+[root@ASM01 ~]# cpio -icdvt < /dev/st0 > /tmp/content
+# 第一个动作当中，会将磁带机内的文件名列出到屏幕上面，而我们可以透过第二个动作，将所有的文件名通通纪录到 /tmp/content 文件去
+范例三：将磁带上的资料还原回来
+[root@ASM01 ~]# cpio -icduv < /dev/st0
+# 一般来说，使用 SCSI 接口的磁带机，代号是 /dev/st0 喔
+范例四：将 /etc 底下的所有[文]件都备份到 /root/etc.cpio 中
+[root@ASM01 ~]# find /etc -type f | cpio -o > /root/etc.cpio
+# 这样就能够备份了您也可以 cpio -ivdm < /root/etc.cpio来将文件出来。
+
+注意：cpio感觉不是很好用，但是它是备份的好工具，困为它可以备份任何文件，包括/dev中的任何设备文件，所以相当重要。

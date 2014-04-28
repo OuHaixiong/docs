@@ -1,0 +1,423 @@
+file phpMyAdmin-4.1.13-all-languages.zip 查看文件信息
+unrar -x -o- -y abc.rar ./ 解压.rar文件到当前目录（安装unrar: sudo apt-get install unrar）
+
+安装zip: sudo apt-get install zip 安装unzip:sudo apt-get install unzip
+zip -r archive_name.zip（压缩后的文件名） directory_to_compress（要压缩的文件夹） 用zip压缩一个目录
+unzip phpMyAdmin-4.1.13-all-languages.zip  -d /home/u32/phpMyAdmin 用zip解压一个文件
+tar -cvf bb.tar bb 用tar打包一个目录
+tar -xvf bb.tar -C /home/u32/share/ 用tar解压一个文件
+tar -zcvf archive_name.tar.gz directory_to_compress 用tar压缩一个目录
+tar -zxvf archive_name.tar.gz -C /tmp/extract_here/ 用tar解压缩一个文件
+tar -jcvf archive_name.tar.bz2 directory_to_compress 用tar压缩TAR.BZ2目录
+tar -jxvf archive_name.tar.bz2 -C /tmp/extract_here/ 用tar解压缩TAR.BZ2文件
+
+
+
+*.tar.gz(*.tgz)   tar -zxvf x.tar.gz(解压 gzip)
+*.gz              gzip -d或者gunzip 解压 
+*.tar.bz2         tar -jxvf x.tar.bz2解压 (bzip2)
+*.tar             tar –xvf 解压 
+*.bz2             bzip2 -d或者用bunzip2 解压 
+*.Z               uncompress 解压
+*.tar.Z           tar –xZf 解压 
+*.rar             unrar e 解压 
+*.zip             unzip 解压
+ 
+ 
+
+unrar使用帮助
+
+用法:     unrar <命令> -<开关 1> -<开关 N> <压缩文件> <文件...>
+               <@列表文件...> <解压路径\>
+
+<注释>
+  e             解压压缩文件到当前目录
+  l[t,b]        列出压缩文件[技术信息,简洁]
+  p             打印文件到标准输出设备
+  t             测试压缩文件
+  v[t,b]        详细列出压缩文件[技术信息,简洁]
+  x             用绝对路径解压文件
+
+<开关>
+  -             停止扫描
+  ac            压缩或解压后清除存档属性
+  ad            添加压缩文件名到目标路径
+  ap<路径>      添加路径到压缩文件中
+  av-           禁用用户身份校验
+  c-            禁用注释显示
+  cfg-          禁用读取配置
+  cl            名称转换为小写
+  cu            名称转换为大写
+  dh            打开共享文件
+  ep            从名称中排除路径
+  ep3           扩展路径为包含盘符的完全路径
+  f             刷新文件
+  id[c,d,p,q]   禁止信息显示
+  ierr          发送所有消息到标准错误设备
+  inul          禁用所有消息
+  ioff          完成一个操作后关闭 PC 电源
+  kb            保留损坏的已解压文件
+  n<文件>       仅包括指定文件
+  n@            从标准输入设备读取要包括的文件名称
+  n@<列表>      在指定列表文件包括文件
+  o+            覆盖已存在文件
+  o-            不覆盖已存在文件
+  oc            设置 NTFS 压缩属性
+  or            自动重命名文件
+  ow            保存或恢复文件所有权和组
+  [密码]        设置密码
+  p-            不询问密码
+  r             包含子目录
+  ri<P>[:<S>]   设置优先级 (0-默认,1-最小..15-最大) 和休眠时间(毫秒)
+  sl<大小>      处理小于指定大小的文件
+  sm<大小>      处理大于指定大小的文件
+  ta<日期>      添加日期 <日期> 后修改的文件,日期格式 YYYYMMDDHHMMSS
+  tb<日期>      添加日期 <日期> 前修改的文件,日期格式 YYYYMMDDHHMMSS
+  tn<时间>      添加 <时间> 以后的文件
+  to<时间>      添加 <时间> 以前的文件
+  ts<m,c,a>[N]  保存或恢复文件时间(修改,创建,访问)
+  u             更新文件
+  v             列出所有卷
+  ver[n]        文件版本控制
+  vp            每卷之前暂停
+  x<文件>       排除指定的文件
+  x@            从标准输入设备读取要排除的文件名
+  x@<列表>      排除指定列表文件中的文件
+  y             假设对全部询问都回答是
+  
+  
+  
+  
+
+[root@linux ~]# tar 
+                        [-cxtzjvfpPN] 文件与目录 ....
+                        参数：
+                        -c ：建立一个压缩文件的参数指令(create 的意思)；
+                        -x ：解开一个压缩文件的参数指令！
+                        -t ：查看 tarfile 里面的文件！
+                        特别注意，在参数的下达中， c/x/t 仅能存在一个！不可同时存在！
+                        因为不可能同时压缩与解压缩。
+                        -z ：是否同时具有 gzip 的属性？亦即是否需要用 gzip 压缩？
+                        -j ：是否同时具有 bzip2 的属性？亦即是否需要用 bzip2 压缩？
+                        -v ：压缩的过程中显示文件！这个常用，但不建议用在背景执行过程！
+                        -f ：使用档名，请留意，在 f 之后要立即接档名喔！不要再加参数！
+                        　　　例如使用『 tar -zcvfP tfile sfile』就是错误的写法，要写成
+                        　　　『 tar -zcvPf tfile sfile』才对喔！
+                        -p ：使用原文件的原来属性（属性不会依据使用者而变）
+                        -P ：可以使用绝对路径来压缩！
+                        -N ：比后面接的日期(yyyy/mm/dd)还要新的才会被打包进新建的文件中！
+                        --exclude FILE：在压缩的过程中，不要将 FILE 打包！
+                        范例：
+                        范例一：将整个 /etc 目录下的文件全部打包成为 /tmp/etc.tar
+                        [root@linux ~]# tar -cvf 
+                        /tmp/etc.tar /etc tar -zcvf 
+                        /tmp/etc.tar.gz /etc 
+                        [root@linux ~]# tar -jcvf 
+                        /tmp/etc.tar.bz2 /etc 
+                        # 特别注意，在参数 f 之后的文件档名是自己取的，我们习惯上都用 
+                        .tar 来作为辨识。
+                        # 如果加 z 参数，则以 .tar.gz 或 .tgz 来代表 gzip 压缩过的 tar file ～
+                        # 如果加 j 参数，则以 .tar.bz2 来作为附档名啊～
+                        # 上述指令在执行的时候，会显示一个警告讯息：
+                        # 『tar: Removing leading `/’ from member names』那是关於绝对路径的特殊设定。 
+
+范例二：查阅上述 /tmp/etc.tar.gz 文件内有哪些文件？
+                          [root@linux ~]# tar -ztvf 
+                          /tmp/etc.tar.gz
+                          # 由於我们使用 gzip 压缩，所以要查阅该 tar file 
+                          内的文件时，
+                          # 就得要加上 z 这个参数了！这很重要的！
+                        
+范例三：将 /tmp/etc.tar.gz 文件解压缩在 
+                          /usr/local/src 底下
+                          [root@linux ~]# cd /usr/local/src
+                          [root@linux src]# tar 
+                          -zxvf /tmp/etc.tar.gz
+                          # 在预设的情况下，我们可以将压缩档在任何地方解开的！以这个范例来说，
+                          # 我先将工作目录变换到 /usr/local/src 底下，并且解开 /tmp/etc.tar.gz 
+                          ，
+                          # 则解开的目录会在 /usr/local/src/etc 呢！另外，如果您进入 /usr/local/src/etc
+                          # 则会发现，该目录下的文件属性与 /etc/ 可能会有所不同喔！
+                        
+范例四：在 /tmp 底下，我只想要将 /tmp/etc.tar.gz 
+                          内的 etc/passwd 解开而已
+                          [root@linux ~]# cd /tmp
+                          [root@linux tmp]# tar 
+                          -zxvf /tmp/etc.tar.gz etc/passwd
+                          # 我可以透过 tar -ztvf 来查阅 tarfile 
+                          内的文件名称，如果单只要一个文件，
+                          # 就可以透过这个方式来下达！注意到！ etc.tar.gz 内的根目录 / 是被拿掉了！
+                        
+范例五：将 /etc/ 内的所有文件备份下来，并且保存其权限！
+                          [root@linux ~]# tar -zxvpf 
+                          /tmp/etc.tar.gz /etc
+                          # 这个 -p 的属性是很重要的，尤其是当您要保留原本文件的属性时！
+                        
+范例六：在 /home 当中，比 2005/06/01 新的文件才备份
+                          [root@linux ~]# tar -N 
+                          ’2005/06/01’ -zcvf home.tar.gz /home
+                        
+范例七：我要备份 /home, /etc ，但不要 /home/dmtsai
+                          [root@linux ~]# tar --exclude 
+                          /home/dmtsai -zcvf myfile.tar.gz /home/* /etc
+                        
+范例八：将 /etc/ 打包后直接解开在 /tmp 底下，而不产生文件！
+                          [root@linux ~]# cd /tmp
+                          [root@linux tmp]# tar 
+                          -cvf - /etc | tar -xvf -
+                          # 这个动作有点像是 cp -r /etc /tmp 啦～依旧是有其有用途的！
+                          # 要注意的地方在於输出档变成 - 而输入档也变成 - ，又有一个 | 存在～
+                          # 这分别代表 standard output, standard input 与管线命令啦！
+                          # 这部分我们会在 Bash shell 时，再次提到这个指令跟大家再解释?！
+
+gzip, zcat 命令
+
+[root@linux 
+                          ~]# gzip [-cdt#] 档名
+                          [root@linux ~]# zcat 档名.gz
+                          参数：
+                          -c ：将压缩的资料输出到萤幕上，可透过资料流重导向来处理；
+                          -d ：解压缩的参数；
+                          -t ：可以用来检验一个压缩档的一致性～看看文件有无错误；
+                          -# ：压缩等级，-1 最快，但是压缩比最差、-Array 最慢，但是压缩比最好！预设是 -6 ～
+                          范例：
+                          范例一：将 /etc/man.config ?制到 /tmp 
+                          ，并且以 gzip 压缩
+                          [root@linux ~]# cd /tmp
+                          [root@linux tmp]# cp /etc/man.config 
+                          .
+                          [root@linux tmp]# gzip man.config
+                          # 此时 man.config 会变成 man.config.gz 
+                          ！ 
+                          
+范例二：将范例一的文件内容读出来！
+                            [root@linux tmp]# zcat man.config.gz
+                            # 此时萤幕上会显示 man.config.gz 解压缩之后的文件内容！！
+                          
+范例三：将范例一的文件解压缩
+                            [root@linux tmp]# gzip -d man.config.gz
+                          
+范例四：将范例三解开的 man.config 用最佳的压缩比压缩，并保留原本的文件
+                            [root@linux tmp]# gzip -Array -c 
+                            man.config > man.config.gz
+
+bzip2, bzcat 命令
+
+[root@linux ~]# bzip2 
+                        [-cdz] 档名
+                        [root@linux ~]# bzcat 档名.bz2
+                        参数：
+                        -c ：将压缩的过程产生的资料输出到萤幕上！
+                        -d ：解压缩的参数
+                        -z ：压缩的参数
+                        -# ：与 gzip 同样的，都是在计算压缩比的参数， -Array 最佳， -1 最快！
+                        范例：
+                        范例一：将刚刚的 /tmp/man.config 以 bzip2 
+                        压缩
+                        [root@linux tmp]# bzip2 -z man.config
+                        # 此时 man.config 会变成 man.config.bz2 
+                        ！  
+                        
+范例二：将范例一的文件内容读出来！
+                          [root@linux tmp]# bzcat man.config.bz2
+                          # 此时萤幕上会显示 man.config.bz2 解压缩之后的文件内容！！
+                        
+范例三：将范例一的文件解压缩
+                          [root@linux tmp]# bzip2 -d man.config.bz2
+
+范例四：将范例三解开的 
+                          man.config 用最佳的压缩比压缩，并保留原本的文件
+                          [root@linux tmp]# bzip2 -Array -c 
+                          man.config > man.config.bz2
+
+compress 命令
+
+[root@linux ~]# compress 
+                        [-dcr] 文件或目录
+                        参数：
+                        -d ：用来解压缩的参数
+                        -r ：可以连同目录下的文件也同时给予压缩呢！
+                        -c ：将压缩资料输出成为 standard output (输出到萤幕)
+                        范例：
+                        范例一：将 /etc/man.config ?制到 /tmp ，并加以压缩
+                        [root@linux ~]# cd /tmp
+                        [root@linux tmp]# cp /etc/man.config 
+                        .
+                        [root@linux tmp]# compress man.config
+                        [root@linux tmp]# ls -l
+                        -rw-r--r-- 1 root root 2605 Jul 27 11:43 man.config.Z 
+                        
+范例二：将刚刚的压缩档解开
+                          [root@linux tmp]# compress -d 
+                          man.config.Z
+                        
+范例三：将 man.config 压缩成另外一个文件来备份
+                          [root@linux tmp]# compress -c 
+                          man.config > man.config.back.Z
+                          [root@linux tmp]# ll man.config*
+                          -rw-r--r-- 1 root root 4506 Jul 27 11:43 man.config
+                          -rw-r--r-- 1 root root 2605 Jul 27 11:46 man.config.back.Z
+                          # 这个 -c 的参数比较有趣！他会将压缩过程的资料输出到萤幕上，而不是写入成为
+                          # file.Z 文件。所以，我们可以透过资料流重导向的方法将资料输出成为另一个档名。
+                          # 关於资料流重导向，我们会在 bash shell 当中详细谈论的啦！
+
+dd 命令
+
+[root@linux 
+                          ~]# dd if="input_file" 
+                          of="outptu_file" bs="block_size" 
+                          ＼
+                          count="number"
+                          参数：
+                          if ：就是 input file ?～也可以是装置喔！
+                          of ：就是 output file 喔～也可以是装置；
+                          bs ：规划的一个 block 的大小，如果没有设定时，预设是 512 bytes
+                          count：多少个 bs 的意思。
+                          范例： 
+                          
+范例一：将 /etc/passwd 备份到 /tmp/passwd.back 
+                            当中
+                            [root@linux ~]# dd if=/etc/passwd 
+                            of=/tmp/passwd.back
+                            3+1 records in
+                            3+1 records out
+                            [root@linux ~]# ll /etc/passwd 
+                            /tmp/passwd.back
+                            -rw-r--r-- 1 root root 1746 Aug 25 14:16 /etc/passwd
+                            -rw-r--r-- 1 root root 1746 Aug 2Array 16:57 /tmp/passwd.back
+                            # 仔细的看一下，我的 /etc/passwd 文件大小为 
+                            1746 bytes，因为我没有设定 bs ，
+                            # 所以预设是 512 bytes 为一个单位，因此，上面那个 3+1 表示有 3 个完整的
+                            # 512 bytes，以及未满 512 bytes 的另一个 block 的意思啦！
+                            # 事实上，感觉好像是 cp 这个指令啦～
+                          
+范例二：备份 /dev/hda 的 MBR
+                            [root@linux ~]# dd if=/dev/hda 
+                            of=/tmp/mbr.back bs=512 count=1
+                            1+0 records in
+                            1+0 records out
+                            # 这就得好好?解一下?～我们知道整颗硬盘的 MBR 为 
+                            512 bytes，
+                            # 就是放在硬盘的第一个 sector 啦，因此，我可以利用这个方式来将
+                            # MBR 内的所有资料都纪录下来，真的很厉害吧！ ^_^
+                          
+范例三：将整个 /dev/hda1 partition 
+                            备份下来。
+                            [root@linux ~]# dd if=/dev/hda1 
+                            of=/some/path/filenaem
+                            # 这个指令很厉害啊！将整个 partition 的内容全部备份下来～
+                            # 后面接的 of 必须要不是在 /dev/hda1 的目录内啊～否则，怎么读也读不完～
+                            # 这个动作是很有效用的，如果改天你必须要完整的将整个 partition 的内容填回去，
+                            # 则可以利用 dd if=/some/file of=/dev/hda1 来将资料写入到硬盘当中。
+                            # 如果想要整个硬盘备份的话，就类似 Norton 的 ghost 软体一般，
+                            # 由 disk 到 disk ，嘿嘿～利用 dd 就可以啦～厉害厉害！
+
+cpio 命令
+
+[root@linux 
+                        ~]# cpio -covB > [file|device] 
+                        
+                        [root@linux ~]# cpio -icduv  
+                        参数：
+                        -o ：将资料 copy 输出到文件或装置上
+                        -i ：将资料自文件或装置 copy 出来系统当中
+                        -t ：查看 cpio 建立的文件或装置的内容
+                        -c ：一种较新的 portable format 方式储存
+                        -v ：让储存的过程中文件名称可以在萤幕上显示
+                        -B ：让预设的 Blocks 可以增加至 5120 bytes ，预设是 512 bytes ！
+                        　　 这样的好处是可以让大文件的储存速度加快(请参考 i-nodes 的观念)
+                        -d ：自动建立目录！由於 cpio 的内容可能不是在同一个目录内，
+                        如此的话在反备份的过程会有问题！ 这个时候加上 -d 的话，
+                        就可以自动的将需要的目录建立起来了！
+                        -u ：自动的将较新的文件覆盖较旧的文件！
+                        范例：
+                        范例一：将所有系统上的资料通通写入磁带机内！
+                        [root@linux ~]# find / -print | 
+                        cpio -covB > /dev/st0
+                        # 一般来说，使用 SCSI 介面的磁带机，代号是 /dev/st0 
+                        喔！  
+                        
+范例二：检查磁带机上面有什么文件？
+                          [root@linux ~]# cpio -icdvt 
+                          [root@linux ~]# cpio -icdvt  /tmp/content
+                          # 第一个动作当中，会将磁带机内的档名列出到萤幕上面，而我们可以透过第二个动作，
+                          # 将所有的档名通通纪录到 /tmp/content 文件去！
+                        
+范例三：将磁带上的资料还原回来～
+                          [root@linux ~]# cpio -icduv 
+                          # 一般来说，使用 SCSI 介面的磁带机，代号是 /dev/st0 
+                          喔！
+                        
+范例四：将 /etc 底下的所有『文件』都备份到 /root/etc.cpio 
+                          中！
+                          [root@linux ~]# find /etc -type 
+                          f | cpio -o > /root/etc.cpio
+                          # 这样就能够备份?～您也可以将资料以 cpio -i
+                          
+                          
+                          
+                          
+                          
+解压tar
+-c: 建立压缩档案
+-x：解压
+-t：查看内容
+-r：向压缩归档文件末尾追加文件
+-u：更新原压缩包中的文件
+
+这五个是独立的命令，压缩解压都要用到其中一个，可以和别的命令连用但只能用其中一个。下面的参数是根据需要在压缩或解压档案时可选的。
+-z：有gzip属性的
+-j：有bz2属性的
+-Z：有compress属性的
+-v：显示所有过程
+-O：将文件解开到标准输出
+
+下面的参数-f是必须的
+
+-f: 使用档案名字，切记，这个参数是最后一个参数，后面只能接档案名。
+
+# tar -cf all.tar *.jpg 
+这条命令是将所有.jpg的文件打成一个名为all.tar的包。-c是表示产生新的包，-f指定包的文件名。 
+
+# tar -rf all.tar *.gif 
+这条命令是将所有.gif的文件增加到all.tar的包里面去。-r是表示增加文件的意思。 
+
+# tar -uf all.tar logo.gif 
+这条命令是更新原来tar包all.tar中logo.gif文件，-u是表示更新文件的意思。 
+
+# tar -tf all.tar 
+这条命令是列出all.tar包中所有文件，-t是列出文件的意思 
+
+# tar -xf all.tar 
+这条命令是解出all.tar包中所有文件，-x是解开的意思 
+
+压缩
+tar –cvf jpg.tar *.jpg //将目录里所有jpg文件打包成tar.jpg
+tar –czf jpg.tar.gz *.jpg   //将目录里所有jpg文件打包成jpg.tar后，并且将其用gzip压缩，生成一个gzip压缩过的包，命名为jpg.tar.gz
+
+tar –cjf jpg.tar.bz2 *.jpg //将目录里所有jpg文件打包成jpg.tar后，并且将其用bzip2压缩，生成一个bzip2压缩过的包，命名为jpg.tar.bz2
+
+tar –cZf jpg.tar.Z *.jpg   //将目录里所有jpg文件打包成jpg.tar后，并且将其用compress压缩，生成一个umcompress压缩过的包，命名为jpg.tar.Z
+
+rar a jpg.rar *.jpg //rar格式的压缩，需要先下载rar for linux
+
+zip jpg.zip *.jpg //zip格式的压缩，需要先下载zip for linux
+
+解压
+tar –xvf file.tar //解压 tar包
+tar -xzvf file.tar.gz //解压tar.gz
+tar -xjvf file.tar.bz2   //解压 tar.bz2
+tar –xZvf file.tar.Z   //解压tar.Z
+unrar e file.rar //解压rar
+unzip file.zip //解压zip
+
+总结
+1、*.tar 用 tar –xvf 解压
+2、*.gz 用 gzip -d或者gunzip 解压
+3、*.tar.gz和*.tgz 用 tar –xzf 解压
+4、*.bz2 用 bzip2 -d或者用bunzip2 解压
+5、*.tar.bz2用tar –xjf 解压
+6、*.Z 用 uncompress 解压
+7、*.tar.Z 用tar –xZf 解压
+8、*.rar 用 unrar e解压
+9、*.zip 用 unzip 解压

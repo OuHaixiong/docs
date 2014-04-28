@@ -1,0 +1,24 @@
+
+代码在：
+
+php 配置：/etc/php5/apache2/php.ini 
+apache 的配置文件路径 /etc/apache2/apache2.conf
+apache 网站字符编码配置路径 /etc/apache2/conf.d/charset
+mysql配置文件 路径 /etc/mysql/my.cnf 
+phpmyadmin配置文件路径 /etc/phpmyadmin/apache.conf
+apache 默认site的配置文件 /etc/apache2/sites-available/default
+
+/etc/apache2/envvars 环境变量
+/etc/apache2/ports.conf httpd服务端口信息
+/etc/apache2/conf.d/ 一般性配置文件存放地
+/etc/apache2/httpd.conf
+
+
+
+
+
+
+sudo a2enmod rewrite 开启apache的rewrite功能
+sudo a2dismod   禁用模块
+sudo /etc/init.d/apache2 restart 重启apache 
+sudo /etc/init.d/mysql restart 重启mysql 
