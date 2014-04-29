@@ -1,6 +1,10 @@
 
 git add . && git commit -m "删除log" && git push origin master 添加索引并提交更新到线上
 
+学习网址：
+http://git-scm.com/book/zh/
+http://my.oschina.net/xdev/blog/114383
+
 apt-get install libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
 $ tar -zxf git-1.7.2.2.tar.gz
 $ cd git-1.7.2.2
@@ -9,10 +13,12 @@ $ sudo make prefix=/usr/local install
 (apt-get install git git-core)
 
 获取Git配置信息，执行以下命令：git config --list
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name" 设置你提交的用户名和邮箱
 
 git init 创建一个Git仓库
 git init --bare example.git 创建一个远端仓库
-git add . 添加所有文件（包括文件夹和文件）到仓库的索引中
+git add . 添加所有文件（包括文件夹和文件）到仓库的索引中(和这个一样： git add *)
 git commit -m "提交" 提交更改到本地仓库
 git log 查看提交记录
 git diff 查看更改
@@ -78,4 +84,5 @@ git merge testing
 
 一旦合并发生了冲突，Git会标志出来，开发人员需要手工的去解决这些冲突。解决冲突以后，就可以将文件添加到索引中，然后提交更改
 
+git config --global alias.cav "commit -a -v" 下次执行命令就可以直接git cav了（给命令一个别名）
 
