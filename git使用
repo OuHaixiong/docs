@@ -4,6 +4,9 @@ git add . && git commit -m "删除log" && git push origin master 添加索引并
 学习网址：
 http://git-scm.com/book/zh/
 http://my.oschina.net/xdev/blog/114383
+http://www.worldhello.net/gotgithub/
+https://github.com/gotgit/gotgithub
+http://book.51cto.com/art/201107/278731.htm
 
 apt-get install libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
 $ tar -zxf git-1.7.2.2.tar.gz
