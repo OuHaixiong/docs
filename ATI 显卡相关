@@ -1,0 +1,5 @@
+ CentOS 6.3 卸载ATI显卡驱动
+ cd /usr/share/ati
+./amd-uninstall.sh
+
+如果不能成功卸载，可用./amd-uninstall.sh --force 强行卸载

@@ -1,0 +1,73 @@
+ 1.下载源码包
+
+网址：http://www.kernel.org
+
+在首页可以看到有 stable，longterm 等版本，一般选择下载 longterm 版本，因为此版本为提供长期支持的稳定版，因此我选择 3.12.16.
+
+[root@CentOS-BinaryDev~]# wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.12.16.tar.xz
+
+2.解压并进入目录
+
+[root@CentOS-BinaryDev~]# tar -xf linux-3.12.16.tar.xz
+
+[root@CentOS-BinaryDev~]# cd linux-3.12.16
+
+3.更新当前系统
+
+[root@CentOS-BinaryDev~]# yum update
+
+[root@CentOS-BinaryDev~]# yum upgrade
+
+4.安装编译内核所需要的软件包
+
+[root@CentOS-BinaryDev~]# yum groupinstall “Development Tools”
+
+[root@CentOS-BinaryDev~]# yum install ncurses-devel
+
+[root@CentOS-BinaryDev~]# yum install qt-devel
+
+[root@CentOS-BinaryDev~]# yum install hmaccalc zlib-devel binutils-devel elfutils-libelf-devel
+
+5.查看当前系统内核
+
+[root@CentOS-BinaryDev~]# uname -r
+
+2.6.32-358.11.1.el6.x86_64
+
+6.将当前系统内核的配置文件拷贝到当前目录
+
+[root@CentOS-BinaryDev~]# cp /boot/config-2.6.32-358.11.1.el6.x86_64 .config
+
+7.使用当前系统内核配置，并自动接受每个新增选项的默认设置
+
+[root@CentOS-BinaryDev~]# sh -c ' yes "" | make oldconfig'
+
+8.编译
+
+[root@CentOS-BinaryDev~]# make bzImage
+
+[root@CentOS-BinaryDev~]# make modules
+
+[root@CentOS-BinaryDev~]# make modules_install
+
+9.安装
+
+[root@CentOS-BinaryDev~]# make install
+
+如果出现少量 ERROR 可以忽略
+
+10.修改 Grub 引导顺序
+
+[root@CentOS-BinaryDev~]# vim /etc/grub.conf
+
+一般新内核的位置都在第一个，所以设置 default=0.
+
+11.重启后查看内核版本号
+
+[root@CentOS-BinaryDev~]# uname -r
+
+3.12.16
+
+12.如果失败，转至第 5 步，在重新开始之前，需要清理上次编译的现场
+
+[root@CentOS-BinaryDev~]# make mrproper

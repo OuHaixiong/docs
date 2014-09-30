@@ -1,0 +1,13 @@
+安装ssh： yum install ssh
+启动ssh： service sshd start (/etc/init.d/sshd start)
+设置开机运行： chkconfig sshd on
+
+安装samba服务： yum install samba samba-client samba-swat
+查看安装状况： rpm -qa|grep samba
+samba-common-3.5.10-125.el6.x86_64       //主要提供samba服务器的设置文件与设置文件语法检验程序testparm
+samba-client-3.5.10-125.el6.x86_64       //客户端软件，主要提供linux主机作为客户端时，所需要的工具指令集
+samba-swat-3.5.10-125.el6.x86_64         //基于https协议的samba服务器web配置界面
+samba-3.5.10-125.el6.x86_64              //服务器端软件，主要提供samba服务器的守护程序，共享文档，日志的轮替，开机默认选项
+/etc/init.d/smb start/stop/restart       启动、关闭、重启Samba服务器
+service smb status                       查看samba的服务启动情况
+chkconfig --level 35 smb on              //在3、5级别上自动运行samba服务

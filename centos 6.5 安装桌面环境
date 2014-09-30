@@ -1,0 +1,39 @@
+yum groupinstall -y   "Desktop"   "Desktop Platform"   "Desktop Platform Development"　 "Fonts" 　"General Purpose Desktop"　 "Graphical Administration Tools"　 "Graphics Creation Tools" 　"Input Methods" 　"X Window System" 　"Chinese Support [zh]"　"Internet Browser"
+/etc/inittab
+id:3:initdefault  将3改为5  重新启动系统
+
+yum groupinstall  'GNOME Desktop Environment' -y  (貌似默认安装 Desktop 就是这个，所有不需要安装了)
+yum groupremove "GNOME Desktop Environment"  卸载桌面（敲上面的软件名称就可以卸载了）
+
+
+前些日子在VMWare上安装CentOS时，没有选装GNOME桌面组件，最近忽然想加上，不想通过网络方式安装，折腾了半天从本地给装上了，备忘一下
+1、如果连接上网络，可以直接使用yum groupinstall "GNOME Desktop Environment"
+2、本地安装方式：
+    a)将光盘加载到本地 mount /dev/cdrom /mnt/cdrom
+    b)在/etc/yum.repos.d/目录下，有两个文件
+        CentOS-Base.repo和CentOS-Media.repo
+        其中CentOS-Base.repo记录着网络上的yum源的地址和路径信息等
+        CentOS-Media.repo记录着可以从本地作为yum源的介质和路径。
+        修改CentOS-Media.repo
+       
+            [c5-media]
+            name=CentOS-$releasever - Media
+            baseurl=file:///media/CentOS/
+                    file:///media/cdrom/
+                    file:///media/cdrecorder/
+                    file:///mnt/cdrom    #增加这句
+            gpgcheck=1
+            enabled=0
+            gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-beta
+
+        编辑完成后保存，执行以下命令
+        yum --disablerepo=* --enablerepo=c5-media update
+
+    c)执行yum --disablerepo=* --enablerepo=c5-media grouplist 查看哪些组件可以选装（X Window System和GNOME Desktop Environment）；
+      执行yum --disablerepo=* --enablerepo=c5-media groupinstall "GNOME Desktop Environment"，
+      如果提示 Error: Missing Dependency: libgaim.so.0 is needed by package nautilus-sendto ，
+      则在光盘CentOS目录下执行rpm -Uvh nautilus-sendto-0.7-5.fc6.i386.rpm，
+      如果提示有依赖关系，加上--nodeps选项，再执行yum --disablerepo=* --enablerepo=c5-media groupinstall "GNOME Desktop Environment"即可，
+      安装GNOME的时候，yum会自动按照依赖关系把X Window安装上去的。
+
+    d)启动gnome desktop命令：startx

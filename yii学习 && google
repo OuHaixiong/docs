@@ -1,0 +1,48 @@
+http://193.192.250.158
+http://178.60.128.31
+http://210.242.125.35
+http://64.233.181.49
+http://212.188.10.167
+http://23.239.5.106
+http://64.233.168.41
+http://62.1.38.89
+http://193.192.250.172
+http://212.188.10.241
+http://37.228.69.57
+http://222.255.120.42
+
+
+把Yii的错误日志写入数据库中，以方便在线即时查看错误问题及管理删除日志记录。
+
+把日志写入数据库中的功能Yii本身已经为我们配置开发好了，我们要做的只是修改配置文件让它工作而已。
+
+'components' => array(
+'db' => array(
+                        'class' => 'CDbConnection',
+                        'connectionString' => 'mysql:host=localhost;dbname=csc_cms',
+                        'username' => 'root',
+                        'password' => '123456',
+                        'tablePrefix' => 'csc_',
+                ),
+   
+'log' => array(
+        'class'  => 'CLogRouter',
+        'routes' => array(
+            array(
+                'class'        => 'CDbLogRoute',
+                'levels'       => 'error,warning,info,notie',
+                'connectionID' => 'db',
+                'logTableName' => 'error_log',
+            )
+        ),
+),
+)
+
+类名：CDbLogRoute 
+数据库句柄：db 
+数据库表名：logTableName 
+捕获日志类别：levels 
+
+
+完成以上的配置吧，Yii会自动在数据库中创建一个日志表。 
+到此大功告成！

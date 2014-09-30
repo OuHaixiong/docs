@@ -1,16 +1,21 @@
 # 文件相关（不包括解压缩文件，解压缩请看“解压缩相关”文件）
 tail -f logs/log  查看文件
 cat /etc/hosts 查看文件内容
-mkdir newdir 创建一个目录
+mkdir [-p:递归创建文件夹] newdir 创建一个目录
 touch newfile 新建文件
 chmod -R 0775 share 改变目录和其所有的子文件、子目录的权限(1:执行, 2:写, 4:读)
+chown -R www:www /home/wwwroot 更改文件及子文件的用户和组
 rm -r abc.zip phpMyAdmin-4.1.13-all-languages/ 递归删除文件或文件夹（子文件、子文件夹全删除）
 cp -r phpMyAdmin-4.1.13-all-languages/ /home/u32 拷贝文件夹和其所有的子文件（子文件夹）
+mv ../app/YiiTestCscUser.ini ../app/y.ini 重命名，移动文件
 ls ~/t2 查看home目录下的t2目录下的所有文件（文件夹）
 ll config.inc.* 查找以config.inc.开头的所有文件
-find /etc -name '*srm*' 查找etc目录下所有包含srm文件名的文件
+find /etc -name '*srm*' 查找etc目录下所有包含srm文件名的文件 （全名：find /usr -name "libchm.so.0"）
 find . |grep config.inc. 在本目录下查找文件
-ln -s[symbolic:符合] 源文件 目标文件 创建软连接
+ln -s[symbolic:符合] 源文件 目标文件 创建软连接(在目标文件夹下创建一个目录可以链接到源文件夹)
+pwd 查看所在位置的绝对路径
+wget -c http://soft.vpser.net/web/mcrypt/mcrypt-2.6.8.tar.gz 下载网络上的一个文件
+
 
 
 删除目录、文件 rm(remove)
@@ -28,12 +33,14 @@ ln -s[symbolic:符合] 源文件 目标文件 创建软连接
 
 # 用户相关
 useradd bear 添加新用户  (sudo adduser bear 貌似一样的)
+userdel -f bear 删除用户，并删除用户目录
 smbpasswd -a bear 为samba服务器的用户设置一个秘密（修改密码也一样）
 smbpasswd -x bear 删除samba服务器中的一个账号
 
+# 服务器相关
 sudo /etc/init.d/smbd restart 重启samba服务器
 sudo /etc/init.d/ssh restart 重启ssh服务器
-
+/usr/local/webserver/nginx/sbin/nginx 启动nginx（nginx所在目录）
 
 
 # 定时任务相关
@@ -47,14 +54,16 @@ create database My; 创建数据库
 grant select,insert,update,delete,create,alter on test.* to 'test'@'localhost' IDENTIFIED BY 'userpasswd'; 创建一个受限用户 这个用户(testuser)只有一个数据库(这里是test库)的访问写入权限，这个数据库创建与删除表的权限，并且只能在本地登入，密码为userpasswd
 
 date 查看时间
-date -s "2008-08-08 12:00:00" 修改时间(只是修改了系统时间，未修改硬件时间)
-sudo hwclock --systohc 将系统时间写入硬件
+sudo vim /etc/timezone 
+Asia/Shanghai 
+sudo dpkg-reconfigure tzdata (根据提示修改)
+
 
 
 
 # 系统相关
 netstat -h 帮助 。 Netstat 命令用于显示各种网络相关信息，如网络连接，路由表，接口状态 (Interface Statistics)，masquerade 连接，多播成员 (Multicast Memberships) 等等
-sudo netstat -lntp 显示tcp和端口号所用的服务
+sudo netstat -lntpu [ | grep 21] 显示tcp和端口号所用的服务
 常见参数：
 -a (all)显示所有选项，默认不显示LISTEN相关
 -t (tcp)仅显示tcp相关选项
@@ -67,4 +76,27 @@ sudo netstat -lntp 显示tcp和端口号所用的服务
 -s 按各个协议进行统计
 -c 每隔一个固定时间，执行该netstat命令。
 提示：LISTEN和LISTENING的状态只有用-a或者-l才能看到
+ps -ef |grep nginx 查看进程
+service iptables start/stop 打开或关闭防火墙
+/sbin/chkconfig --add mysql 把MySQL添加到系统启动服务中去
+/sbin/chkconfig --del mysql 把MySQL从系统启动服务组中删除
+jobs -l 查看所有运行的进程
+fg %n 让后台运行的进程n到前台来， n为jobs查看到的进程编号，非进程号（到前台了就可以Ctrl+C结束掉）
+
+ 
+
+
+库搜索路径设置：
+1，通过命令 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+然后可以通过 echo $LD_LIBRARY_PATH 查看
+2，vim /etc/ld.so.conf 添加一行 /usr/local/lib
+然后运行：ldconfig ( /sbin/ldconfig) 更新至缓存/etc/ld.so.cache 文件
+
+
+# CentOS 相关
+rpm -qa|grep httpd 查看软件是否已安装
+rpm -e php 卸载软件（包）
+yim -y remove httpd 这个也是卸载
+
+
 

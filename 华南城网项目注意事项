@@ -3,7 +3,7 @@
 ; (e.g. SJIS, BIG5, ISO-2022-*)
 ; http://php.net/mbstring.internal-encoding
 mbstring.internal_encoding = UTF-8
-在php.ini中打开如上配置，并修改成 UTF-8
+在php.ini中打开如上配置，并修改成 UTF-8, 一定要改，不然传对象时会提示空字节流
 
 在php.ini中添加 extension=php_zmq.dll，其中扩展在/docs/libzmq.dll(此文件可在安装好了的php根目录下找到)
 需把此文件拷贝到C:\Windows\System32 和 C:\Windows\SysWOW64 目录中
@@ -13,6 +13,3 @@ http://blog.fity.cn/post/382/ 介绍如何安装zmq
 开发项目流程：
 下载主干最新代码->新建项目分支->在分支上开发代码->开发完成后打包分支，提测->测试通过后把主干上的代码合并到分支
 ->分支再合并回主干->测试主干->打包上线
-
-
-http://svn.csc86.com/svn/weiunion/branches/weixin_140404_v2

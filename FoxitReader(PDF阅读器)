@@ -1,0 +1,13 @@
+ RPM安装包
+此安装包适用于以下Linux发行版:fedora,openSuse,RHEL等；
+请使用root账户执行下列操作命令进行安装：rpm -ivh FoxitReader-1.1-0.fc9.i386.rpm
+请使用root账户执行下列操作命令进行卸载：rpm -e FoxitReader
+
+DEB安装包
+此安装包适用于以下Linux发行版：ubuntu,debian等；
+请使用root账户执行下列操作命令进行安装：dpkg -i FoxitReader_1.1.0_i386.deb
+请使用root账户执行下列操作命令进行卸载：dpkg -r FoxitReader
+
+TAR安装包
+此安装包适用于Linux的其他版本。
+解压安装包并直接运行FoxitReader程序

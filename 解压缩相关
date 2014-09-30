@@ -1,7 +1,13 @@
 file phpMyAdmin-4.1.13-all-languages.zip 查看文件信息
 unrar -x -o- -y abc.rar ./ 解压.rar文件到当前目录（安装unrar: sudo apt-get install unrar）
+下面是手动安装rarlinux开始：
+下载：rarlinux-x64-5.1.0.tar.gz
+tar -zvxf rarlinux-x64-5.1.0.tar.gz 
+cd rar
+make
+上面是手动安装rarlinux结束。
 
-安装zip: sudo apt-get install zip 安装unzip:sudo apt-get install unzip
+安装zip: sudo apt-get install zip 安装unzip:sudo apt-get install unzip (yum install -y unzip zip)
 zip -r archive_name.zip（压缩后的文件名） directory_to_compress（要压缩的文件夹） 用zip压缩一个目录
 unzip phpMyAdmin-4.1.13-all-languages.zip  -d /home/u32/phpMyAdmin 用zip解压一个文件
 tar -cvf bb.tar bb 用tar打包一个目录
@@ -10,17 +16,17 @@ tar -zcvf archive_name.tar.gz directory_to_compress 用tar压缩一个目录
 tar -zxvf archive_name.tar.gz -C /tmp/extract_here/ 用tar解压缩一个文件
 tar -jcvf archive_name.tar.bz2 directory_to_compress 用tar压缩TAR.BZ2目录
 tar -jxvf archive_name.tar.bz2 -C /tmp/extract_here/ 用tar解压缩TAR.BZ2文件
+tar -xf linux-3.14.13.tar.xz 用tar解压.xz文件
 
 
-
-*.tar.gz(*.tgz)   tar -zxvf x.tar.gz(解压 gzip)
+*.tar.gz(*.tgz)   tar -zxvf x.tar.gz(解压 gzip)  tar的参数z是调用gzip解压，x是解包，v是校验，f是显示结果，y是调用bzip2解压，t是列出包的文件清单
 *.gz              gzip -d或者gunzip 解压 
 *.tar.bz2         tar -jxvf x.tar.bz2解压 (bzip2)
 *.tar             tar –xvf 解压 
 *.bz2             bzip2 -d或者用bunzip2 解压 
 *.Z               uncompress 解压
 *.tar.Z           tar –xZf 解压 
-*.rar             unrar e 解压 
+*.rar             unrar e 解压 （unrar e lnmp.rar 解压到当前目录）
 *.zip             unzip 解压
  
  

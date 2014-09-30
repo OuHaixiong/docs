@@ -1,0 +1,45 @@
+
+nginx 代理：
+
+server {
+    listen 80;
+    server_name yiitest;
+    error_log /var/log/www/yiitest_error.log;
+    root /home/bear/www/yiitest; # 如果全部的请求都代理到别的服务器上了，就可以不用写这个网站所在目录
+
+    location /weixin/life-orderBuy.html {
+        proxy_pass http://wslm1.csc86.com/life/orderBuy.html; # 后面的参数会原样代理过去
+    }
+
+    location ^~ /weixin/life-orderBuy.html {
+        proxy_pass http://wslm.csc86.com/life/orderBuy.html; # 这个和上面的是一样的
+    }
+
+    location ^~ /themes/ { # 以 /themes/ 开头的所有请求都代理到如下地址
+        proxy_pass http://wslm.csc86.com/themes/;
+    }
+
+    location ^~ /static/ {
+        proxy_pass http://wslm.csc86.com/static/;
+    }
+
+    location ^~ /life/checkBuy {
+        proxy_pass http://wslm.csc86.com/life/checkBuy;
+    }
+   
+
+    location / {
+        index index.php index.html;
+        if (!-e $request_filename) {
+            rewrite ^(.*)$ /index.php last;
+        }
+    }
+
+    location ~ .*\.php$ {
+        fastcgi_pass   127.0.0.1:9000;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        /usr/local/webserver/nginx/conf/fastcgi_params;
+    }
+
+}

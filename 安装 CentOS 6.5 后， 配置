@@ -1,0 +1,194 @@
+分区：
+
+/boot     200MB   200M    sdb1 ext3
+/data     剩余的：289045M sdb2 ext4
+swap      6G      6000M   sdb3 无
+/          10G    9999M   sdb4 ext4
+
+配置网络
+vim /etc/sysconfig/network-scripts/ifcfg-eth0
+DEVICE=eth0
+#HWADDR=48:5B:39:0B:28:C7
+TYPE=Ethernet
+#UUID=b8a19c73-730d-4b75-97d7-91ca00a48142
+ONBOOT=yes #开启自动启用网络连接
+#NM_CONTROLLED=yes
+BOOTPROTO=static #启用静态IP地址
+#BROADCAST=10.10.10.1
+IPADDR=10.10.10.73 #设置IP地址
+NETMASK=255.255.255.0 #设置子网掩码
+#NETWORK=10.10.10.1
+IPV6INIT=no  #禁止IPV6
+GATEWAY=10.10.10.1  #设置网关
+DNS1=202.96.134.133 #设置主DNS
+DNS2=202.96.128.68 #设置备DNS
+service network restart  #重启网络连接
+ifconfig  #查看IP地址
+
+service ip6tables stop   #停止IPV6服务
+chkconfig ip6tables off  #禁止IPV6开机启动
+貌似没有下面两个命令
+service yum-updatesd stop   #关闭系统自动更新
+chkconfig yum-updatesd off  #禁止开启启动
+
+
+三、设置主机名
+
+约定：
+
+主机名命名规范：业务.机房.主备.域名
+
+这里设置主机名为：bbs.hz.m.osyunwei.com
+
+1、hostname “bbs.hz.m.osyunwei.com”
+
+#设置主机名为bbs.hz.m.osyunwei.com
+
+2、vi /etc/sysconfig/network  #编辑配置文件
+
+HOSTNAME= bbs.hz.m.osyunwei.com
+
+#修改localhost.localdomain为bbs.hz.m.osyunwei.com
+
+:wq!  #保存退出
+
+3、vi /etc/hosts #编辑配置文件
+
+127.0.0.1  bbs.hz.m.osyunwei.com localhost
+
+#修改localhost.localdomain为bbs.hz.m.osyunwei.com
+
+:wq!  #保存退出
+
+shutdown -r now  #重启系统
+
+四、增加swap分区
+
+在确定了服务器所需要使用的内存后，需要增加1024M的swap空间
+
+具体操作：
+
+1、dd if=/dev/zero of=/tmp/swap bs=1M  count=1024M  #创建1024M的文件块
+
+2、mkswap /tmp/swap  #创建swap文件
+
+3、swapon /tmp/swap  #激活swap文件
+
+4、swapon -s  #查看swap
+
+5、修改/etc/fstab文件，增加以下内容，让系统引导时自动启动
+
+vi /etc/fstab  #在最后添加下面代码
+
+/tmp/swap swap swap default  0 0
+
+:wq!  #保存退出
+
+至此，CentOS 6.5系统安装配置完成
+
+下面是对ATI显卡驱动的做法：
+台式机安装CentOS 6.4 x86_64位  集成显卡ati4290
+
+CentOS的release notes上：
+
+    The proprietary drivers for older AMD ( former ATI ) video cards, namely the 2xxx, 3xxx and 4xxx series ( both integrated in motherboards or standalone cards) are not compatible with the new version of the X server introduced in CentOS-6.4. As of mid-March 2013 the only known workaround allowing the use of the proprietary drivers is to downgrade the X server ( xorg* packages ) to the versions available in CentOS 6.3. More details about the extensive investigation around this issue is available here. Make sure that you do not allow yum to upgrade again the packages that have been downgraded by adding the following to the end of /etc/yum.conf exclude=xorg* Note that use of proprietary drivers was never needed for CentOS-6 if all you wanted was a dual-monitor setup. See this FAQ entry for more details on using a dual-monitor setup.
+
+原来CentOS 6.4版本开始不支持ATI的2xxx，3xxx，4xxx系列的显卡。
+
+但是已经升级到6.4怎么办呢。 只需要把xorg的版本降回6.3版系统时的版本就行
+
+最快源（DVD版自带fastestmirror）
+
+Shell代码
+yum install yum-fastestmirror yum-presto
+
+开发工具（为安装显卡做准备）
+
+Shell代码
+yum groupinstall “Development Tools”
+
+RPMFusion源
+
+    下载EPEL：http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+
+    RPMFusion：http://download1.rpmfusion.org/free/el/updates/6/i386 /rpmfusion-free-release-6-1.noarch.rpm  http://download1.rpmfusion.org/nonfree/el/updates/6/i386/rpmfusion-nonfree-release-6-1.noarch.rpm
+
+    安装
+
+降级Xorg
+
+Shell代码
+
+    yum remove xorg-x11-drv-modesetting
+
+    yum --disablerepo=\* --enablerepo=C6.3\* downgrade xorg\*
+
+    yum --disablerepo=\* --enablerepo=C6.3\* install xorg-x11-drivers
+
+ 防止Xorg再次被更新
+
+编辑/etc/yum.conf添加 exclude=xorg*
+
+安装显卡驱动必要的依赖
+
+Shell代码
+yum install libX11.i686 libXext.i686 glibc.i686 libstdc++ compat-libstdc++-33
+
+插曲 安装显卡驱动前测试
+
+#glxgears
+Running synchronized to the vertical refresh.  The framerate should be
+approximately the same as the monitor refresh rate.
+300 frames in 5.0 seconds = 59.887 FPS
+300 frames in 5.0 seconds = 59.897 FPS
+
+官网下载驱动 http://support.amd.com/en-us/download 解压
+
+amd-driver-installer-catalyst-13.1-legacy-linux-x86.x86_64.zip 后
+
+amd-driver-installer-catalyst-13.1-legacy-linux-x86.x86_64.run
+
+sh ./amd-driver-installer-catalyst-13.1-legacy-linux-x86.x86_64.run --extract ati  
+
+cd ati/
+
+./packages/RedHat/ati-packager.sh --buildpkg RHEL6_64a 
+
+#RHEL6_64a是安装64位的，稍等一会
+
+cd ..
+
+rpm ivh fglrx64_p_i_c-8.97.100.7-1.x86_64.rpm 不能进行下去
+
+rpm -ivh fglrx64_p_i_c-8.97.100.7-1.x86_64.rpm --force –nodeps  #忽略依赖性，强制安装
+
+aticonfig --initial
+reboot
+
+$ fglrxinfo
+
+display: :0.0 screen: 0
+
+OpenGL vendor string: Advanced Micro Devices, Inc.
+
+OpenGL renderer string: ATI Radeon HD 4290
+
+OpenGL version string: 3.3.11672 Compatibility Profile Context
+
+$ glxgears
+
+17120 frames in 5.0 seconds = 3423.951 FPS
+
+17202 frames in 5.0 seconds = 3440.250 FPS
+
+17195 frames in 5.0 seconds = 3438.985 FPS
+
+17199 frames in 5.0 seconds = 3439.799 FPS
+
+17194 frames in 5.0 seconds = 3438.707 FPS
+
+17203 frames in 5.0 seconds = 3440.470 FPS
+
+参考http://turnip-gray.iteye.com/blog/1895406 
+
+本人电脑安装为win7和centos双系统，如果重启后不能出来界面，ctrl+alt+F3进入命令行界面，startx 启动，看问题提示

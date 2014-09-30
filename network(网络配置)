@@ -1,0 +1,30 @@
+CentOS 6.5 网卡配置：
+ifconfig -a 查看所有网卡信息
+ifconfig 查看网络情况
+iwconfig 查看无线网络信息
+ifconfig eth0 down 关闭网络
+
+编辑/etc/sysconfig/network-scripts/ifcfg-eth0 内容如下
+DEVICE=ech0 网卡对应的设备别名
+#BOOTPROTO=dhcp 自动获取ip
+BOOTPROTO=static 静态ip
+HWADDR=48:5B:39:0B:28:C7 网卡物理地址
+TYPE=Ethernet
+IPV6INIT=no
+IPV6_AUTOCONF=no
+ONBOOT=yes 系统启动时，激活此设备
+IPADDR=10.10.10.73 ip地址
+NETMASK=255.255.255.0 子网掩码
+GATEWAY=10.10.10.1 默认网关
+DNS1=202.96.134.133
+DNS2=8.8.8.8
+
+修改网卡的网关配置文件
+vim /etc/sysconfig/network
+NETWORKING=yes 是否使用网络
+HOSTNAME=ouhaixiong 设置本机主机名（这里设置的主机名要和/etc/hosts中设置的主机名对应）
+
+service network restart/start 重启/开启网络
+或 /etc/init.d/network restart
+
+通过ping 163.com 查看网络是否已通
