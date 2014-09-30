@@ -43,3 +43,284 @@ server {
     }
 
 }
+
+
+
+下面是nginx用反向代理做负载均衡
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile        on;
+    keepalive_timeout  65;
+
+    client_max_body_size 300m; // 允许客户端请求的最大的单个文件字节数
+    client_body_buffer_size 128k; // 缓存区代理用户端文件字节数
+    client_body_temp_path /tmp/client_body_temp; // 请求试图写入到缓存文件的目录路径
+    proxy_connect_timeout 600; // 和后端服务器连接的超时时间
+    proxy_read_timeout 600; // 连接成功等待后端相应的时间，默认60s
+    proxy_send_timeout 600; // 后端服务器的回传时间，规定服务器在一定的时间内传送完
+    proxy_buffer_size 12k; // 代理服务器的缓存文件头部文件大小，默认4k
+	proxy_buffers 4 32k;   // 后端真实服务器的数量和大小
+    proxy_busy_buffers_size 22k; //当系统忙时，申请更大 proxy_buffer
+    proxy_temp_file_write_size 64k; // 写入临时目录的文件大小
+    proxy_temp_path /tmp/proxy_temp; // 指定一个目录来缓存比较大的代理请求
+	
+	
+	如下是HTTP负载均衡模块upstream 指定设置一群服务器，服务器可以指定不同的权重，默认为1。             Nginx支持5种方式的查询， 
+      1、轮询 Nginx默认的查询方式 
+      2、Weight 指定分配的轮询方式，根据后端服务器的性能来做权重，在此案例中我们使用这种方式来轮询的 
+      3、Ip_hash 每个请求按照ip的hash结果分配，这样每个IP地址就可以固定的访问后端的一台服务器，解决了session的问题 
+      4、Fair 第三方模块，这个原理是按照响应时间的优先来分配的， 
+      5、url_hash    按照url的hash结果来分配请求，使每个url定向到同一个后端的服务器；
+	  
+	# 下面的配置可以单独一个配置文件来存放
+	upstream wslm.csc86.com {
+        server 192.168.17.130:80 weight=6 max_fails=2 fail_timeout=30s;
+        server 192.168.0.52:80 weight=4 max_fails=2 fail_timeout=30s;
+        #    server 127.0.0.1:80; # 本机代理需要不同端口才能实现
+    }
+
+	server {
+		listen 80;
+		server_name wslm.csc86.com;
+		#access_log  logs/host.access.log  main;
+		error_log /var/log/www/wslm_error.log;
+		root /home/bear/www/wslm;
+
+		location / {
+			index index.php index.html;
+			#if (-f $request_filename/index.html){
+			#    rewrite (.*) $1/index.html break;
+			#}
+			#if (-f $request_filename/index.php){
+			#    rewrite (.*) $1/index.php;
+			#}
+			#if (!-f $request_filename){
+			#    rewrite (.*) /index.php;
+			#}
+			#if (!-e $request_filename) {
+			#    rewrite ^(.*)$ /index.php last;
+			#}
+			proxy_pass http://wslm.csc86.com;  // 指定需要代理的url
+			proxy_redirect off; // 如果需要从后端打开location和Refresh字段，可以开启。 
+			proxy_set_header X-Real-IP $remote_addr; // 允许将发送到后端的服务器请求重新定义或者增加一个字段，这个可以是变量也是文本组合。
+			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; //联系下面PS中所写，在后端web中就算加上$http_x_Forwarded_for这条，也得不到用户的IP，所以在nginx反向代理添加Header头信息 X-Forwarded-For在配合后端服务器日志文件的$http_x_Forwarded_for这条就可以获得用户的IP地址了。
+			proxy_set_header Host $host; //首先说明 proxy_set_header 指令在向反向代理的后端Web服务器发起请求时添加指定的 Header头信息，后端web服务器有多个基于域名的虚拟主机时，通过头信息Host，用于指定请求的域名，这样后端web才能识别反向代理请求哪个虚拟主机处理。
+			proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504 http_404; // 服务器头部超时相应的各种状态 
+	    }
+
+		location ~ .*\.php$ {
+			#root           /home/bear/www/wslm
+			fastcgi_pass   127.0.0.1:9000;
+			fastcgi_index  index.php;
+			fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+			include        /usr/local/webserver/nginx/conf/fastcgi_params;
+		}
+    }	
+}
+
+
+
+
+
+1.nginx负载均衡
+　　网站的访问量越来越大，服务器的服务模式也得进行相应的升级，比如分离出数据库服务器、分离出图片作为单独服务，这些是简单的数据的负载均衡，将压力分散到不同的机器上。有时候来自web前端的压力，也能让人十分头痛。怎样将同一个域名的访问分散到两台或更多的机器上呢？这其实就是另一种负载均衡了，nginx自身就可以做到，只需要做个简单的配置就行。
+　　nginx不单可以作为强大的web服务器，也可以作为一个反向代理服务器，而且nginx还可以按照调度规则实现动态、静态页面的分离，可以按照轮询、ip哈希、URL哈希、权重等多种方式对后端服务器做负载均衡，同时还支持后端服务器的健康检查。
+Nginx负载均衡一些基础知识：
+nginx 的 upstream目前支持 4 种方式的分配 
+1)、轮询（默认） 
+　　每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉，能自动剔除。 
+2)、weight 
+　　指定轮询几率，weight和访问比率成正比，用于后端服务器性能不均的情况。 
+2)、ip_hash 
+　　每个请求按访问ip的hash结果分配，这样每个访客固定访问一个后端服务器，可以解决session的问题。  
+3)、fair（第三方） 
+　　按后端服务器的响应时间来分配请求，响应时间短的优先分配。  
+4)、url_hash（第三方）
+2.nginx负载均衡配置
+在http段做如下配置，即可实现两个域名
+
+upstream  www.linuxidc.com  
+{
+    server   10.0.1.50:8080;
+    server   10.0.1.51:8080;
+}
+
+upstream  blog.linuxidc.com   
+{
+    server   10.0.1.50:8080;
+    server   10.0.1.51:8080;
+}
+
+server
+{
+    listen  80;
+    server_name  www.linuxidc.com;
+
+    location / {
+        proxy_pass        http://www.linuxidc.com;
+        proxy_set_header   Host             $host;
+        proxy_set_header   X-Real-IP        $remote_addr;
+        proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+    }
+}
+
+server
+{
+    listen  80;
+    server_name  blog.linuxidc.com wode.linuxidc.com;
+
+    location / {
+        proxy_pass        http://www.linuxidc.com;
+        proxy_set_header   Host             $host;
+        proxy_set_header   X-Real-IP        $remote_addr;
+        proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+    }
+}
+
+3.注意的几个小问题
+3.1 多台机器间session的共享问题
+配置负载均衡比较简单,但是最关键的一个问题是怎么实现多台服务器之间session的共享
+下面有几种方法(以下内容来源于网络,第四种方法没有实践.)
+1). 不使用session，换作cookie
+　　能把session改成cookie，就能避开session的一些弊端，在从前看的一本J2EE的书上，也指明在集群系统中不能用session，否则惹出祸端来就不好办。如果系统不复杂，就优先考虑能否将session去掉，改动起来非常麻烦的话，再用下面的办法。
+2). 应用服务器自行实现共享
+　　php可以用数据库或memcached来保存session，从而在php本身建立了一个session集群，用这样的方式可以令 session保证稳定，即使某个节点有故障，session也不会丢失，适用于较为严格但请求量不高的场合。但是它的效率是不会很高的，不适用于对效率要求高的场合。
+以上两个办法都跟nginx没什么关系，下面来说说用nginx该如何处理：
+3).  ip_hash
+　　nginx中的ip_hash技术能够将某个ip的请求定向到同一台后端，这样一来这个ip下的某个客户端和某个后端就能建立起稳固的session，ip_hash是在upstream配置中定义的：
+
+upstream backend {
+    server 127.0.0.1:8080 ;
+    server 127.0.0.1:9090 ;
+    ip_hash;
+}
+
+　　ip_hash是容易理解的，但是因为仅仅能用ip这个因子来分配后端，因此ip_hash是有缺陷的，不能在一些情况下使用：
+　　nginx不是最前端的服务器。ip_hash要求nginx一定是最前端的服务器，否则nginx得不到正确ip，就不能根据ip作hash。譬如使用的是squid为最前端，那么nginx取ip时只能得到squid的服务器ip地址，用这个地址来作分流是肯定错乱的。
+　　nginx的后端还有其它方式的负载均衡。假如nginx后端又有其它负载均衡，将请求又通过另外的方式分流了，那么某个客户端的请求肯定不能定位到同一台session应用服务器上。这么算起来，nginx后端只能直接指向应用服务器，或者再搭一个squid，然后指向应用服务器。最好的办法是用location作一次分流，将需要session的部分请求通过ip_hash分流，剩下的走其它后端去。
+4). upstream_hash
+　　为了解决ip_hash的一些问题，可以使用upstream_hash这个第三方模块，这个模块多数情况下是用作url_hash的，但是并不妨碍将它用来做session共享。假如前端是squid，他会将ip加入x_forwarded_for这个http_header里，用upstream_hash可以用这个头做因子，将请求定向到指定的后端：可见这篇文档：http://www.sudone.com/nginx/nginx_url_hash.html
+在文档中是使用$request_uri做因子，稍微改一下：
+
+hash   $http_x_forwarded_for;
+
+这样就改成了利用x_forwarded_for这个头作因子，在nginx新版本中可支持读取cookie值，所以也可以改成：
+
+hash   $cookie_jsessionid;
+
+　　假如在php中配置的session为无cookie方式，配合nginx自己的一个userid_module模块就可以用nginx自发一个cookie，可参见userid模块的英文文档：http://wiki.nginx.org/NginxHttpUserIdModule
+　　另可用姚伟斌编写的模块upstream_jvm_route：http://code.google.com/p/nginx-upstream-jvm-route/
+3.2 后端服务器自动加上端口的问题
+　　一个典型的 Nginx + Apache 应用方案可以是Nginx 占用 80 端口，过滤静态请求，然后动态请求即 Proxy 到 Apache 的 8080 端口。Proxy 反向代理的好处是访问的时候，始终就是 80端口，来访者不会觉察到有任何的区别。但有的应用确非常“聪明”，识别到 Apache 所位于的端口是 8080 ，就会把相关的超链接都一并加上 :8080 的后续。这么就死定了，还能有正常访问麽？！有个方法可以解决这事，就是把 apache 也运行在80端口上。同一台服务器，有Nginx 也有 Apache，2个httpd服务，都是80，不会冲突麽？
+nginx.conf 的配置中
+
+server {
+    listen 80;
+    server_name www.linuxidc.com;
+    ....
+}
+
+修改为：
+
+server {
+    listen 123.123.123.123:80; #指定Nginx只占用某个公网IP的80端口。
+    #listen 123.123.123.124:80; #如果你服务器中有多个IP，还可以指定多个。
+    server_name www.linuxidc.com;
+....
+}
+
+把 apache 的配置文件 httpd.conf 中的
+
+Listen 80
+
+改为
+
+Listen 127.0.0.1:80
+
+跟Nginx一样，指定apache所占用的IP及端口。
+保存退出，重启apache即可生效。
+
+
+
+#设定http服务器，利用它的反向代理功能提供负载均衡支持
+http {
+
+    #设定mime类型,类型由mime.type文件定义
+    include             /etc/nginx/mime.types;
+    default_type    application/octet-stream;
+
+    #设定日志格式
+    access_log        /var/log/nginx/access.log;
+
+    #省略上文有的一些配置节点
+    #。。。。。。。。。。
+
+    #设定负载均衡的服务器列表
+    upstream mysvr {
+        #weigth参数表示权值，权值越高被分配到的几率越大
+        server 192.168.8.1x:3128 weight=5;
+        #本机上的Squid开启3128端口,不是必须要squid
+        server 192.168.8.2x:80    weight=1;
+        server 192.168.8.3x:80    weight=6;
+    }
+        
+    upstream mysvr2 {
+        #weigth参数表示权值，权值越高被分配到的几率越大
+        server 192.168.8.x:80    weight=1;
+        server 192.168.8.x:80    weight=6;
+    }
+
+    #第一个虚拟服务器
+    server {
+        #侦听192.168.8.x的80端口
+        listen             80;
+        server_name    192.168.8.x;
+
+        #对aspx后缀的进行负载均衡请求
+        location ~ .*\.aspx$ {
+            #定义服务器的默认网站根目录位置
+            root     /root; 
+            #定义首页索引文件的名称
+            index index.php index.html index.htm;
+            
+            #请求转向mysvr 定义的服务器列表
+            proxy_pass    http://mysvr ;
+
+            #以下是一些反向代理的配置可删除.
+
+            proxy_redirect off;
+
+            #后端的Web服务器可以通过X-Forwarded-For获取用户真实IP
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+            #允许客户端请求的最大单文件字节数
+            client_max_body_size 10m; 
+
+            #缓冲区代理缓冲用户端请求的最大字节数，
+            client_body_buffer_size 128k;
+
+            #nginx跟后端服务器连接超时时间(代理连接超时)
+            proxy_connect_timeout 90;
+
+            #连接成功后，后端服务器响应时间(代理接收超时)
+            proxy_read_timeout 90;
+
+            #设置代理服务器（nginx）保存用户头信息的缓冲区大小
+            proxy_buffer_size 4k;
+
+            #proxy_buffers缓冲区，网页平均在32k以下的话，这样设置
+            proxy_buffers 4 32k;
+
+            #高负荷下缓冲大小（proxy_buffers*2）
+            proxy_busy_buffers_size 64k; 
+
+            #设定缓存文件夹大小，大于这个值，将从upstream服务器传
+            proxy_temp_file_write_size 64k;    
+
+        }
+    }
+}
