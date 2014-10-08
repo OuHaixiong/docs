@@ -12,7 +12,7 @@ apt-get install libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
 $ tar -zxf git-1.7.2.2.tar.gz
 $ cd git-1.7.2.2
 $ make prefix=/usr/local all
-$ sudo make prefix=/usr/local install (如果不三这个路径,就需要做下软连接, sudo ln -s /home/bear/tool/git_1.9.0/bin/git /usr/local/bin/git )
+$ sudo make prefix=/usr/local install (如果不设这个路径,就需要做下软连接, sudo ln -s /home/bear/tool/git_1.9.0/bin/git /usr/local/bin/git )
 (apt-get install git git-core)
 
 获取Git配置信息，执行以下命令：git config --list
@@ -39,7 +39,7 @@ git remote add bieming bear@192.168.17.130:example.git 为本地仓库起个短�
 git push bieming master 通过短名提交修改到远端仓库的主干上（下面会要求输入密码）
 git clone bear@192.168.17.130:example.git bb  克隆远端仓库到本地文件夹bb
 
-特别注意：使用ssh链接github.com时，需要在本机生成ssh key，然后把key贴到github.com上，具体如下：  (是的,这个是一定要做的)
+特别注意：使用ssh链接github.com时，需要在本机生成ssh key，然后把key贴到github.com上，具体如下：  (是的,这个是一定要做的,且需要设置提交的用户名和邮箱)
 ssh-keygen -t rsa -C "258333309@163.com"
 第一次直接回车，第二次输入密码，第三次重复密码
 然后将 /home/u32/.ssh/id_rsa.pub 的内容复制到github.com的SSH Keys中

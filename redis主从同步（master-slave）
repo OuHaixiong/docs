@@ -1,0 +1,151 @@
+
+redis：master-slave(主从)同步
+
+1，解压并安装
+tar -zxvpf redis-2.8.17.tar.gz   
+cd redis-2.8.17  
+make install
+
+2，创建相应的目录，并把文件和配置拷贝到相应的目录
+mkdir -p /usr/local/redis/{bin,etc,var}  
+cp redis.conf /usr/local/redis/etc/  
+cp /usr/local/bin/redis-* /usr/local/redis/bin/ 
+
+3，修改配置文件如下： vim /usr/local/redis/etc/redis.conf
+daemonize yes
+pidfile /usr/local/redis/var/redis.pid
+port 6379
+tcp-backlog 511
+timeout 300
+tcp-keepalive 0
+loglevel notice
+logfile ""
+databases 16
+save 900 1
+save 300 10
+save 60 10000
+stop-writes-on-bgsave-error yes
+rdbcompression yes
+rdbchecksum yes
+dbfilename dump.rdb
+dir ./
+slave-serve-stale-data yes
+slave-read-only yes
+repl-disable-tcp-nodelay no
+slave-priority 100
+appendonly no
+appendfilename "appendonly.aof"
+appendfsync everysec
+no-appendfsync-on-rewrite no
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+aof-load-truncated yes
+lua-time-limit 5000
+slowlog-log-slower-than 10000
+slowlog-max-len 128
+latency-monitor-threshold 0
+notify-keyspace-events ""
+hash-max-ziplist-entries 512
+hash-max-ziplist-value 64
+list-max-ziplist-entries 512
+list-max-ziplist-value 64
+set-max-intset-entries 512
+zset-max-ziplist-entries 128
+zset-max-ziplist-value 64
+hll-sparse-max-bytes 3000
+activerehashing yes
+client-output-buffer-limit normal 0 0 0
+client-output-buffer-limit slave 256mb 64mb 60
+client-output-buffer-limit pubsub 32mb 8mb 60
+hz 10
+aof-rewrite-incremental-fsync yes
+
+4，命令行下进行测试：
+sudo /usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf （启动redis）
+netstat -ntpl |grep 6379 
+sudo /usr/local/redis/bin/redis-cli -h 192.168.17.130
+192.168.17.130:6379> set number 123
+OK 
+192.168.17.130:6379> get number
+"123"
+192.168.17.130:6379> del number
+(integer) 1
+192.168.17.130:6379> get number
+(nil)
+192.168.17.130:6379> quit
+
+5，关闭主节点的redis，复制/usr/local/redis/目录至从节点
+ps -ef |grep redis
+root      5613     1  0 16:45 ?        00:00:06 /usr/local/redis/bin/redis-server *:6379     
+kill -QUIT 5613  （退出主节点）
+scp -rvp /usr/local/redis/ root@192.168.17.134:/usr/local/   （拷贝文件）
+[root@localhost etc]# grep -v '^#'  /usr/local/redis/etc/redis.conf  |grep -v '^$'      （配置文件如下） 
+daemonize yes
+pidfile /usr/local/redis/var/redis.pid
+port 6379
+tcp-backlog 511
+timeout 300
+tcp-keepalive 0
+loglevel notice
+logfile ""
+databases 16
+save 900 1
+save 300 10
+save 60 10000
+stop-writes-on-bgsave-error yes
+rdbcompression yes
+rdbchecksum yes
+dbfilename salve.rdb （特别注意这里）
+dir ./
+slaveof 192.168.17.130 6379   （特别注意这里）
+slave-serve-stale-data yes
+slave-read-only yes
+repl-disable-tcp-nodelay no
+slave-priority 100
+appendonly no
+appendfilename "appendonly.aof"
+appendfsync everysec
+no-appendfsync-on-rewrite no
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+aof-load-truncated yes
+lua-time-limit 5000
+slowlog-log-slower-than 10000
+slowlog-max-len 128
+latency-monitor-threshold 0
+notify-keyspace-events ""
+hash-max-ziplist-entries 512
+hash-max-ziplist-value 64
+list-max-ziplist-entries 512
+list-max-ziplist-value 64
+set-max-intset-entries 512
+zset-max-ziplist-entries 128
+zset-max-ziplist-value 64
+hll-sparse-max-bytes 3000
+activerehashing yes
+client-output-buffer-limit normal 0 0 0
+client-output-buffer-limit slave 256mb 64mb 60
+client-output-buffer-limit pubsub 32mb 8mb 60
+hz 10
+aof-rewrite-incremental-fsync yes     
+
+6，分别启动主从节点并进行测试
+u32@ubuntu:/usr/local/redis/var$ sudo /usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf 
+[root@localhost etc]# /usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf
+u32@ubuntu:/usr/local/redis/var$ netstat -ntpl |grep 6379
+tcp        0      0 0.0.0.0:6379            0.0.0.0:*               LISTEN      5613/redis-server *
+tcp6       0      0 :::6379                 :::*                    LISTEN      5613/redis-server *
+sudo /usr/local/redis/bin/redis-cli -h 192.168.17.130
+redis 192.168.17.130:6379> set number 1  
+OK  
+redis 192.168.17.130:6379> get number   
+"1"  
+redis 192.168.17.130:6379> quit  
+/usr/local/redis/bin/redis-cli -h 192.168.17.134
+192.168.17.134:6379> get number
+"1"
+192.168.17.134:6379> del number
+(error) READONLY You can't write against a read only slave.
+192.168.17.134:6379> quit
+
+到此，配置OK
