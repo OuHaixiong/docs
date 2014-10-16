@@ -83,7 +83,7 @@ service iptables start/stop 打开或关闭防火墙
 /sbin/chkconfig --del mysql 把MySQL从系统启动服务组中删除
 jobs -l 查看所有运行的进程
 fg %n 让后台运行的进程n到前台来， n为jobs查看到的进程编号，非进程号（到前台了就可以Ctrl+C结束掉）
-
+lsb_release -a 查看centos版本
  
 
 
@@ -97,7 +97,7 @@ fg %n 让后台运行的进程n到前台来， n为jobs查看到的进程编号�
 # CentOS 相关
 rpm -qa|grep httpd 查看软件是否已安装
 rpm -e php 卸载软件（包）
-yim -y remove httpd 这个也是卸载
+yum -y remove httpd 这个也是卸载
 
 
 

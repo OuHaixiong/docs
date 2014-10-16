@@ -147,5 +147,252 @@ redis 192.168.17.130:6379> quit
 192.168.17.134:6379> del number
 (error) READONLY You can't write against a read only slave.
 192.168.17.134:6379> quit
+redis-cli shutdown // 关闭redis
+关闭某个端口上的redis
+# redis-cli -p 6397 shutdown //关闭6397端口的redis
 
 到此，配置OK
+
+7，配置phpredis扩展
+下载phpredis
+wget https://codeload.github.com/nicolasff/phpredis/zip/master
+unzip phpredis-master.zip
+cd phpredis-master/
+sudo /usr/bin/phpize 
+sudo ./configure [--with-php-config=/usr/local/php/bin/php-config]
+sudo make
+sudo make install
+提示：扩展已生成在/usr/lib/php5/20090626+lfs/中
+cd /etc/php5/conf.d 进入配置扩展
+sudo vim redis.ini 加入
+extension=redis.so
+[redis]
+重启web服务器
+sudo /etc/init.d/apache2 restart
+
+
+
+
+
+
+
+1. Redis默认不是以守护进程的方式运行，可以通过该配置项修改，使用yes启用守护进程
+    daemonize no
+2. 当Redis以守护进程方式运行时，Redis默认会把pid写入/var/run/redis.pid文件，可以通过pidfile指定
+    pidfile /var/run/redis.pid
+3. 指定Redis监听端口，默认端口为6379，作者在自己的一篇博文中解释了为什么选用6379作为默认端口，因为6379在手机按键上MERZ对应的号码，而MERZ取自意大利歌女Alessia Merz的名字
+    port 6379
+4. 绑定的主机地址
+    bind 127.0.0.1
+5.当 客户端闲置多长时间后关闭连接，如果指定为0，表示关闭该功能
+    timeout 300
+6. 指定日志记录级别，Redis总共支持四个级别：debug、verbose、notice、warning，默认为verbose
+    loglevel verbose
+7. 日志记录方式，默认为标准输出，如果配置Redis为守护进程方式运行，而这里又配置为日志记录方式为标准输出，则日志将会发送给/dev/null
+    logfile stdout
+8. 设置数据库的数量，默认数据库为0，可以使用SELECT <dbid>命令在连接上指定数据库id
+    databases 16
+9. 指定在多长时间内，有多少次更新操作，就将数据同步到数据文件，可以多个条件配合
+    save <seconds> <changes>
+    Redis默认配置文件中提供了三个条件：
+    save 900 1
+    save 300 10
+    save 60 10000
+    分别表示900秒（15分钟）内有1个更改，300秒（5分钟）内有10个更改以及60秒内有10000个更改。
+ 
+10. 指定存储至本地数据库时是否压缩数据，默认为yes，Redis采用LZF压缩，如果为了节省CPU时间，可以关闭该选项，但会导致数据库文件变的巨大
+    rdbcompression yes
+11. 指定本地数据库文件名，默认值为dump.rdb
+    dbfilename dump.rdb
+12. 指定本地数据库存放目录
+    dir ./
+13. 设置当本机为slav服务时，设置master服务的IP地址及端口，在Redis启动时，它会自动从master进行数据同步
+    slaveof <masterip> <masterport>
+14. 当master服务设置了密码保护时，slav服务连接master的密码
+    masterauth <master-password>
+15. 设置Redis连接密码，如果配置了连接密码，客户端在连接Redis时需要通过AUTH <password>命令提供密码，默认关闭
+    requirepass foobared
+16. 设置同一时间最大客户端连接数，默认无限制，Redis可以同时打开的客户端连接数为Redis进程可以打开的最大文件描述符数，如果设置 maxclients 0，表示不作限制。当客户端连接数到达限制时，Redis会关闭新的连接并向客户端返回max number of clients reached错误信息
+    maxclients 128
+17. 指定Redis最大内存限制，Redis在启动时会把数据加载到内存中，达到最大内存后，Redis会先尝试清除已到期或即将到期的Key，当此方法处理 后，仍然到达最大内存设置，将无法再进行写入操作，但仍然可以进行读取操作。Redis新的vm机制，会把Key存放内存，Value会存放在swap区
+    maxmemory <bytes>
+18. 指定是否在每次更新操作后进行日志记录，Redis在默认情况下是异步的把数据写入磁盘，如果不开启，可能会在断电时导致一段时间内的数据丢失。因为 redis本身同步数据文件是按上面save条件来同步的，所以有的数据会在一段时间内只存在于内存中。默认为no
+    appendonly no
+19. 指定更新日志文件名，默认为appendonly.aof
+     appendfilename appendonly.aof
+20. 指定更新日志条件，共有3个可选值： 
+    no：表示等操作系统进行数据缓存同步到磁盘（快） 
+    always：表示每次更新操作后手动调用fsync()将数据写到磁盘（慢，安全） 
+    everysec：表示每秒同步一次（折衷，默认值）
+    appendfsync everysec
+ 
+21. 指定是否启用虚拟内存机制，默认值为no，简单的介绍一下，VM机制将数据分页存放，由Redis将访问量较少的页即冷数据swap到磁盘上，访问多的页面由磁盘自动换出到内存中（在后面的文章我会仔细分析Redis的VM机制）
+     vm-enabled no
+22. 虚拟内存文件路径，默认值为/tmp/redis.swap，不可多个Redis实例共享
+     vm-swap-file /tmp/redis.swap
+23. 将所有大于vm-max-memory的数据存入虚拟内存,无论vm-max-memory设置多小,所有索引数据都是内存存储的(Redis的索引数据 就是keys),也就是说,当vm-max-memory设置为0的时候,其实是所有value都存在于磁盘。默认值为0
+     vm-max-memory 0
+24. Redis swap文件分成了很多的page，一个对象可以保存在多个page上面，但一个page上不能被多个对象共享，vm-page-size是要根据存储的 数据大小来设定的，作者建议如果存储很多小对象，page大小最好设置为32或者64bytes；如果存储很大大对象，则可以使用更大的page，如果不 确定，就使用默认值
+     vm-page-size 32
+25. 设置swap文件中的page数量，由于页表（一种表示页面空闲或使用的bitmap）是在放在内存中的，，在磁盘上每8个pages将消耗1byte的内存。
+     vm-pages 134217728
+26. 设置访问swap文件的线程数,最好不要超过机器的核数,如果设置为0,那么所有对swap文件的操作都是串行的，可能会造成比较长时间的延迟。默认值为4
+     vm-max-threads 4
+27. 设置在向客户端应答时，是否把较小的包合并为一个包发送，默认为开启
+    glueoutputbuf yes
+28. 指定在超过一定的数量或者最大的元素超过某一临界值时，采用一种特殊的哈希算法
+    hash-max-zipmap-entries 64
+    hash-max-zipmap-value 512
+29. 指定是否激活重置哈希，默认为开启（后面在介绍Redis的哈希算法时具体介绍）
+    activerehashing yes
+30. 指定包含其它的配置文件，可以在同一主机上多个Redis实例之间使用同一份配置文件，而同时各个实例又拥有自己的特定配置文件
+    include /path/to/local.conf
+
+
+
+
+#是否作为守护进程运行
+daemonize yes
+#如以后台进程运行，则需指定一个pid，默认为/var/run/redis.pid
+pidfile redis.pid
+#绑定主机IP，默认值为127.0.0.1
+#bind 127.0.0.1
+#Redis默认监听端口
+port 6379
+#客户端闲置多少秒后，断开连接，默认为300（秒）
+timeout 300
+#日志记录等级，有4个可选值，debug，verbose（默认值），notice，warning
+loglevel verbose
+#指定日志输出的文件名，默认值为stdout，也可设为/dev/null屏蔽日志
+logfile stdout
+#可用数据库数，默认值为16，默认数据库为0
+databases 16
+#保存数据到disk的策略
+#当有一条Keys数据被改变是，900秒刷新到disk一次
+save 900 1
+#当有10条Keys数据被改变时，300秒刷新到disk一次
+save 300 10
+#当有1w条keys数据被改变时，60秒刷新到disk一次
+save 60 10000
+#当dump .rdb数据库的时候是否压缩数据对象
+rdbcompression yes
+#本地数据库文件名，默认值为dump.rdb
+dbfilename dump.rdb
+#本地数据库存放路径,默认值为 ./
+dir ./
+
+###########  Replication #####################
+#Redis的复制配置
+# slaveof <masterip> <masterport> 当本机为从服务时，设置主服务的IP及端口
+# masterauth <master-password> 当本机为从服务时，设置主服务的连接密码
+
+#连接密码
+# requirepass foobared
+
+#最大客户端连接数，默认不限制
+# maxclients 128
+#最大内存使用设置，达到最大内存设置后，Redis会先尝试清除已到期或即将到期的Key，当此方法处理后，任到达最大内存设置，将无法再进行写入操作。
+# maxmemory <bytes>
+
+#是否在每次更新操作后进行日志记录，如果不开启，可能会在断电时导致一段时间内的数据丢失。因为redis本身同步数据文件是按上面save条件来同步的，所以有的数据会在一段时间内只存在于内存中。默认值为no
+appendonly no
+#更新日志文件名，默认值为appendonly.aof
+#appendfilename
+#更新日志条件，共有3个可选值。no表示等操作系统进行数据缓存同步到磁盘，always表示每次更新操作后手动调用fsync()将数据写到磁盘，everysec表示每秒同步一次（默认值）。
+# appendfsync always
+appendfsync everysec
+# appendfsync no
+
+################ VIRTUAL MEMORY ###########
+#是否开启VM功能，默认值为no
+vm-enabled no
+# vm-enabled yes
+#虚拟内存文件路径，默认值为/tmp/redis.swap，不可多个Redis实例共享
+vm-swap-file logs/redis.swap
+#将所有大于vm-max-memory的数据存入虚拟内存,无论vm-max-memory设置多小,所有索引数据都是内存存储的 (Redis的索引数据就是keys),也就是说,当vm-max-memory设置为0的时候,其实是所有value都存在于磁盘。默认值为0。
+vm-max-memory 0
+vm-page-size 32
+vm-pages 134217728
+vm-max-threads 4
+
+############# ADVANCED CONFIG ###############
+glueoutputbuf yes
+hash-max-zipmap-entries 64
+hash-max-zipmap-value 512
+#是否重置Hash表
+activerehashing yes
+
+注意：Redis官方文档对VM的使用提出了一些建议:
+** 当你的key很小而value很大时,使用VM的效果会比较好.因为这样节约的内存比较大.
+** 当你的key不小时,可以考虑使用一些非常方法将很大的key变成很大的value,比如你可以考虑将key,value组合成一个新的value.
+** 最好使用linux ext3 等对稀疏文件支持比较好的文件系统保存你的swap文件.
+** vm-max-threads这个参数,可以设置访问swap文件的线程数,设置最好不要超过机器的核数.如果设置为0,那么所有对swap文件的操作都是串行的.可能会造成比较长时间的延迟,但是对数据完整性有很好的保证.
+
+
+
+
+
+中文说明：
+1,是否以后台进程运行，默认为no
+daemonize no
+2,如以后台进程运行，则需指定一个pid，默认为/var/run/redis.pid
+pidfile /var/run/redis.pid
+3,监听端口，默认为6379
+port 6379
+4,绑定主机IP，默认值为127.0.0.1（注释）
+bind 127.0.0.1
+5,超时时间，默认为300（秒）
+timeout 300
+6,日志记录等级，有4个可选值，debug，verbose（默认值），notice，warning
+loglevel verbose
+7,日志记录方式，默认值为stdout
+logfile stdout
+8,可用数据库数，默认值为16，默认数据库为0
+databases 16
+9,指出在多长时间内，有多少次更新操作，就将数据同步到数据文件。这个可以多个条件配合，比如默认配置文件中的设置，就设置了三个条件。
+900秒（15分钟）内至少有1个key被改变
+save 900 1
+300秒（5分钟）内至少有10个key被改变
+save 300 10
+10,存储至本地数据库时是否压缩数据，默认为yes
+rdbcompression yes
+11,本地数据库文件名，默认值为dump.rdb
+dbfilename /root/redis_db/dump.rdb
+12,本地数据库存放路径，默认值为 ./
+dir /root/redis_db/
+13,当本机为从服务时，设置主服务的IP及端口（注释）
+slaveof <masterip> <masterport>
+14,当本机为从服务时，设置主服务的连接密码（注释）
+masterauth <master-password>
+15,连接密码（注释）
+requirepass foobared
+16,最大客户端连接数，默认不限制（注释）
+maxclients 128
+17,设置最大内存，达到最大内存设置后，Redis会先尝试清除已到期或即将到期的Key，当此方法处理后，任到达最大内存设置，将无法再进行写入操作。（注释）
+maxmemory <bytes>
+18,是否在每次更新操作后进行日志记录，如果不开启，可能会在断电时导致一段时间内的数据丢失。因为redis本身同步数据文件是按上面save条件来同步的，所以有的数据会在一段时间内只存在于内存中。默认值为no
+appendonly yes
+19,更新日志文件名，默认值为appendonly.aof（注释）
+appendfilename /root/redis_db/appendonly.aof
+20,更新日志条件，共有3个可选值。no表示等操作系统进行数据缓存同步到磁盘，always表示每次更新操作后手动调用fsync()将数据写到磁盘，everysec表示每秒同步一次（默认值）。
+appendfsync everysec
+21,是否使用虚拟内存，默认值为no
+vm-enabled yes
+22,虚拟内存文件路径，默认值为/tmp/redis.swap，不可多个Redis实例共享
+vm-swap-file /tmp/redis.swap
+23,将所有大于vm-max-memory的数据存入虚拟内存,无论vm-max-memory设置多小,所有索引数据都是内存存储的 (Redis的索引数据就是keys),也就是说,当vm-max-memory设置为0的时候,其实是所有value都存在于磁盘。默认值为0。
+vm-max-memory 0
+24,虚拟内存文件以块存储，每块32bytes
+vm-page-size 32
+25,虚拟内在文件的最大数
+vm-pages 134217728
+26,可以设置访问swap文件的线程数,设置最好不要超过机器的核数,如果设置为0,那么所有对swap文件的操作都是串行的.可能会造成比较长时间的延迟,但是对数据完整性有很好的保证.
+vm-max-threads 4
+27,把小的输出缓存放在一起，以便能够在一个TCP packet中为客户端发送多个响应，具体原理和真实效果我不是很清楚。所以根据注释，你不是很确定的时候就设置成yes
+glueoutputbuf yes
+28,在redis 2.0中引入了hash数据结构。当hash中包含超过指定元素个数并且最大的元素没有超过临界时，hash将以一种特殊的编码方式（大大减少内存使用）来存储，这里可以设置这两个临界值
+hash-max-zipmap-entries 64
+29,hash中一个元素的最大值
+hash-max-zipmap-value 512
+30,开启之后，redis将在每100毫秒时使用1毫秒的CPU时间来对redis的hash表进行重新hash，可以降低内存的使用。当你的使 用场景中，有非常严格的实时性需要，不能够接受Redis时不时的对请求有2毫秒的延迟的话，把这项配置为no。如果没有这么严格的实时性要求，可以设置 为yes，以便能够尽可能快的释放内存
+activerehashing yes

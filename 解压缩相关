@@ -13,7 +13,7 @@ unzip phpMyAdmin-4.1.13-all-languages.zip  -d /home/u32/phpMyAdmin 用zip解压�
 tar -cvf bb.tar bb 用tar打包一个目录
 tar -xvf bb.tar -C /home/u32/share/ 用tar解压一个文件
 tar -zcvf archive_name.tar.gz directory_to_compress 用tar压缩一个目录
-tar -zxvf archive_name.tar.gz -C /tmp/extract_here/ 用tar解压缩一个文件
+tar -zxvf archive_name.tar.gz -C /tmp/extract_here/ 用tar解压一个文件
 tar -jcvf archive_name.tar.bz2 directory_to_compress 用tar压缩TAR.BZ2目录
 tar -jxvf archive_name.tar.bz2 -C /tmp/extract_here/ 用tar解压缩TAR.BZ2文件
 tar -xf linux-3.14.13.tar.xz 用tar解压.xz文件
