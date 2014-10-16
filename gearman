@@ -1,0 +1,149 @@
+
+sudo apt-get install libboost-all-dev
+sudo apt-get install gperf
+
+# yum search boost
+# yum install boost.x86_64 [yum install boost boost-devel]（特别注意了：boost的版本必须大于1.39，如果手动安装boost请见最后）
+# yum install boost-devel.x86_64
+# yum search gperf
+# yum install gperf.x86_64
+yum -y install libevent.x86_64
+yum -y install libevent-devel.x86_64 [yum install libevent-devel]
+yum install libuuid-devel
+(可能需要mysql-devl和最新的libevent[yum install dos2unix mysql-devel]，如果还是不行，试试yum update更新完后重启电脑)
+（http://zyan.cc/dips/ 利用开源的Gearman框架构建分布式图片处理平台[原创]   ，如果centos 5.X上就要装低版本的 gearman。
+经验证gearmand-0.10.tar.gz是可以装上的，但是没有安装php扩展成功，提示 gearman-1.0.0 对应需要 0.21 gearmand【已经需要Boost>= 1.39】 ）
+
+
+下载 gearman （https://launchpad.net/gearmand/+download）
+wget https://launchpadlibrarian.net/165674261/gearmand-1.1.12.tar.gz
+tar -zxvf gearmand-1.1.12.tar.gz
+cd gearmand-1.1.12
+sudo ./configure 
+sudo make
+sudo make install
+sudo /sbin/ldconfig 【libgearman.so一般是在 /usr/local/lib下，看看/etc/ld.so.conf是否包含这个目录，执行/sbin/ldconfig -v刷新一下。】
+
+运行 gearman (gearman -V) 测试是否安装成功
+
+
+安装php扩展Gearman:
+wget http://pecl.php.net/get/gearman-1.1.2.tgz （http://pecl.php.net/package/gearman）
+tar -zxvf gearman-1.1.2.tgz
+cd gearman-1.1.2/
+sudo /usr/bin/phpize
+sudo ./configure [--with-php-config=/usr/local/php/bin/php-config] (注意这个路径一定要是这个)
+sudo make
+sudo make install
+
+cd /etc/php5/apache2/conf.d/
+sudo vim gearman.ini 加入如下：
+extension=gearman.so
+[gearman]
+通过 /usr/bin/php -m |grep gearman 可以查看gearman扩展是否安装成功
+重启php
+也可以通过phpinfo查看
+gearman support         enabled
+extension version       1.1.2
+libgearman version      1.1.12
+Default TCP Host        localhost
+Default TCP Port         4730 
+
+
+
+下面就client、job、worker是如何工作的举例说明：
+
+首先在192.168.17.130启动job
+gearmand -d
+
+client代码如下：
+$client = new GearmanClient();
+$client->addServer('192.168.17.130', 4730);
+print_r($client->doNormal('title', 'Linve')); // 高版本貌似没有do方法了，doBackground 是在后台运行，直接返回，不等待返回结果
+
+然后分别在两台不同的机器上运行worker，代码如下：
+
+在192.168.17.130上为
+<?php
+$worker = new GearmanWorker();
+$worker->addServer('192.168.17.130', 4730);
+$worker->addFunction('title', 'title_function');
+while($worker->work());
+
+function title_function($job) {
+    $str = $job->workload(); // 貌似只可以传一个参数
+    return strlen($str);
+}
+
+在192.168.17.134上为
+<?php
+$worker = new GearmanWorker();
+$worker->addServer('192.168.17.130', 4730);
+$worker->addFunction('title', 'title_function');
+while($worker->work());
+
+function title_function($job) {
+    $str = $job->workload(); // 貌似只可以传一个参数
+    return strrev($str);  // 这里的处理与第一台的不一样，为的是测试（演示效果），实际运用中，我们做负载均衡是更多的是一样的代码
+}
+
+分别运行worker，
+sudo /usr/bin/php -c /etc/php5/apache2/php.ini[添加-c参数是为了加载php.ini配置文件]  /home/u32/www/yiitest/workers/test.php
+/usr/local/php/bin/php /home/bear/www/test.php
+然后在client访问：可以看到不同的结果：5和evniL
+worker应该做成守护进程（CLI模式）
+job、client、worker都可以开启多个
+
+     命令行
+    启动Worker：gearman -w -f wc -- wc -l &
+    运行Client：gearman -f wc < /etc/passwd
+    查看 Server 状态 bin/gearadmin -h [ --host ] -p [--port] --status
+    查看 Server 运行中的 workers bin/gearadmin -h [ --host ] -p [--port] --workers
+    关闭 Server bin/gearadmin -h [ --host ] -p [--port] --shutdown
+    移除名为 FUNCTION_NAME 的 JOB bin/gearman -n -w -f FUNCTION_NAME > /dev/null
+    移除 20 个名为 FUNCTION_NAME 的 JOB gearman -c 20 -n -w -f FUNCTION_NAME > /dev/null
+
+
+如何手动安装boost？
+如果执行了yum install boost-devel还是报错：
+checking for Boost headers version >= 1.39.0… no
+configure: error: cannot find Boost headers version >= 1.39.0
+就是说boost的版本太低了 （下面的没有安装成功）
+打开网页 ： http://sourceforge.net/projects/boost/files/boost/1.50.0/ 下载boost
+运行bootstrap.sh –prefix=/usr/local/boost，后会生成一个b2的可执行文件
+./b2 install
+安装完成后需要修改一下环境变量：
+vim /etc/profile
+export CPPFLAGS=-I/usr/local/boost/include
+export LDFLAGS=-L/usr/local/boost/lib
+source /etc/profile 刷新
+boost安装成功！
+
+
+编译gearman
+[root@localhost gearmand-1.1.4]# make
+make -j2 all-am
+make[1]: Entering directory `/root/gearmand-1.1.4′
+CXX libgearman/libgearman_libgearman_la-actions.lo
+CXX libgearman/libgearman_libgearman_la-aggregator.lo
+In file included from ./libgearman/common.h:50,
+from libgearman/aggregator.cc:39:
+./libgearman-1.0/gearman.h:53:27: error: tr1/cinttypes: No such file or directory
+In file included from ./libgearman/common.h:50,
+from libgearman/actions.cc:39:
+./libgearman-1.0/gearman.h:53:27: error: tr1/cinttypes: No such file or directory
+make[1]: *** [libgearman/libgearman_libgearman_la-aggregator.lo] 错误 1
+make[1]: *** 正在等待未完成的任务….
+make[1]: *** [libgearman/libgearman_libgearman_la-actions.lo] 错误 1
+make[1]: Leaving directory `/root/gearmand-1.1.4′
+make: *** [all] 错误 2
+[root@localhost gearmand-1.1.4]#
+一堆错误……搜了下貌似是编译器的问题
+
+安装：
+yum install gcc44 gcc44-c++ libstdc++44-devel -y
+增加环境变量：
+export CC=/usr/bin/gcc44 or export CC=/usr/bin/gcc
+export CXX=/usr/bin/g++44
+source /etc/profile 刷新
+在make还是不行，最后执行：CC=gcc44 CXX=g++44 ./configure之后，终于可以顺利make了
