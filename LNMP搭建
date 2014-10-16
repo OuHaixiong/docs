@@ -4,6 +4,24 @@ Nginx是一个小巧而高效的Linux下的Web服务器软件，是由 Igor Syso
 yum -y install make pcre pcre-devel gcc gcc-c++ autoconf libjpeg libjpeg-devel libpng libpng-devel freetype freetype-devel libxml2 libxml2-devel zlib zlib-devel glibc glibc-devel glib2 glib2-devel bzip2 bzip2-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel openldap openldap-devel nss_ldap openldap-clients openldap-servers libpng10-devel gd gd-devel vim-minimal unzip file libevent-devel
 (貌似还有：patch gcc-g77 flex bison libtool libtool-libs kernel-devel libpng10 sendmail fonts-chinese gettext gettext-devel gmp-devel pspell-devel)
 
+（
+如果是 ubuntu：
+sudo apt-get update
+sudo apt-get install nginx
+
+    所有的配置文件都在/etc/nginx下，并且每个虚拟主机已经安排在了/etc/nginx/sites-available下
+    主配置在 /etc/nginx/nginx.conf
+    程序文件在/usr/sbin/nginx
+    日志放在了/var/log/nginx中
+    并已经在/etc/init.d/下创建了启动脚本nginx
+    虚拟主机的目录设置请参考/etc/nginx/sites-available里的配置
+
+sudo /etc/init.d/nginx start  启动nginx，在浏览器中输入：http://localhost/  
+sudo /etc/init.d/nginx stop   停止nginx
+
+
+）
+
 nginx的安装
 添加用户,用户组
 groupadd www
