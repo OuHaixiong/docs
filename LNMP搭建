@@ -6,6 +6,35 @@ yum -y install make pcre pcre-devel gcc gcc-c++ autoconf libjpeg libjpeg-devel l
 
 （
 如果是 ubuntu：
+sudo apt-get  install  build-essential 
+sudo apt-get build-dep gcc // 安装gcc
+
+首选,确认你已经安装了build-essential程序包:
+apt-get install build-essential
+确认你已经安装了内核头文件包:
+uname -r
+apt-get install linux-headers-'kernel version'
+如果你遇到gcc版本错误,你需要安装编译你内核的gcc版本:
+cat /proc/version
+这会告诉你,你的内核是用什么版本的gcc编译的.
+$ cat /proc/version 
+Linux version 2.6.12-8-386 (buildd@rothera) (gcc version 3.4.5 20050809 (prerelease) (Debian 3.4.4-6ubuntu6)) #1 Tue Aug 30 22:41:30 BST 2005
+ls /usr/bin/gcc*
+
+/usr/bin/gcc      /usr/bin/gcc-4.0  /usr/bin/gccbug   /usr/bin/gccbug-4.0
+可以看到,我的核心是用gcc-3.4编译的,但我只装了gcc-4.0.如果你的也不同于/usr/bin/gcc*,你需要安装核心所用的版本.
+apt-get install gcc-3.4
+这是我需要的版本,你的可能不同.
+人 们忘记的,并困扰我的是g++版本.一些人好像安装gcc之后就可以正常安装vmware-config.pl.但我的在编译vmmon模块时遇到 "cannot exec 'cc1plus'"错误并停止了.你需要安装的是和gcc一样版本的gcc-c++,只是Debian/Ubuntu把它叫做g++.
+apt-get install g++-3.4
+编辑添加: 我忘记你要设定CC为需要的gcc版本了:
+export CC=/usr/bin/gcc-3.4
+./runme.pl
+
+sudo apt-get install openssl
+sudo apt-get install libxml2 libxml2-dev
+sudo apt-get install libjpeg62 libjpeg62-dev
+sudo apt-get install libpng12 libpng12-dev
 sudo apt-get update
 sudo apt-get install nginx
 
@@ -18,8 +47,6 @@ sudo apt-get install nginx
 
 sudo /etc/init.d/nginx start  启动nginx，在浏览器中输入：http://localhost/  
 sudo /etc/init.d/nginx stop   停止nginx
-
-
 ）
 
 nginx的安装
@@ -96,6 +123,17 @@ http {
 tar -zxvf libevent-2.0.21-stable.tar.gz , tar -zxf libiconv-1.14.tar.gz
 分别解压,配置安装
 ./configure && make && make install
+
+（ubuntu下如果出如下错误：
+In file included from progname.c:26:0:
+./stdio.h:1010:1: error: ‘gets’ undeclared here (not in a function)
+_GL_WARN_ON_USE (gets, "gets is a security hole - use fgets instead");
+^
+cd ./srclib
+sudo vim stdio.h 找到如下句，直接注释掉
+// _GL_WARN_ON_USE (gets, "gets is a security hole - use fgets instead");
+）
+
 安装libmcrypt、mhash、mcrypt
 yum list installed|grep mcrypt 查看是否有安装mcrypt库
 tar -zxvf libmcrypt-2.5.8.tar.gz
@@ -189,6 +227,7 @@ cd ../
 
 安装PHP:
 tar -jxvf php-5.5.14.tar.bz2
+cd php-5.5.14/
 编译,安装
 ./configure --prefix=/usr/local/php  --with-mysql --with-mysqli --with-openssl --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr --enable-xml --with-iconv-dir=/usr/local --with-curl --with-mcrypt --with-gd --enable-gd-native-ttf --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap
 make ZEND_EXTRA_LIBS='-liconv'
