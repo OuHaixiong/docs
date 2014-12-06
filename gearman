@@ -64,6 +64,7 @@ print_r($client->doNormal('title', 'Linve')); // 高版本貌似没有do方法�
 然后分别在两台不同的机器上运行worker，代码如下：
 
 在192.168.17.130上为
+#!/usr/bin/php -q
 <?php
 $worker = new GearmanWorker();
 $worker->addServer('192.168.17.130', 4730);
@@ -76,6 +77,7 @@ function title_function($job) {
 }
 
 在192.168.17.134上为
+#!/usr/bin/php -q
 <?php
 $worker = new GearmanWorker();
 $worker->addServer('192.168.17.130', 4730);

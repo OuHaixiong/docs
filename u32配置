@@ -17,11 +17,6 @@ php的扩展配置文件所在文件夹：/etc/php5/conf.d
 /etc/apache2/httpd.conf
 
 
-
-
-
-
-
 sudo a2enmod rewrite 开启apache的rewrite功能
 sudo a2dismod   禁用模块
 sudo /etc/init.d/apache2 restart 重启apache 
