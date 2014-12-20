@@ -1,0 +1,41 @@
+
+sudo apt-get update
+sudo apt-get install nfs-kernel-server
+
+sudo vim /etc/exports 在文档末尾加入：
+/var/www *(rw,sync,no_root_squash)
+需要共享的目录 
+*：允许所有的网段访问
+rw:读写权限
+sync：资料同步写入内存和硬盘
+no_root_squash:nfs客户端共享目录使用者权限
+
+重启nfs 服务
+sudo /etc/init.d/portmap restart
+sudo /etc/init.d/nfs-kernel-server restart
+showmount -e 查看共享出来的目录
+注：nfs是一个RPC程序，使用它前，需要映射好端口，通过portmap设定
+
+现在可以在本机上试一下：
+#sudo mount -t nfs localhost:/home/kevin /mnt
+注：localhost为本机linux的IP地址
+这样就把共享目录挂到了/mnt目录，取消挂载用：
+#sudo umount /mnt
+
+如果用在嵌入式设备上挂载，要加上参数-o nolock
+我在开发板上使用的挂载命令：
+mount -t nfs -o nolock 192.168.1.8:/home/kevin /mnt
+
+
+实现开机就挂载可以
+1.vim /etc/fstab 
+192.168.1.19:/var/www /data/u32_www nfs defaults 0 0
+
+2.写入开机后启动脚本
+/etc/rc.local
+mount -t nfs 192.168.1.19:/var/www /data/u32_www
+(一般不建议开机就挂载，除非你先把要挂载的服务器先打开，否则开机会很慢，且有时进不了系统)
+使用umount命令卸载NFS文件系统
+umount /data/u32_www
+
+
