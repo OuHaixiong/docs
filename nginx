@@ -63,11 +63,26 @@ server {
     server_name wslm.csc86.com; # 域名
     #access_log  logs/host.access.log  main; # 成功日志
     error_log /var/log/www/wslm_error.log; # 错误日记
+
+    #if ($remote_addr != "192.168.0.54"){
+    #    set $root /data/wwwroot/wslm;
+    #}
+    #if ($remote_addr = "192.168.0.54"){
+    #    set $root /data/javaroot/wslm; #设置变量和值
+    #}
+    #root $root; # 使用变量
+    
     root /home/bear/www/wslm;  # 站点路径
 
-    #location / {
-    #    index index.php index.html;
-	#站点的rewrite写在这里
+    #location ^~ /themes/ {  # 设置代理
+    #    proxy_pass http://wslm.csc86.com/themes/;
+    #}
+
+    #autoindex off; # 关闭自动查找首页文件
+
+    #location / { # 站点的rewrite写在这里
+        #index index.php index.html;
+	    
         #if (-f $request_filename/index.html){
         #    rewrite (.*) $1/index.html break;
         #}
@@ -79,6 +94,10 @@ server {
         #}
 		#rewrite ^/(\w+)\.html$ /$1.php;
         #rewrite ^/(\w+)/(\w+)$ /$1/$2.php; 
+        
+        #if (!-e $request_filename) { # 重写，如果找不到此文件，则把请求转到根目录下的index.php文件
+            #rewrite ^(.*)$ /index.php last; # rewrite (.*) /index.php last;
+        #}
     #}
 
 	# 错误页的配置
@@ -90,24 +109,43 @@ server {
     #}
 
     # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
-    location ~ .*\.php$ {
+    location ~ .*\.php$ { # 或者 location ~ \.php {
         #root           /home/bear/www/wslm;
         fastcgi_pass   127.0.0.1:9000;
         fastcgi_index  index.php;
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
-        include        /usr/local/webserver/nginx/conf/fastcgi_params;
+        include        /usr/local/webserver/nginx/conf/fastcgi_params;  # 其实fastcgi_params此文件内容就和下面的fcgi.conf差不多
+        # 貌似上面两句可以包含一个文件进来，华南城网的配置就是这样的，fcgi.conf文件内容在底部
     }
 }
 
+fcgi.conf文件一定要放在和nginx的nginx.conf一起，内容如下：
+fastcgi_param  GATEWAY_INTERFACE  CGI/1.1;
+fastcgi_param  SERVER_SOFTWARE    nginx;
 
+fastcgi_param  QUERY_STRING       $query_string;
+fastcgi_param  REQUEST_METHOD     $request_method;
+fastcgi_param  CONTENT_TYPE       $content_type;
+fastcgi_param  CONTENT_LENGTH     $content_length;
 
+fastcgi_param  SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+fastcgi_param  SCRIPT_NAME        $fastcgi_script_name;
+fastcgi_param  REQUEST_URI        $request_uri;
+fastcgi_param  DOCUMENT_URI       $document_uri;
+fastcgi_param  DOCUMENT_ROOT      $document_root;
+fastcgi_param  SERVER_PROTOCOL    $server_protocol;
 
+fastcgi_param  REMOTE_ADDR        $remote_addr;
+fastcgi_param  REMOTE_ADDR        $http_x_forwarded_for;
+fastcgi_param  REMOTE_PORT        $remote_port;
+fastcgi_param  SERVER_ADDR        $server_addr;
+fastcgi_param  SERVER_PORT        $server_port;
+fastcgi_param  SERVER_NAME        $server_name;
 
+# PHP only, required if PHP was built with --enable-force-cgi-redirect
+fastcgi_param  REDIRECT_STATUS    200;
 
-
-
-
-
-
-
+#
+fastcgi_param  HTTP_X_FORWARDED_FOR    $http_x_forwarded_for;
+fastcgi_param  HTTP_REFERER     $http_referer;
 

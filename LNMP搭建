@@ -149,15 +149,24 @@ make && make install
 
 接下来安装mysql,这跟搭建lamp环境时完全一样，下面就不加以说明。
 rpm -qa |grep -i mysql 查看系统安装的mysql
-下载mysql的rpm包：MySQL-5.6.19-1.el6.x86_64.rpm-bundle.tar
-解压： tar -zxvf MySQL-5.6.19-1.el6.x86_64.rpm-bundle.tar
+或通过如下命令查看系统是否已安装mysql
+yum list installed | grep mysql
 先看下系统是否有存在的包：mysql-libs-5.1.73-3.el6_5.x86_64
 如果有需要先移除掉：yum -y remove mysql-libs-5.1.73-3.el6_5.x86_64
+yum -y remove mysql-libs.x86_64
+yum -y remove mysql.x86_64 （运行这个就行了，依赖的devel和server也会被卸载掉）
+yum -y remove mysql-server.x86_64
+
+下载mysql的rpm包：MySQL-5.6.19-1.el6.x86_64.rpm-bundle.tar
+解压： tar -zxvf MySQL-5.6.19-1.el6.x86_64.rpm-bundle.tar
 然后依次安装：
 rpm -ivh MySQL-devel-5.6.19-1.el6.x86_64.rpm 
 rpm -ivh MySQL-server-5.6.19-1.el6.x86_64.rpm 
 rpm -ivh MySQL-client-5.6.19-1.el6.x86_64.rpm
 安装后生成的一个随机密码在 /root/.mysql_secret 
+查看mysql数据库版本信息：
+rpm -qi mysql-server
+
 启动 MySQL：service mysql start 或（/etc/init.d/mysql start/stop/restart）启动脚本：/etc/rc.d/init.d/
 停止：/usr/bin/mysqladmin -u root -p shutdown
 登陆mysql ：mysql -u root -p
@@ -226,10 +235,10 @@ cd ../
 上面是安装apache结束。
 
 安装PHP:
-tar -jxvf php-5.5.14.tar.bz2
-cd php-5.5.14/
+tar -jxvf php-5.4.35.tar.bz2
+cd php-5.4.35/
 编译,安装
-./configure --prefix=/usr/local/php  --with-mysql --with-mysqli --with-openssl --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr --enable-xml --with-iconv-dir=/usr/local --with-curl --with-mcrypt --with-gd --enable-gd-native-ttf --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap
+./configure --prefix=/usr/local/php  --with-mysql --with-mysqli --with-openssl --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-bz2 --with-libxml-dir=/usr --enable-xml --with-iconv-dir=/usr/local --with-curl --with-mcrypt --with-gd --enable-gd-native-ttf --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap
 make ZEND_EXTRA_LIBS='-liconv'
 make test
 make install

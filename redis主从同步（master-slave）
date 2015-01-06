@@ -149,7 +149,7 @@ redis 192.168.17.130:6379> quit
 192.168.17.134:6379> quit
 redis-cli shutdown // 关闭redis
 关闭某个端口上的redis
-# redis-cli -p 6397 shutdown //关闭6397端口的redis
+# redis-cli -p 6379 shutdown //关闭6379端口的redis
 
 到此，配置OK
 

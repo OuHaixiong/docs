@@ -189,7 +189,7 @@ mysql> select host,user from user;
 
 然后：
 
-mysql> grant all privileges on *.* to 'master82'@'%' Identified by "123456";  // 所有权限 （如果没有）
+mysql> grant all privileges on *[库].*[表] to 'master82'@'%[IP]' Identified by "123456";  // 所有权限 （如果没有）
 Query OK, 0 rows affected (0.08 sec)  
 // grant select on *.* to 'slave85'@'%' Identified by "123456";  // 只读权限
 
