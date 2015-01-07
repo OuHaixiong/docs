@@ -314,7 +314,7 @@ pm.max_requests = 500
  kill -QUIT 3841
  /usr/local/php/sbin/php-fpm
  /usr/local/webserver/nginx/sbin/nginx
- 还有平滑重启 kill -HUP 住进称号或进程号文件路径
+ 还有平滑重启 kill -HUP 住进称号或进程号文件路径 (PHP不能平滑重启的)
  平滑退出 kill -QUIT 主进程号
  强制停止 pkill -9 nginx/php-fpm 
  
