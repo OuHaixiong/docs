@@ -1,6 +1,6 @@
 Redis::__construct构造函数
 $redis = new Redis();
-dd
+
 connect, open 链接redis服务
 参数
 host: string，服务地址

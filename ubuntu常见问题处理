@@ -1,0 +1,5 @@
+
+1, 解决 httpd: Could not reliably determine the server's fully qualified domain name, using 127.0.0 ...
+vim /etc/apache2/httpd.conf (空白的) 加入：
+ServerName *:80
+重启：sudo /etc/init.d/apache2 restart

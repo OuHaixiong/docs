@@ -1,0 +1,13 @@
+
+/usr/local/php/lib/php.ini
+找到如下两行，修改为
+session.save_handler = redis
+session.save_path = "tcp://127.0.0.1:6379"
+保存，然后重启php-fpm
+pkill php-fpm
+/usr/local/php/sbin/php-fpm
+
+
+如果不想修改php.ini可这样
+ini_set("session.save_handler", "redis");
+ini_set("session.save_path", "tcp://127.0.0.1:6379");

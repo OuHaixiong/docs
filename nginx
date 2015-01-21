@@ -25,7 +25,6 @@ kill -HUP 住进称号或进程号文件路径
 
 注意，修改了配置文件后最好先检查一下修改过的配置文件是否正 确，以免重启后Nginx出现错误影响服务器稳定运行。判断Nginx配置是否正确命令如下：
 nginx -t -c /usr/nginx/conf/nginx.conf
-
 或者
 /usr/nginx/sbin/nginx -t
 

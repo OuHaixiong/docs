@@ -23,24 +23,7 @@ rpm ivh MySQL-client-5.6.11-2.el6.i686.rpm
 #rpm -ivh MySQL-client-5.6.11-2.el6.i686.rpm
 2、检查MySQL服务是否开启：
 #netstat -nat
-
 如果开启的话，会有一个端口号为3306，如果没有启动的话，运用service mysql start启动mysql服务
-3、登录及相关问题解决办法
-#mysql -uroot -p
-Enter password:
-ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)该错解决方法
-#service mysql stop
-#mysqld_safe --user=mysql --skip-grant-tables --skip-networking &
-#mysql -u root mysql
-mysql> UPDATE user SET Password=PASSWORD('root') where USER='root';
-mysql> FLUSH PRIVILEGES;
-mysql> quit
-#service mysql start
-如果想需要添加一个可以具有原创访问的mysql账号(需要进入mysql命令行下):
-GRANT ALL PRIVILEGES ON *.* TO test@"%" IDENTIFIED BY "123456" WITH GRANT OPTION;
-如果MySql5.6操作时报错：You must SET PASSWORD before executing this statement解决,执行下面一句话
-mysql>  SET PASSWORD = PASSWORD('root');
-
 
 # 命令行
 mysql -u root -p            登陆(mysql [-u username] [-h host] [-p[password]] [dbname] )
@@ -52,9 +35,7 @@ describe slow_log;          显示数据表结构
 create database test;       创建数据库
 drop database 库名;         删除数据库
 drop table 表名;            删除表
-grant select,insert,update,delete on *（数据库）.*（表） to user_1@"%" Identified by "123"; 增加一个用户user_1密码为123，让他可以在任何主机上登录，并对所有数据库有查询、插入、修改、删除的权限
 
-匹配字符：可以用通配符_代表任何一个字符，％代表任何字符串;
   增加一个字段：alter table tabelName add column fieldName dateType;
   增加多个字段：alter table tabelName add column fieldName1 dateType,add columns fieldName2 dateType;
   多行命令输入:注意不能将单词断开;当插入或更改数据时，不能将字段的字符串展开到多行里，否则硬回车将被储存到数据中;
@@ -168,11 +149,9 @@ grant select,insert,update,delete on *（数据库）.*（表） to user_1@
   如果可能，应将最繁忙的数据库存放在不同的物理设备上，这跟使用同一物理设备的不同分区是不同的，因为它们将争用相同的物理资源（磁头）
   
   
- 使用master82登陆到mysql后 （已验证）
+使用master82登陆到mysql后 （已验证）
 show databases;
-
 use mysql;
-
 mysql> update user set host='%' where user='root'; 
 ERROR 1062 (23000): Duplicate entry '%-root' for key 'PRIMARY' 
 mysql> select host,user from user; 
@@ -187,18 +166,78 @@ mysql> select host,user from user;
 +-----------------------+------+ 
 5 rows in set (0.00 sec)
 
-然后：
-
-mysql> grant all privileges on *[库].*[表] to 'master82'@'%[IP]' Identified by "123456";  // 所有权限 （如果没有）
-Query OK, 0 rows affected (0.08 sec)  
-// grant select on *.* to 'slave85'@'%' Identified by "123456";  // 只读权限
-
-mysql> exit 
-Bye 
-
 如果要远程连接，需要配置/etc/mysql/my.cnf注释掉：#bind-address = 127.0.0.1
-
 [root@localhost ~]# service mysql restart 
 Shutting down MySQL.. SUCCESS! 
 Starting MySQL.. SUCCESS! 
 重启mysql即可远程登陆
+
+
+下面是ubuntu下安装mysql
+sudo apt-get install mysql-server mysql-client #中途会让你输入一次root用户密码
+sudo apt-get install php5-mysql  #安装php5-mysql 是将php和mysql连接起来
+
+一旦安装完成，MySQL 服务器应该自动启动。
+sudo start mysql #手动的话这样启动
+sudo stop mysql #手动停止
+
+要想检查 mysqld 进程是否已经开启，可以使用下面的命令：
+pgrep mysqld
+如果进程开启，这个命令将会返回该进程的 id。
+
+文件结构
+MySQL配置文件：/etc/mysql/my.cnf ，其中指定了数据文件存放路径
+datadir         = /var/lib/mysql  （一定是这个路径，不然无法启动成功）
+如果你创建了一个名为 test 的数据库，那么这个数据库的数据会存放到 /var/lib/mysql/test 目录下。
+当你修改了配置文件後，你需要重启 mysqld 才能使这些修改生效。
+
+命令行进入MySQL
+mysql -u root -p 
+(输入mysql的root密码)
+$ mysql -u root -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 37
+Server version: 5.1.41-3ubuntu12.3 (Ubuntu)
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+mysql> 
+修改 MySQL 的管理员密码：
+sudo mysqladmin -u root password newpassword；
+
+简单的操作
+显示数据库：
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
++--------------------+
+2 rows in set (0.00 sec)
+
+设置远程访问
+1.取消本地监听
+正常情况下，mysql占用的3306端口只是在IP 127.0.0.1上监听，拒绝了其他IP的访问（通过netstat可以查看到）。取消本地监听需要修改 my.cnf 文件：
+sudo vim /etc/mysql/my.cnf
+//找到如下内容，并注释
+#bind-address = 127.0.0.1
+
+2.授权法
+mysql>GRANT ALL PRIVILEGES ON *.* TO <user>@"%" IDENTIFIED BY '<password>' WITH GRANT OPTION;
+mysql>FLUSH PRIVILEGES
+匹配字符：可以用通配符_代表任何一个字符，％代表任何字符串;
+第二句表示从mysql数据库的grant表中重新加载权限数据。因为MySQL把权限都放在了cache中，所以在做完更改后需要重新加载。 
+
+3.然后需要重启 mysql 
+
+
+
+删除 mysql
+sudo apt-get autoremove --purge mysql-server-5.0
+sudo apt-get remove mysql-server
+sudo apt-get autoremove mysql-server
+sudo apt-get autoremove mysql-client
+sudo apt-get remove mysql-common //这个很重要
+上面的其实有一些是多余的。
+清理残留数据
+dpkg -l |grep ^rc|awk '{print $2}' |sudo xargs dpkg -P

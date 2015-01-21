@@ -42,6 +42,7 @@ smbpasswd -x bear 删除samba服务器中的一个账号
 sudo /etc/init.d/smbd restart 重启samba服务器
 sudo /etc/init.d/ssh restart 重启ssh服务器
 /usr/local/webserver/nginx/sbin/nginx 启动nginx（nginx所在目录）
+yum install lrzsz 安装上传和下载的rz、sz
 
 
 # 定时任务相关

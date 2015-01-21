@@ -62,7 +62,7 @@ http {
     proxy_send_timeout 600; // 后端服务器的回传时间，规定服务器在一定的时间内传送完
     proxy_buffer_size 12k; // 代理服务器的缓存文件头部文件大小，默认4k
 	proxy_buffers 4 32k;   // 后端真实服务器的数量和大小
-    proxy_busy_buffers_size 22k; //当系统忙时，申请更大 proxy_buffer
+    proxy_busy_buffers_size 42k; //当系统忙时，申请更大 proxy_buffer
     proxy_temp_file_write_size 64k; // 写入临时目录的文件大小
     proxy_temp_path /tmp/proxy_temp; // 指定一个目录来缓存比较大的代理请求
 	

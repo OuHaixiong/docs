@@ -1,4 +1,6 @@
 
+安装：yum -y install vim-enhanced
+
 vim快捷键 
 
 跳转：
