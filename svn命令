@@ -27,7 +27,7 @@ Versioned：受控的；受版本控制的
 
 SVN是什么？
 
-   SVN是开源的版本控制系统。
+    SVN是开源的版本控制系统。
     比CVS更多的特性。一个更好的CVS？因此SVN具有大部分CVS拥有的特性。
     不仅仅是文件受控，目录也加入版本控制。
     复制，删除，重命名这些操作都是受控的。
@@ -36,18 +36,18 @@ SVN是什么？
     创建分支和标记非常简单。简单的通过copy命令就可以创建分支和标记。
     合并跟踪。在合并时协助你处理所有的更改点。
     文件锁定。svn支持文件锁定修改策略。
-   Unix的link可以受控了。前提是WC必须在Unix下。
+    Unix的link可以受控了。前提是WC必须在Unix下。
     可选的Apache network server，基于WEBDAV/DeltaV 协议。熟悉Apache的管理员会很喜欢这一点。
     内置的server选择（svnserve）。如果不想用Apache，可以试试Svn自己的server：svnserve。同样也能提供授权和验证，ssh通道等功能。
     方便解析的输出。svn的输出尽量做到方便阅读和方便机器解析。
     冲突解决交互性良好。svn命令行客户端提供多种不同的方式解决冲突。
-   svn提供一个实用工具，svnsync来实现从主库到只读附属库的同步。
+    svn提供一个实用工具，svnsync来实现从主库到只读附属库的同步。
     持续写入代理功能让只读的附属库专门处理所有的读请求。所有的写请求交给主库处理。这个功能只在使用Apache WebDAV server的时候才有效。
     基于本地化的客户机服务器体系，分层的库，明晰的API方便扩展。
     高效处理二进制文件。
     性能消耗与更改点的数量成正比。
-   svn的api可以和多种语言集成。Python，Perl,Java,Ruby（svn本身是用C写的）
-   ChangeLists功能。
+    svn的api可以和多种语言集成。Python，Perl,Java,Ruby（svn本身是用C写的）
+    ChangeLists功能。
 
 Svn的安装分客户端和服务端。
 你可以在如下地址找到下载：http://subversion.tigris.org/
