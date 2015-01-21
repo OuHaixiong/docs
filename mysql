@@ -39,7 +39,6 @@ drop table 表名;            删除表
   增加一个字段：alter table tabelName add column fieldName dateType;
   增加多个字段：alter table tabelName add column fieldName1 dateType,add columns fieldName2 dateType;
   多行命令输入:注意不能将单词断开;当插入或更改数据时，不能将字段的字符串展开到多行里，否则硬回车将被储存到数据中;
-  增加一个管理员帐户：grant all on *.* to user@localhost identified by "password";
   每条语句输入完毕后要在末尾填加分号';'，或者填加'\g'也可以；
   查询时间：select now();
   查询当前用户：select user();
@@ -224,6 +223,8 @@ sudo vim /etc/mysql/my.cnf
 
 2.授权法
 mysql>GRANT ALL PRIVILEGES ON *.* TO <user>@"%" IDENTIFIED BY '<password>' WITH GRANT OPTION;
+// grant select,insert,update,delete on *（数据库）.*（表） to user@"%"[localhost] Identified by "123456" with grant option; 
+// 增加一个用户user密码为123456，让他可以在任何主机上登录，并对所有数据库有查询、插入、修改、删除的权限
 mysql>FLUSH PRIVILEGES
 匹配字符：可以用通配符_代表任何一个字符，％代表任何字符串;
 第二句表示从mysql数据库的grant表中重新加载权限数据。因为MySQL把权限都放在了cache中，所以在做完更改后需要重新加载。 
