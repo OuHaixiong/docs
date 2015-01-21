@@ -5,19 +5,30 @@ iwconfig 查看无线网络信息
 ifconfig eth0 down 关闭网络
 
 编辑/etc/sysconfig/network-scripts/ifcfg-eth0 内容如下
-DEVICE=ech0 网卡对应的设备别名
-#BOOTPROTO=dhcp 自动获取ip
-BOOTPROTO=static 静态ip
-HWADDR=48:5B:39:0B:28:C7 网卡物理地址
-TYPE=Ethernet
-IPV6INIT=no
-IPV6_AUTOCONF=no
-ONBOOT=yes 系统启动时，激活此设备
-IPADDR=10.10.10.73 ip地址
-NETMASK=255.255.255.0 子网掩码
-GATEWAY=10.10.10.1 默认网关
-DNS1=202.96.134.133
-DNS2=8.8.8.8
+
+#USERCTL=no              # 
+DEVICE=eth0              # 网卡对应的设备别名
+#BOOTPROTO=dhcp          # 自动获取ip
+BOOTPROTO=static         # 静态ip
+HWADDR=48:5B:39:0B:28:C7 # 网卡物理地址
+TYPE=Ethernet            # 
+IPV6INIT=no              # ipv6不初始化
+IPV6_AUTOCONF=no         # 不开启ipv6
+ONBOOT=yes               # 系统启动时，激活此设备
+IPADDR=10.10.10.73       # ip地址 192.168.1.86
+NETMASK=255.255.255.0    # 子网掩码
+GATEWAY=10.10.10.1       # 默认网关 192.168.17.255 / 192.168.1.1
+DNS1=202.96.134.133      # 首选dns服务器 192.168.17.2
+DNS2=8.8.8.8             # 备用dns服务器
+UUID=5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e03
+#PREFIX=24
+#search=localdomain
+#DEFROUTE=yes
+#IPV4_FAILURE_FATAL=yes
+#NAME="System eth0"
+#LAST_CONNECT=1406143407
+#route add default gw 192.168.17.2
+
 
 修改网卡的网关配置文件
 vim /etc/sysconfig/network
