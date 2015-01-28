@@ -5,6 +5,7 @@
 安装samba服务： yum install samba samba-client samba-swat
 用yum安装的程序可以用 yum remove XX 进行卸载
 使用源码编译安装的，需要到安装目录用 make uninstall 进行卸载
+make clean清除编译临时文件
 查看安装状况： rpm -qa|grep samba
 samba-common-3.5.10-125.el6.x86_64       //主要提供samba服务器的设置文件与设置文件语法检验程序testparm
 samba-client-3.5.10-125.el6.x86_64       //客户端软件，主要提供linux主机作为客户端时，所需要的工具指令集

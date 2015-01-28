@@ -1,0 +1,150 @@
+
+
+通常人们写程序时都是将文字写死在程序里的，比如：echo "Hello World!"; ，假如要改成它国语言，写国际化程序，就要逐个打开进行修改，程序较短时还行，若程序有上万甚至更多，改起来就不是那么容易了。近来随着i18n的逐渐标准化，我也来讲一讲在PHP中如何实现国际化支持。跟其他程序语言一样，在 PHP 也可以利用 gettext 套件写作 i18n 程序，实现 NLS(Native Language Support) 国际化支持，具体请参考官方文档( http://www.gnu.org/manual/gettext/index.html )。
+
+　　实现流程：程序设计者在程序码中写入所要显示的信息，在运行程序时并不会直接显示程序设计师所写的信息，而会先去找一个所设置语系的信息档。如果未找到，才会去显示程式码中的信息。
+
+　　一、安装设置gettext套件：
+　　1) *nix系统:
+　　1、从 http://www.gnu.org/software/gettext/gettext.html 下载 gettext package，进行安装
+　　2、编译PHP的时候加上“--with-gettext[=DIR]”，其中DIR为gettext安装的
+目录，缺省为：/usr/local
+　　3、保存，然后 restart server。
+
+　　2) windows系统:
+　　1、打开php.ini档，查找extension=php_gettext.dll，去掉前面的“;”
+　　2、保存，然后restart server。
+
+　　若一切顺利，就可以在 phpinfo() 中看到 gettext 字样，至此已设置完毕。
+
+ 
+
+　　二、php_gettext.dll套件里有好几个函式
+
+　　具体请看相关的manual。在这里我们只用记住3个函式就行了，如下：
+
+string bindtextdomain ( string domain, string directory)
+string textdomain ( string text_domain)
+string gettext ( string message)
+
+ 
+
+　　三、写作i18n程序：
+
+<?php
+// 常规的程序 
+echo "Hello World!"); 
+?>
+
+　　下面是 i18n 程序：hello.php
+复制代码
+
+<?php
+
+// I18N 程序范例开始 
+define('PACKAGE', 'hello'); // 定义要用的mo文件名称，常规来说，我们都把PACKAGE的名称定义和程序名称相同。 
+
+putenv('LANG=zh_CN'); 
+setlocale(LC_ALL, 'zh_CN'); // 指定要用的语系，如：en_US、zh_CN、zh_TW 
+
+bindtextdomain(PACKAGE, 'e:/phpbulo.com/language'); 
+textdomain(PACKAGE); 
+
+// The .mo file searched is: 
+// e:/phpbulo.com/language/zh_CN/LC_MESSAGES/hello.mo 
+
+echo gettext("Hello World!"); 
+?> 
+
+复制代码
+
+　　在IE中输入：http://localhost/hello.php，输出结果为：“Hello World!”
+　　note：按照 GNU package 里面的习惯，可以使用 _(...) 来代替 gettext(...) ，这样就可以少打很多 gettext 了
+
+ 
+
+　　四、接下来设置gettext po档：
+　　1、创建目录结构，如下所示：
+　　　　bindtextdomain's dir
+　　　　　　/language
+　　　　　　　　/LC_MESSAGES
+　　　　　　　　　　domain.po
+　　　　　　　　　　domain.mo
+　　其中 bindtextdomain's dir 为 bindtextdomain() 所用的目录，language 为要用的语系，domain 为 PACKAGE 名称。
+
+　　以上面为例：
+　　　　/locale
+　　　　　　/zh_CN
+　　　　　　　　/LC_MESSAGES
+　　　　　　　　　　hello.po
+　　　　　　　　　　hello.mo
+
+　　2、创建po档
+　　xgettext -Cd [您定义的PACKAGE名称] [程序文件名]
+　　windows下面的xgettext、msgfmt程序档可以从 ( http://switch.dl.sourceforge.net/sourceforge/gnuwin32/gettext-0.10.40-bi... ) 下载，需要libiconv.dll,、libintl.dll 的支持。
+　　libiconv下载:http://mirrors.kernel.org/gnu/libiconv/libiconv-1.9.1.bin.woe32.zip
+　　将libiconv-1.9.1.bin.woe32\bin下的iconv.dll拷贝到gettext-0.10.40-bin/bin目录下,并重命名为libiconv.dll
+
+ 
+
+　　以上面hello.php档为例，
+　　$ xgettext -Cd e:/phpbulo.com/language/zh_CN/LC_MESSAGES/hello e:/phpbulo.com/hello.php
+　　运行后将产生一个hello.po档，内容如下：
+复制代码
+
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2007-07-16 13:44+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: e:/phpbulo.com/hello.php:7
+msgid "hello world"
+msgstr ""
+
+
+　　里面列出 hello.php 档里所有调用 gettext 函式的字符串，翻译的时候只需将msgid 值翻译填入 msgstr 即可，如翻译成中文。
+复制代码
+
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2007-07-16 13:44+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: e:/phpbulo.com/hello.php:7
+msgid "hello world"
+msgstr "你好,世界!"
+
+ 
+
+　　3、创建mo档
+　　msgfmt -o E:\work\test\language\zh_cn\LC_MESSAGES\hello.mo E:\work\test\language\zh_cn\LC_MESSAGES\hello.po
+
+　　运行后将产生一个hello.mo二进制档。
+
+ 
+
+　　五、
+
+　　在IE中输入： http://localhost/hello.php ，现在的结果就是：“你好,世界!”

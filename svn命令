@@ -2,6 +2,8 @@
 CentOS 6.5 安装svn：
 yum install subversion
 
+svn info 可以查看svn的一些信息：如，当前分支号
+
 svn 不支持批量删除和批量添加功能，我们可以通过如下方式实现：
 批量删除文件
 svn status |grep ! |awk '{print $2}' |xargs svn del
