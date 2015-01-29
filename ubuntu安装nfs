@@ -1,4 +1,5 @@
 
+下面是ubuntu下安装nfs：
 sudo apt-get update
 sudo apt-get install nfs-kernel-server
 
@@ -26,55 +27,41 @@ showmount -e 查看共享出来的目录
 我在开发板上使用的挂载命令：
 mount -t nfs -o nolock 192.168.1.8:/home/kevin /mnt
 
-
 实现开机就挂载可以
 1.vim /etc/fstab 
 192.168.1.19:/var/www /data/u32_www nfs defaults 0 0
-
 2.写入开机后启动脚本
 /etc/rc.local
 mount -t nfs 192.168.1.19:/var/www /data/u32_www
 (一般不建议开机就挂载，除非你先把要挂载的服务器先打开，否则开机会很慢，且有时进不了系统)
 使用umount命令卸载NFS文件系统
 umount /data/u32_www
+umount -l[-f] /data/u32_www 强制卸载
 
 
-安装 NFS 服务器所需的软件包：
-
-# yum install nfs-utils
-
+下面是CentOS 6.5下安装 NFS 服务器：
+# yum -y install nfs-utils
 這會將所需要的關聯軟件包一並安裝完成。
 注意，NFS4不同於NFS3，不再需要安裝portmap，網上很多文章都還寫著要安裝portmap，完全是瞎扯蛋。
 
-
 配置 NFS 共享
 編輯/etc/exports文件，此文件初始狀態下什麼內容都沒有，自己加吧。
-
-# vi /etc/exports
+# vim /etc/exports
 /home/exp             192.168.0.10(rw,sync,fsid=0)  192.168.0.11(rw,sync,fsid=0)
+或 /data/www/resource *(rw,sync,no_root_squash)
 192.168.0.10 和192.168.0.11兩台機器可以掛載NFS服務器上的/home/exp目錄到自己的文件系統中。
-
 rw表示可讀可寫；sync表示同步寫內存和磁盤，fsid=0表示將/home/exp這個導出文件夾包裝成起始根目錄。
 
- 
-
 啟動nfs服務：
-
 先開啟rpcbind和nfs隨機自啟動：
-
 #chkconfig rpcbind on
-# chkconfig nfs on
+#chkconfig nfs on
 
 然後分別啟動rpcbind和nfs服務：\
-
 #service rpcbind start
-
 #service nfs start
 
- 
-
 確認nfs服務啟動成功：
-
 # rpcinfo -p
    program vers proto   port
     100000    2   tcp    111  portmapper
@@ -84,126 +71,90 @@ rw表示可讀可寫；sync表示同步寫內存和磁盤，fsid=0表示將/home
     100003    4   udp   2049  nfs
     ...
     100005    3   tcp    750  mountd
+    
 检查 NFS 服务器是否输出我们想共享的目录 /home/exp：
-
 # exportfs
 /home/exp  192.168.0.10
 /home/exp  192.168.0.11
 NFSv4已經不使用portmap了，而是rpcbind，這一點要注意。
 
 NFS 客户端
-首先還是和服務器端一樣，安裝nfs套件。
-
-然後啟動rpcbind服務：
-
+首先還是和服務器端一樣，安裝nfs套件；然後啟動rpcbind服務。
 還是先開啟rpcbind服務隨機啟動：
-
 #chkconfig rpcbind on
-
 然後啟動rpcbind服務：
-
 #service rpcbind start
 
- 
-
 检查 NFS 服务器端是否有目录共享：
+#showmount -e nfs服務器的IP
+#showmount -e 10.169.205.42
 
-# showmount -e nfs服務器的IP
+使用 mount挂载服务器端的目录/data/www/resource到客户端某个目录下：
+# mkdir /data/www/resource
+# mount -t nfs4 10.169.205.42:/data/www/resource /data/www/resource
+# df -h 看一下掛上來了沒有。
 
- 
-
-使用 mount 挂载服务器端的目录/home/exp到客户端某个目录下：
-
-# mkdir /home/exp
-# mount -t nfs4 nfs服務器IP:/    /home/exp
-# df -h看一下掛上來了沒有。
+下面的好像直接加在开机启动里面就可以：
+vim /etc/rc.local 加入
+mount -t nfs4 10.169.205.42:/data/www/resource /data/www/resource
 
 想在客戶機啟動時自動掛載，則在/etc/fstab加上：
-
 # vi /etc/fstab
 nfs服務器IP:/   /home/exp  nfs4 ro,hard,intr,proto=tcp,port=2049,noauto 0 0
 客戶端掛載後，寫文件時可能會報一個權限問題：Permission denied。解決這個問題可以修改服務器端文件/etc/exports，改成如下內容：
-
 # vi /etc/exports
 /home/exp             192.168.0.10(rw,sync,fsid=0,anonuid=48,anongid=48)  192.168.0.11(rw,sync,fsid=0,anonuid=48,anongid=48)
-
 anonuid=48的意思是讓所有匿名用戶的操作都視同為服務器上ID為48的用戶，在我的服務器上是apache用戶；同樣的anongid=48意思是讓所有匿名用戶組的操作都視同為服務器上ID為48的用戶組，在我的服務器上是apache組。這樣設置了還不夠，服務器上還必須要存在ID為48的用戶和用戶組，同時客戶機上也要有ID為48的用戶和用戶組，且用戶名和用戶組的名稱要和服務器上的一致。
-
 設置好後，重啟NFS服務，問題即可解決。
 
- 
 重新读取NFS配置文件：
 # exportfs -rv
-
 可使用如下命令查看
-
 # exportfs -v
 
 
-
- 
-
 共享多个目录
-
 使用NFSv4方式共享多个目录时，所有的目录都要作为共享根目录的子目录。例如：有以下目录需要共享：
-
 /first/very/long/path1
-
 /second/very/long/path2
 
 同时让客户端看上去共享的目录是 /dir1 和 /dir2。
 服务器端 创建子目录 # mkdir /home/NFSv4/dir1
-
 # mkdir /home/NFSv4/dir2
-
 使用参数挂载需要共享的目录 # mount --bind /first/very/long/path1
 /home/NFSv4/dir1
-
 # mount --bind /secend/very/long/path2
 /home/NFSv4/dir2
 
 修改/etc/exports文件 /home/NFSv4/dir1 *(rw,nohide,sync)
-
 /home/NFSv4/dir2 *(rw,nohide,sync)
 
 注意：需要使用nohide参数 重新读取NFS配置文件 # exportfs -rv
-
 
 这时你就可以在客户端上挂载服务器上的多个共享文件夹了：
 从根目录挂载
 
 # mount server1:/ /mount/point/
 
-
 单独挂载
-
-
 # mount server1:/dir1 /mount/point1/
-
 # mount server1:/dir2 /mount/point2/
 
 权限控制
-
 修改 /ect/export 文件，类似以下内容：
-
 /home/NFSv4 192.168.1.0/24
 (ro,fsid=0,sync,anonuid=65534,anongid=65534)
 
 调优
-
 在默认情况下，NFS 的配置不适合大容量磁盘。 
 每个客户机应该用 rsize=32768,wsize=32768,intr,noatime 挂装远程文件系统，如。
 mount -o rsize=32768,wsize=32768,intr,noatime server1:/
 /mount/point/
 
 从而确保： 
-
 使用大的读/写块（数字指定最大块大小，在这个示例中是 32KB）。
-
 在挂起时 NFS 操作可以被中断。
-
 不持续更新 atime。
-
 可以将这些设置放在 /etc/fstab 中。如果使用自动挂装器，那么应该将这些设置放在适当的 /etc/auto.* 文件中。
 在 服务器端，一定要确保有足够的 NFS 内核线程来处理所有客户机。在默认情况下，只启动一个线程，但是 Red Hat 和 Fedora 系统会启动 8 个线程。对于繁忙的 NFS 服务器，应该提高这个数字，比如 32 或 64。可以用 nfsstat -rc 命令评估客户机，了解是否有阻塞的现象，这个命令显示客户机远程过程调用（RPC）统计数据。下表显示一个 Web 服务器的客户机统计数据。
 
@@ -212,13 +163,10 @@ mount -o rsize=32768,wsize=32768,intr,noatime server1:/
 Client rpc stats:
 calls retrans authrefrsh
 1465903813 0 0
-
 第二列 retrans 是零，这表示从上一次重新引导以来没有出现需要重新传输的情况。如果这个数字比较大，就应该考虑增加 NFS 内核线程。设置方法是将所需的线程数量传递给 rpc.nfsd，比如 rpc.nfsd 128 会启动 128 个线程。任何时候都可以进行这种设置，线程会根据需要启动或销毁。同样，这个设置应该放在启动脚本中，尤其是在系统上启用 NFS 的脚本。 
-
 关于 NFS，最后要注意一点：如果可能的话，应该避免使用 NFSv2，因为 NFSv2 的性能比 v3 和 v4 差得多。在现代的 Linux 发行版中这应该不是问题，但是可以在服务器上检查 nfsstat 的输出，了解是否有任何 NFSv2 调用。
 
 NFSv4配置參考：
-
 exports文件内容格式：
 <输出目录> [客户端1 选项（访问权限，用户映射，其他）] [客户端2 选项（访问权限，用户映射，其他）]
 1.输出目录：
