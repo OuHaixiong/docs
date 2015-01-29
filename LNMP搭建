@@ -260,9 +260,39 @@ cd php-5.4.35/
 make ZEND_EXTRA_LIBS='-liconv'
 make test
 make install
+
+安装成功后提示：
+Installing PHP CLI binary:        /usr/local/php/bin/
+Installing PHP CLI man page:      /usr/local/php/php/man/man1/
+Installing PHP FPM binary:        /usr/local/php/sbin/
+Installing PHP FPM config:        /usr/local/php/etc/
+Installing PHP FPM man page:      /usr/local/php/php/man/man8/
+Installing PHP FPM status page:      /usr/local/php/php/fpm/
+Installing PHP CGI binary:        /usr/local/php/bin/
+Installing PHP CGI man page:      /usr/local/php/php/man/man1/
+Installing build environment:     /usr/local/php/lib/php/build/
+Installing header files:          /usr/local/php/include/php/
+Installing helper programs:       /usr/local/php/bin/
+  program: phpize
+  program: php-config
+Installing man pages:             /usr/local/php/php/man/man1/
+  page: phpize.1
+  page: php-config.1
+Installing PEAR environment:      /usr/local/php/lib/php/
+[PEAR] Archive_Tar    - installed: 1.3.12
+[PEAR] Console_Getopt - installed: 1.3.1
+[PEAR] Structures_Graph- installed: 1.0.4
+[PEAR] XML_Util       - installed: 1.2.3
+[PEAR] PEAR           - installed: 1.9.5
+Wrote PEAR system config file at: /usr/local/php/etc/pear.conf
+You may want to add: /usr/local/php/lib/php to your php.ini include_path
+/data/tool/php-5.4.35/build/shtool install -c ext/phar/phar.phar /usr/local/php/bin
+ln -s -f /usr/local/php/bin/phar.phar /usr/local/php/bin/phar
+Installing PDO headers:          /usr/local/php/include/php/ext/pdo/
+
 安装目录：/usr/local/php
 拷贝配置文件（/usr/local/php/lib/php.ini ）：
-cp /home/bear/share/php-5.5.14/php.ini-development /usr/local/php/lib/php.ini
+cp /data/tool/php-5.4.35/php.ini-development /usr/local/php/lib/php.ini
 修改php.ini配置
 date.timezone = PRC
 short_open_tag = Off
@@ -311,12 +341,13 @@ vim /usr/local/php/lib/php.ini
 extension=/usr/local/php/lib/php/extensions/no-debug-non-zts-20121212/memcache.so
 
 注意：nginx 需要执行的文件需要644权限
-nginx的根目录和其父级目录需要755权限
+nginx的根目录和其父级目录需要755权限 chmod 0755 /data && chmod 0755 -R /data/www
  root   /home/bear/www; 网站的根目录
 
 设置nginx支持php
-mv /usr/loca/php/etc/php-fpm.conf.default /usr/loca/php/etc/php-fpm.conf
+mv /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf
 (PHP-FPM的默认配置文件为/usr/local/php/etc/php-fpm.conf)
+vim /usr/local/php/etc/php-fpm.conf
 修改 php-fpm.conf
 pm.max_children = 50
 pm.start_servers = 20
@@ -335,6 +366,11 @@ pm.max_requests = 500
  还有平滑重启 kill -HUP 住进称号或进程号文件路径 (PHP不能平滑重启的)
  平滑退出 kill -QUIT 主进程号
  强制停止 pkill -9 nginx/php-fpm 
+ 
+ 开启80端口
+ /sbin/iptables -I INPUT -p tcp --dport 21 -j ACCEPT
+ /etc/rc.d/init.d/iptables save
+ /etc/init.d/iptables restart
  
 测试,编写 phpinfo 测试
 vim /home/bear/www/phpinfo.php
