@@ -7,13 +7,19 @@ http://my.oschina.net/xdev/blog/114383
 http://www.worldhello.net/gotgithub/
 https://github.com/gotgit/gotgithub
 http://book.51cto.com/art/201107/278731.htm
+http://www.bootcss.com/p/git-guide/ git使用
 
 apt-get install libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
+
+centos 6.5 执行：yum -y install curl-devel expat-devel gettext-devel openssl-devel zlib-devel perl-devel gcc gcc-c++
+
 $ tar -zxf git-1.7.2.2.tar.gz
 $ cd git-1.7.2.2
 $ make prefix=/usr/local all
 $ sudo make prefix=/usr/local install (如果不设这个路径,就需要做下软连接, sudo ln -s /home/bear/tool/git_1.9.0/bin/git /usr/local/bin/git )
 (apt-get install git git-core)
+
+git --version
 
 获取Git配置信息，执行以下命令：git config --list
 git config --global user.email "you@example.com"

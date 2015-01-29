@@ -256,7 +256,7 @@ cd ../
 tar -jxvf php-5.4.35.tar.bz2
 cd php-5.4.35/
 编译,安装
-./configure --prefix=/usr/local/php  --with-mysql --with-mysqli --with-openssl --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-bz2 --with-libxml-dir=/usr --enable-xml --with-iconv-dir=/usr/local --with-curl --with-mcrypt --with-gd --enable-gd-native-ttf --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap
+./configure --prefix=/usr/local/php  --with-mysql --with-mysqli --with-pdo_mysql --with-openssl --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-bz2 --with-libxml-dir=/usr --enable-xml --with-iconv-dir=/usr/local --with-curl --with-mcrypt --with-gd --enable-gd-native-ttf --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap
 make ZEND_EXTRA_LIBS='-liconv'
 make test
 make install
