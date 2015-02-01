@@ -31,39 +31,31 @@ chkconfig ip6tables off  #禁止IPV6开机启动
 service yum-updatesd stop   #关闭系统自动更新
 chkconfig yum-updatesd off  #禁止开启启动
 
+安装ftp工具：
+yum install -y filezilla
+如果不能安装就需要先安装epel源，如何安装epel，详见epel文档
 
 三、设置主机名
 
 约定：
-
 主机名命名规范：业务.机房.主备.域名
-
 这里设置主机名为：bbs.hz.m.osyunwei.com
-
 1、hostname “bbs.hz.m.osyunwei.com”
-
 #设置主机名为bbs.hz.m.osyunwei.com
 
 2、vi /etc/sysconfig/network  #编辑配置文件
-
 HOSTNAME= bbs.hz.m.osyunwei.com
-
 #修改localhost.localdomain为bbs.hz.m.osyunwei.com
-
 :wq!  #保存退出
 
 3、vi /etc/hosts #编辑配置文件
 
 127.0.0.1  bbs.hz.m.osyunwei.com localhost
-
 #修改localhost.localdomain为bbs.hz.m.osyunwei.com
-
 :wq!  #保存退出
-
 shutdown -r now  #重启系统
 
 四、增加swap分区
-
 在确定了服务器所需要使用的内存后，需要增加1024M的swap空间
 
 具体操作：
@@ -108,34 +100,21 @@ Shell代码
 yum groupinstall “Development Tools”
 
 RPMFusion源
+RPMFusion：http://download1.rpmfusion.org/free/el/updates/6/i386 /rpmfusion-free-release-6-1.noarch.rpm  http://download1.rpmfusion.org/nonfree/el/updates/6/i386/rpmfusion-nonfree-release-6-1.noarch.rpm
 
-    下载EPEL：http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-
-    RPMFusion：http://download1.rpmfusion.org/free/el/updates/6/i386 /rpmfusion-free-release-6-1.noarch.rpm  http://download1.rpmfusion.org/nonfree/el/updates/6/i386/rpmfusion-nonfree-release-6-1.noarch.rpm
-
-    安装
-
+安装
 降级Xorg
-
 Shell代码
-
     yum remove xorg-x11-drv-modesetting
-
     yum --disablerepo=\* --enablerepo=C6.3\* downgrade xorg\*
-
     yum --disablerepo=\* --enablerepo=C6.3\* install xorg-x11-drivers
-
  防止Xorg再次被更新
-
 编辑/etc/yum.conf添加 exclude=xorg*
 
 安装显卡驱动必要的依赖
-
 Shell代码
 yum install libX11.i686 libXext.i686 glibc.i686 libstdc++ compat-libstdc++-33
-
 插曲 安装显卡驱动前测试
-
 #glxgears
 Running synchronized to the vertical refresh.  The framerate should be
 approximately the same as the monitor refresh rate.

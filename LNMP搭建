@@ -157,7 +157,7 @@ yum list installed|grep mcrypt 查看是否有安装mcrypt库
 tar -zxvf libmcrypt-2.5.8.tar.gz
 cd libmcrypt-2.5.8/
 ./configure && make && make install libmcript默认安装在/usr/local 
-tar -zxvf mhash-0.9.9.9.tar.gz
+tar -xf mhash-0.9.9.9.tar.bz2
 cd mhash-0.9.9.9/
 ./configure && make && make install
 tar -zxvf mcrypt-2.6.8.tar.gz
@@ -176,7 +176,7 @@ yum -y remove mysql.x86_64 （运行这个就行了，依赖的devel和server也
 yum -y remove mysql-server.x86_64
 
 下载mysql的rpm包：MySQL-5.6.19-1.el6.x86_64.rpm-bundle.tar
-解压： tar -zxvf MySQL-5.6.19-1.el6.x86_64.rpm-bundle.tar
+解压： tar -xvf MySQL-5.6.19-1.el6.x86_64.rpm-bundle.tar
 然后依次安装：
 rpm -ivh MySQL-devel-5.6.19-1.el6.x86_64.rpm 
 rpm -ivh MySQL-server-5.6.19-1.el6.x86_64.rpm 
@@ -293,6 +293,7 @@ Installing PDO headers:          /usr/local/php/include/php/ext/pdo/
 安装目录：/usr/local/php
 拷贝配置文件（/usr/local/php/lib/php.ini ）：
 cp /data/tool/php-5.4.35/php.ini-development /usr/local/php/lib/php.ini
+vim /usr/local/php/lib/php.ini
 修改php.ini配置
 date.timezone = PRC
 short_open_tag = Off

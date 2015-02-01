@@ -1,0 +1,34 @@
+
+1，2步参考LNMP搭建
+
+3，安装nginx-push-stream-module
+分别解压：
+tar -zxvf nginx-1.7.3.tar.gz
+unzip nginx-push-stream-module-master.zip
+重命名nginx-push-stream-module-master文件夹：
+mv nginx-push-stream-module-master nginx-push-stream-module
+
+4，编译并安装
+配置：
+cd nginx-1.7.3
+./configure --add-module=../nginx-push-stream-module --user=www --group=www --prefix=/usr/local/webserver/nginx --sbin-path=/usr/local/webserver/nginx/sbin/nginx  --conf-path=/usr/local/webserver/nginx/conf/nginx.conf  --with-http_stub_status_module  --with-http_ssl_module --with-pcre  --lock-path=/var/run/nginx.lock --pid-path=/var/run/nginx.pid
+make
+make install
+
+5，查看nginx的版本，并修改配置文件
+/usr/local/webserver/nginx/sbin/nginx -v 查看版本
+mv /usr/local/webserver/nginx/conf/nginx.conf /usr/local/webserver/nginx/conf/nginx.conf.back
+cp /data/tool/nginx-push-stream-module/misc/nginx.conf /usr/local/webserver/nginx/conf/nginx.conf
+测试配置是否有误：
+/usr/local/webserver/nginx/sbin/nginx -t  出现如下信息说明没有错误
+nginx: the configuration file /usr/local/webserver/nginx/conf/nginx.conf syntax is ok
+nginx: configuration file /usr/local/webserver/nginx/conf/nginx.conf test is successful
+
+mkdir -p /data/logs/nginx
+修改配置文件
+vim /usr/local/webserver/nginx/conf/nginx.conf
+具体配置信息可参考配置备份nginx.conf(push)
+
+6，加入开机启动
+vim /etc/rc.local 在最后加入：
+/usr/local/webserver/nginx/sbin/nginx
