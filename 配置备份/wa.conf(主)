@@ -1,0 +1,22 @@
+upstream wa.dragon-design.cn {
+    server 10.170.12.126:80 weight=8 max_fails=2 fail_timeout=30s;
+#    server 192.168.1.81:80 weight=6 max_fails=2 fail_timeout=30s;
+}
+
+server {
+    listen 80;
+    server_name wa.dragon-design.cn;
+    #access_log  logs/host.access.log  main;
+    error_log /data/logs/nginx/wa_error.log;
+	#root /data/www/wa;
+
+	location ~ / {
+		index index.php index.html;
+		proxy_pass http://wa.dragon-design.cn;  
+		proxy_redirect off; 
+		proxy_set_header X-Real-IP $remote_addr; 
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header Host $host;
+		proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504 http_404;
+    }
+}

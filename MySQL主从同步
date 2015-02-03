@@ -1,0 +1,43 @@
+
+my.cnf配置文件     /etc/my.cnf
+mysql数据库位置    datadir=/var/lib/mysql
+
+1，修改mysql数据库的数据文件存储路径
+cp /usr/share/mysql/my-default.cnf /etc/my.cnf   （如果/etc下没有my.cnf）
+停用mysql
+service mysql stop
+检查是否已全关闭：ps -ef |grep mysql
+建立数据目录：
+mkdir -p /data/db/mysql
+拷贝整个/var/lib/mysql目录：
+cp -r /var/lib/mysql/* /data/db/mysql/
+备份之前的mysql： mv /var/lib/mysql /var/lib/mysql.back
+创建mysql目录：mkdir /var/lib/mysql
+修改配置文件：
+vim /etc/my.cnf  配置如下：
+[client]
+#socket　 = /data/db/mysql/mysql.sock
+
+[mysqld]
+datadir = /data/db/mysql
+# port = 3306
+#socket　 = /data/db/mysql/mysql.sock
+
+创建软连接：
+ln -s /var/lib/mysql/mysql.sock /data/db/mysql/mysql.sock
+修改目录权限：
+chown -R mysql:mysql /data/db/mysql
+chown -R mysql:mysql /var/lib/mysql
+重启MySQL服务：
+service mysql start
+如果能启动成功说明配置正确，否则请重新配置并检查权限问题
+（
+貌似php也有影响，没有验证过：
+修改/etc/php.ini
+# 找到mysql.default_socket =
+# 改为mysql.default_socket = /data/mysql/mysql.sock
+）
+
+
+2，配置主从同步
+

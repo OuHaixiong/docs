@@ -1,0 +1,28 @@
+server {
+    listen 80;
+    server_name wa.dragon-design.cn;
+    #access_log  logs/host.access.log  main;
+    error_log /data/logs/nginx/wa_error.log;
+
+    root /data/www/wa;
+    index index.php index.html;
+
+    rewrite ^/(.*).swf$ /flash/$1.swf last;
+    rewrite ^/(.*).json$ /flash/$1.json last;
+
+    location / {
+        if (!-e $request_filename) {
+            rewrite (.*) /index.php last;
+        }
+        #if (!-f $request_filename){
+        #    rewrite (.*) /index.php;
+        #}
+    }
+
+    location ~ \.php { # location ~ .*\.php$ {
+        fastcgi_pass   127.0.0.1:9000;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include        /usr/local/webserver/nginx/conf/fastcgi_params;
+    }
+}
