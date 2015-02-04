@@ -41,3 +41,110 @@ service mysql start
 
 2，配置主从同步
 
+ 在主服务器上建立同步帐号
+GRANT REPLICATION SLAVE,FILE ON *.* TO 'replication'@'10.1.1.%' IDENTIFIED BY '123456';
+FLUSH PRIVILEGES; 
+如果有多台需要同步，就需要建立多个账号
+GRANT REPLICATION SLAVE ON *.* TO 'synchronous101'@'10.169.111.66' IDENTIFIED BY 'XXXXXX';
+FLUSH PRIVILEGES; 
+赋予从机权限，有多台从机，就执行多次
+检查创建是否成功
+select user,host from mysql.user;
+
+修改主服务器的配置
+vim /etc/my.cnf
+[mysqld] 
+server-id=1                       # 主机标示，整数
+#log-bin=mysql-bin
+log-bin=/data/db/mysql/binlog/mysql-binlog  # 开启bin-log(路径要根据自己的安装设置，确保此文件可写)
+binlog-do-db=vragon_debug         # 要同步的数据库名，多个写多行
+binlog-ignore-db=mysql            #不需要备份的数据库，多个写多行
+binlog-ignore-db=performance_schema
+binlog-ignore-db=information_schema
+#read-only=0                      # 主机，读写都可以
+
+mkdir -p /data/db/mysql/binlog
+chown -R mysql:mysql /data/db/mysql/binlog
+
+重启mysql：service mysql restart
+登录主数据库，进行锁表，停止更新
+mysql -uroot -p
+mysql> flush tables with read lock;
+show master status\G; 或 show master status;
+*************************** 1. row ***************************
+             File: mysql-binlog.000001
+         Position: 120
+     Binlog_Do_DB: vragon_debug
+ Binlog_Ignore_DB: mysql,performance_schema,information_schema
+Executed_Gtid_Set: 
+1 row in set (0.00 sec)
+记下File和Position， 设置从服务器的时候要用
+# 说明，如果执行这个步骤始终为Empty set(0.00 sec)，那说明前面的my.cnf没配置对。
+
+新开一个终端，直接导出数据：
+mysqldump --add-drop-table -h 127.0.0.1 -u root -p vragon_debug > /data/db/back/vragon_debug_2015-02-04.sql
+（
+#仅仅备份数据库结构:
+#mysqldump -uroot -p --no-data --databases databasename1 databasename2 databasename3 > /data/db/back/structurebackupfile.sql
+#备份服务器上所有数据库:
+#mysqldump -uroot -p --all-databases > /data/db/back/allbackup.sql
+）
+
+主数据库备份完毕，恢复写操作
+mysql> unlock tables;
+mysql> quit;
+
+
+下面对从库进行设置
+
+传输数据包到从数据库，并在从库进行数据恢复
+scp -rvp vragon_debug_2015-02-04.sql root@120.24.72.101:/data/db/back
+登录从数据库
+mysql -uroot -p
+创建数据库：
+mysql> CREATE DATABASE `vragon_debug` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+还原数据库数据
+mysql -hlocalhost -uroot -p vragon_debug < /data/db/back/vragon_debug_2015-02-04.sql
+(
+使用数据库：
+USE `mysql`;
+还原压缩的MySQL数据库
+gunzip < backupfile.sql.gz | mysql -uusername -ppassword databasename
+将数据库转移到新服务器
+mysqldump -uusername -ppassword databasename | mysql –host=*.*.*.* -C databasename
+)
+
+修改从库配置：vim /etc/my.cnf
+[mysqld] 
+server-id=2 
+log-bin=/data/db/mysql/binlog/slave_mysql_binlog
+#binlog-do-db = dbname # 要同步的数据库名
+replicate-do-db=vragon_debug # 只复制某个库
+binlog-ignore-db=mysql # 不复制某个库
+binlog-ignore-db=information_schema # 或 replicate-ignore-db=mysql
+binlog-ignore-db=performance_schema
+#slave-skip-errors=all # 最好别跳过错误
+#master-host=10.169.123.186 # ip、 用户名、 密码 可以不用在这里设
+#master-user=synchronous101
+#master-password=123456
+#log-slave-updates    # 不懂
+slave-net-timeout=60 # 如果从服务器发现主服务器断掉，重新连接的时间差(秒)
+#master-connect-retry=60 # 重联最大次数
+
+mkdir -p /data/db/mysql/binlog/
+chown -R mysql:mysql /data/db/mysql/binlog/
+
+重启从库：service mysql restart
+验证是否能链接上主库：mysql -h 10.169.123.186 -u synchronous101 -p
+登录从数据库进行操作：
+mysql -uroot -p
+mysql> stop slave;
+mysql> change master to master_host='10.169.123.186', master_user='synchronous101', master_password='XXXXXX', master_log_file='mysql-binlog.000001', master_log_pos=120;
+mysql> start slave;
+mysql> unlock tables;
+mysql> show slave status\G;
+Slave_IO_Running: Yes
+Slave_SQL_Running: Yes
+如果上面两行为yes说明已经配置成功了。
+
+至此，主从数据库同步配置完成。可以对主数据库进行增（INSERT）删（DELETE）改（UPDATE）查操作，然后验证是否同步成功！
