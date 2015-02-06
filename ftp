@@ -1,28 +1,49 @@
 
-手动安装：
+http://www.cnblogs.com/whseay/p/3455622.html
 
+http://blog.csdn.net/deit_aaron/article/details/9984701
+
+http://blog.csdn.net/cangzhubai/article/details/6212918
+
+ vi /etc/vsftpd/vsftpd.conf
+ 
+ 
+ [root@Push_Web2 data]# groupadd ftp
+ [root@Push_Web2 data]# useradd -g ftp -d /data -s /sbin/nologin waftp
+ [root@Push_Web2 data]# passwd waftp   【wa887788ftp】
+
+手动安装：
+ [ 无法安装成功 ]
 1，下载源码包 vsftpd-3.0.2.tar.gz
+
 2，tar -zxvf vsftpd-3.0.2.tar.gz 
    cd vsftpd-3.0.2/     （INSTALL文件有安装的步骤）
+   
 3，vim builddefs.h 
 修改为：
-#define VSF_BUILD_TCPWRAPPERS  // 允许使用TCP Wrappers（默认是undef），启用简易防火墙
+#undef VSF_BUILD_TCPWRAPPERS  // 允许使用TCP Wrappers（默认是undef），启用简易防火墙
 #define VSF_BUILD_PAM          // 允许使用PAM认证，启用身份验证
 #define VSF_BUILD_SSL          // 允许使用SSL（默认是undef），启用加密传输数据
-vim Makefile 修改LIBS    =       `./vsf_findlibs.sh`为LIBS    =       `./vsf_findlibs.sh` -lcrypt
+
+vim Makefile 修改
+LIBS    =       `./vsf_findlibs.sh`    为
+LIBS    =       `./vsf_findlibs.sh` -lcrypt
+
 4，make
     a. 在64bit系统下编译时会报错：
 　　 /lib/libpam.so.0: could not read symbols: File in wrong format
 　　 collect2: ld returned 1 exit status
 　　 make: *** [vsftpd] Error 1
 　　 解决方法：
-　　 将vsftpd-2.1.2/的vsf_findlibs.sh文件中的/lib，/usr/lib全部换成了/lib64，/usr/lib64再编译即可
+　　 将vsftpd-2.1.2/的vsf_findlibs.sh文件中的/lib、/usr/lib全部换成了/lib64、/usr/lib64再编译即可
     b.如果报错：tcpwrap.c:16:20: fatal error: tcpd.h: No such file or directory
 	 #undef VSF_BUILD_TCPWRAPPERS 禁用tcpwrap再编译。具体如何安装防火墙TCP-Wrappers请查阅资料。。。
+	 
 5，sudo mkdir -p /usr/local/man/man8/
 sudo mkdir -p /usr/local/man/man5/
 sudo useradd nobody
 sudo mkdir /usr/share/empty
+
 6，如果需要匿名登录，则做以下操作，不需要则跳过步骤6：
 　　 mkdir /var/ftp/
 　　 useradd -d /var/ftp ftp 指明用户ftp的工作（家）目录
@@ -30,6 +51,7 @@ sudo mkdir /usr/share/empty
 　　 chmod og-w /var/ftp 消除所有者外其他用户的写的权限
 7，sudo make install （/usr/local/sbin/vsftpd）
 如果有目录/usr/local/sbin/将安装到此目录，否则安装到 /usr/sbin/vsftpd
+
 8，拷贝配置文件：
 如果没有如下文件，请拷贝过去
 /usr/local/man/man8/vsftpd.8
@@ -40,6 +62,7 @@ cd /etc
 sudo cp vsftpd.conf vsftpd.back.conf 备份配置文件
 #为了让vsftpd支持本地用户登录，将身份认证模块拷贝至系统目录中
 sudo cp RedHat/vsftpd.pam /etc/pam.d/
+
 9，配置vsftpd的配置文件
 sudo vim vsftpd.conf
     anonymous_enable=NO //禁用匿名登录
@@ -57,13 +80,16 @@ sudo vim vsftpd.conf
     connect_from_port_20=YES
 	local_root=/home/u32
 	特别注意了，用户需要有对ftp根目录的权限才能登入进去
+	
 10，添加用户（注意，该处添加nologin类型用户ftpuser）：
  useradd -d /home/ftp -s /sbin/nologin ftpuser
+ 
 11，sudo passwd root (ubuntu下切换到root用户下)
 su root
 /usr/local/sbin/vsftpd & 后台运行
 ps -ef |grep ftp
 kill -QUIT 1584
+
 12，加入开机启动
 （貌似不做也没有什么影响：因为使用的是独立模式，所以需先限制xintd.d服务。如果不限制，可能会引起冲突报错500 OOPS: could not bind listening IPv4 socket。
 　　 vi /etc/xinetd.d/vsftpd

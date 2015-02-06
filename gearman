@@ -3,8 +3,8 @@ sudo apt-get install libboost-all-dev
 sudo apt-get install gperf
 
 # yum search boost
-# yum install boost.x86_64 [yum install boost boost-devel]（特别注意了：boost的版本必须大于1.39，如果手动安装boost请见最后）
-# yum install boost-devel.x86_64
+# yum -y install boost.x86_64 boost-devel.x86_64
+或 yum install boost boost-devel （特别注意了：boost的版本必须大于1.39，如果手动安装boost请见最后）
 # yum search gperf
 # yum install gperf.x86_64
 yum -y install libevent.x86_64
