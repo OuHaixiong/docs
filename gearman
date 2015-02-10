@@ -55,6 +55,12 @@ Default TCP Port         4730
 
 首先在192.168.17.130启动job
 gearmand -d
+[默认日记文件在：/usr/local/var/log/gearmand.log  如果目录不能写或不存在就需要创建并给权限]
+gearmand -L 10.0.0.51 -p 4730 -u root -d
+ -d 以守护进程启动(deamon) 
+ -L 表示要监听IP   
+ -p 表示要监听的端口 
+
 
 client代码如下：
 $client = new GearmanClient();
