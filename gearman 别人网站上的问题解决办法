@@ -1,0 +1,815 @@
+背景：用PHP做一些简单的上传是没有任何的问题，但是要做断点上传好像也是没有大问题，但要是并发的切片加断点上传可能就会有问题了哟。
+第一个问题是合并问题：如果一上传就合并，PHP老半天不返回是一个方面(是PHP超时还是Nginx超时？)，这样势必会造成客户端因没返回，没法再启动新的上传进程，如果用php的追加写文件内存太大还会退出的可能，用上gearmand后出现异步同时写，可能加快了传输效率的同时IO可能会比较密集（假如同一时间并发上传的人多的情况。）。
+第二个问题是先后问题：如果并发时出现了传一半时最后一片先上传上来了怎么办？如果直接追加进文件是会不按顺序出错的，如果放在那儿不管，那啥时候管，这也是一个问题。
+第三个问题是锁的问题：并发时如果同时两片到了，像PHP这种如何去结合锁的功能呢？据我所知有memcache的add函数是原子操作，可以利用，那就设计到锁多久，是不是又回到第一个问题，返回时间得浪费多长时间呢。
+基于上面三点，看来PHP做这活不是太靠谱，于是引出了gearman这个模型，相当于异步处理，再集合PHP的memcache锁（memcache放内存，可能得用ttserver才行，协议一样的。），PHP上传逻辑处理，Nginx上传插件，才有可能做一个较为靠谱且稳定的分片，断点加多进程（多线程）上传服务搭建。
+
+一、从源码安装gearmand遇到的各种外部代码版本及yum版本太低的导致各种编译不过的问题，历程相当的麻烦，特别是boost和这个libevent默认的yum install非常低，都给编译了，把rpm所强制删除了，最后才成功，再就是g++编译版本，得export后才能编译，否则一堆问题，都在下面有描写。
+出现第一个问题及处理办法：
+libgearman-server/plugins/queue/sqlite/instance.cc: In member function 'bool gearmand::queue::Instance::_sqlite_prepare(const std::string&, sqlite3_stmt**)':
+libgearman-server/plugins/queue/sqlite/instance.cc:125: error: 'sqlite3_prepare_v2' was not declared in this scope
+libgearman-server/plugins/queue/sqlite/instance.cc: In member function 'gearmand_error_t gearmand::queue::Instance::init()':
+libgearman-server/plugins/queue/sqlite/instance.cc:224: error: 'SQLITE_OPEN_READWRITE' was not declared in this scope
+libgearman-server/plugins/queue/sqlite/instance.cc:224: error: 'SQLITE_OPEN_CREATE' was not declared in this scope
+libgearman-server/plugins/queue/sqlite/instance.cc:224: error: 'sqlite3_open_v2' was not declared in this scope
+make[1]: *** [libgearman-server/plugins/queue/sqlite/libgearman_server_libgearman_server_la-instance.lo] Error 1
+将队列存放在sqlite3或postgresql。这货是用的sqlite存队列啊：
+yum search sqlite
+yum install sqlite.x86_64 sqlite-devel.x86_64
+还是不行，参考：
+安装：https://justwinit.cn/post/7709/ 后，
+最后在编译Gearman时带上 --with-sqlite3=/usr/local/sqlite3，告诉编译器应该使用这个新的sqlite即可。
+
+    [root@test gearmand-1.1.12]# ./configure --with-sqlite3=/usr/local/sqlite3  
+
+
+
+出现第二个问题及处理办法：
+./libgearman-1.0/gearman.h:53:23: error: cinttypes: No such file or directory
+命令:
+yum install gcc44 gcc44-c++ libstdc++44-devel -y
+然后在环境变量里加入:
+export CC=/usr/bin/gcc44 or export CC=/usr/bin/gcc
+export CXX=/usr/bin/g++44
+保存退出后执行:
+source /etc/profile
+删除gearmand-0.34文件夹重新进行编译.
+重新进行编译后执行make这步......
+在后面有详细的说明，可以不source直接设置环境变量，因为编译后也不一定要这个版本的gcc的。
+
+    export CC=/usr/bin/gcc44   
+    export CXX=/usr/bin/g++44  
+    删除gearmand-0.34文件夹重新进行编译，重新解开包：tar -zxvf gearmand-1.1.12.tar.gz ，好像用那个make clean不行:  
+     ./configure --with-sqlite3=/usr/local/sqlite3  
+     make && make install  
+
+
+
+出现第三个问题的处理办法：
+ibgearman-server/plugins/queue/mysql/queue.cc:430: error: 'mysql_error' was not declared in this scope
+libgearman-server/plugins/queue/mysql/queue.cc: In function 'gearmand_error_t _mysql_queue_replay(gearman_server_st*, void*, gearmand_error_t (*)(gearman_server_st*, void*, const char*, size_t, const char*, size_t, const void*, size_t, gearman_job_priority_t, int64_t), void*)':
+libgearman-server/plugins/queue/mysql/queue.cc:446: error: 'MYSQL_RES' was not declared in this scope
+libgearman-server/plugins/queue/mysql/queue.cc:446: error: 'result' was not declared in this scope
+libgearman-server/plugins/queue/mysql/queue.cc:447: error: 'MYSQL_ROW' was not declared in this scope
+
+[root@test gearmand-1.1.12]# ./configure --help|grep mysql
+  --with-mysql=[ARG]      use MySQL client library [default=yes], optionally
+                          specify path to mysql_config
+              Full path to mysql_config program
+
+看样子是想用mysql做队列queue的：
+
+    ./configure --with-sqlite3=/usr/local/sqlite3 --with-mysql=/usr/local/mysql  
+
+
+
+加上还是报错，去了得了，不用mysql做队列，有sqlite足够了，
+--without-mysql就好了，来自：
+https://bugs.launchpad.net/gearmand/+bug/1327038 说的：
+
+    ./configure --with-sqlite3=/usr/local/sqlite3 --without-mysql  
+
+
+
+出现第四个问题的解决办法：
+/home/xiangdong/software/gearmand-1.1.12/bin/gearadmin.cc:129: undefined reference to `boost::program_options::options_description::m_default_line_length'
+/home/xiangdong/software/gearmand-1.1.12/bin/gearadmin.cc:129: undefined reference to `boost::program_options::options_description::options_description(std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned int, unsigned int)'
+bin/gearadmin.o: In function `boost::program_options::basic_command_line_parser<char>::run()':
+/usr/local/include/boost/program_options/detail/parsers.hpp:107: undefined reference to `boost::program_options::detail::cmdline::get_canonical_option_prefix()'
+bin/gearadmin.o: In function `boost::program_options::basic_command_line_parser<char>::extra_parser(boost::function1<std::pair<std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>)':
+/usr/local/include/boost/program_options/detail/parsers.hpp:77: undefined reference to `boost::program_options::detail::cmdline::set_additional_parser(boost::function1<std::pair<std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>)'
+collect2: ld returned 1 exit status
+make[1]: *** [bin/gearadmin] Error 1
+make[1]: Leaving directory `/home/xiangdong/software/gearmand-1.1.12'
+
+
+[root@test gearmand-1.1.12]# ./configure --help|grep boost
+  --with-boost[=ARG]      use Boost library from a standard location
+  --with-boost-libdir=LIB_DIR
+                          Force given directory for boost libraries. Note that
+                          fails and you know exactly where your boost
+  --with-boost-program-options[=special-lib]
+                          use the program options library from boost - it is
+                          --with-boost-program-options=boost_program_options-gcc-mt-1_33_1
+
+指定boost的库：
+从这儿得知在这儿呢：  http://justwinit.cn/post/7706/
+系统默认会将include拷贝到/usr/local/include/boost/中
+将lib拷贝到/usr/local/lib下
+yum install boost-devel  [实践失败]
+回头了解下boost的结构，rpm包是啥样的，如下所示，版本号1.33，有可能是因为lddconfig里默认配置指向这个旧版本了，如下：
+vi /etc/ld.so.conf
+view plainprint?
+
+    include ld.so.conf.d/*.conf  
+    /lib  
+    /lib64  
+    /usr/lib                                                                                                                                                                                               
+    /usr/lib64  
+    /usr/local/lib  
+    /usr/local/lib  
+
+
+
+[root@test ~]# rpm -ql boost-1.33.1-16.el5_9
+/usr/lib64/*.so.*  //各种so文件
+/usr/lib/*.so.*     //各种so文件
+rpm -ql boost-devel-1.33.1-16.el5_9
+/usr/include/boost  里面是各种分类目录，里面是hpp头文件
+algorithm/
+archive/
+assign/
+bind/
+compatibility
+config/
+devel包里还有静态a文件及动态so文件：
+/usr/lib/libboost_test_exec_monitor.a
+/usr/lib/libboost_test_exec_monitor.so
+
+如下实践试试：
+cd /home/xiangdong/software/boost_1_57_0
+./bootstrap.sh --prefix=/usr/local/boost-1.57
+vi tools/build/v2/user-config.jam
+文件尾部增加(没找到，直接./b2 ./b2 install 即可！)：
+using mpi  
+./b2
+./b2 install
+
+view plainprint?
+
+    1）安装好boost并将gearmand指向它：  
+    ./b2 && ./b2 install  
+    ls /usr/local/boost-1.57/  
+    include  lib  
+    2）安装gearman，重新删除掉原来的安装包并加上最新的gcc编译器版本：  
+    rm -Rf gearmand-1.1.12  
+    tar -zxvf gearmand-1.1.12.tar.gz   
+    export CC=/usr/bin/gcc44  
+    export CXX=/usr/bin/g++44  
+    cd gearmand-1.1.12  
+    3）重新准备好后，开始编译，如下：  
+    ./configure --with-sqlite3=/usr/local/sqlite3 --without-mysql   --with-boost=/usr/local/boost-1.57   --with-boost-libdir=/usr/local/boost-1.57/lib  
+    make && make install  
+
+
+Boost headers version >= 1.39.0
+[root@localdomain gearmand-1.1.12]# yum search boost
+[root@localdomain gearmand-1.1.12]# yum install boost.x86_64
+[root@localdomain gearmand-1.1.12]# yum install yum install boost-devel.x86_64
+旧的yum源，直接干死，用源码装个试试：
+view plainprint?
+
+    [root@test ~]#  rpm -qa|grep boost  
+    boost-1.33.1-16.el5_9  
+    boost-1.33.1-16.el5_9  
+    boost-devel-1.33.1-16.el5_9  
+    boost-devel-1.33.1-16.el5_9  
+    [root@test ~]# rpm -e boost-devel-1.33.1-16.el5_9  
+    error: "boost-devel-1.33.1-16.el5_9" specifies multiple packages  
+    [root@test ~]# rpm -e boost-1.33.1-16.el5_9  
+    error: "boost-1.33.1-16.el5_9" specifies multiple packages  
+    [root@test ~]# rpm –allmatches --nodeps -e boost-1.33.1-16.el5_9  
+    error: package –allmatches is not installed  
+    error: "boost-1.33.1-16.el5_9" specifies multiple packages  
+    [root@test ~]# rpm -e --allmatches --nodeps  boost-1.33.1-16.el5_9      
+    [root@test ~]#  rpm -e --allmatches --nodeps boost-devel-1.33.1-16.el5_9  
+
+
+
+
+出现第五个问题的解决办法：
+/home/xiangdong/software/gearmand-1.1.12/libgearman-server/gearmand_con.cc:677: undefined reference to `event_initialized'
+collect2: ld returned 1 exit status
+libevent版本太老了，更新新的版本：
+安装最新版本的libevent,并执行以下操作:(备份老版本的/usr/lib64/libevent.so)
+ln -s /usr/lib64/libevent-2.0.so.5 /usr/lib64/libevent.so
+删除老旧的libevent的rpm包后，安装最新的方法实践如下：
+[root@test software]# cp  /usr/lib64/libevent.so /usr/lib64/libevent.so.bak.old
+[root@test libevent-2.0.21-stable]# tar -zxvf libevent-2.0.21-stable.tar.gz
+[root@test libevent-2.0.21-stable]# cd libevent-2.0.21-stable
+[root@test libevent-2.0.21-stable]# ./configure --prefix=/usr/local/libevent-2.0.21-stable
+
+
+ls -al /usr/lib | grep libevent
+rpm -qa|grep libevent
+libevent-1.4.13-1
+libevent-devel-1.4.13-1
+libevent-devel-1.4.13-1
+libevent-1.4.13-1
+
+rpm -e --allmatches --nodeps libevent-1.4.13-1 libevent-devel-1.4.13-1
+[root@test libevent-2.0.21-stable]# rpm -e --allmatches --nodeps libevent-1.4.13-1 libevent-devel-1.4.13-1
+[root@test libevent-2.0.21-stable]#
+
+卸载后看还有没：
+[root@test libevent-2.0.21-stable]# ls -al /usr/lib | grep libevent  
+lrwxrwxrwx   1 root root       31 Dec 30 17:17 libevent-1.1a.so.1 -> /usr/lib/libevent-1.1a.so.1.0.2
+-rw-r--r--   1 root root    31596 Jan  7  2007 libevent-1.1a.so.1.0.2
+
+rm -Rf  /usr/lib/libevent-1.1a.so.1.0.2 /usr/lib/libevent-1.1a.so.1 //删除干净
+[root@test libevent-2.0.21-stable]# rm -Rf  /usr/lib/libevent-1.1a.so.1.0.2 /usr/lib/libevent-1.1a.so.1
+[root@test libevent-2.0.21-stable]#
+
+cd /home/xiangdong/software/libevent-2.0.21-stable  //最新安装包
+./configure --prefix=/usr   //libevent会安装到 /usr/lib 或 /usr/local/lib 下
+#./configure --prefix=/usr/local/libevent-2.0.21-stable
+[root@test libevent-2.0.21-stable]# ./configure --prefix=/usr && make && make install
+测试libevent是否安装成功：ls -al /usr/lib | grep libevent（或 ls -al /usr/local/lib | grep libevent）
+ls -al /usr/lib | grep libevent
+lrwxrwxrwx   1 root root       21 Dec 31 09:44 libevent-2.0.so.5 -> libevent-2.0.so.5.1.9
+-rwxr-xr-x   1 root root  1065819 Dec 31 09:44 libevent-2.0.so.5.1.9
+-rw-r--r--   1 root root  1678970 Dec 31 09:44 libevent.a
+lrwxrwxrwx   1 root root       26 Dec 31 09:44 libevent_core-2.0.so.5 -> libevent_core-2.0.so.5.1.9
+
+如果libevent的安装目录为/usr/local/lib下，则还需要建立 libevent-1.4.so.2 到 /usr/lib 的软连接，这样其他程序运行时才能找到libevent库：ln -s /usr/local/lib/libevent-1.4.so.2  /usr/lib/libevent-1.4.so.2
+
+ls /usr/lib/libevent-2.0.so.5
+/usr/lib/libevent-2.0.so.5
+
+干掉旧的libevent的残留的动态so文件：
+ls -al /usr/lib64 | grep libevent
+lrwxrwxrwx   1 root root       19 Dec 31 09:40 libevent-1.4.so.2 -> libevent.so.bak.old
+-rwxr-xr-x   1 root root   104296 Dec 31 09:22 libevent.so.bak.old
+[root@test libevent-2.0.21-stable]# rm -Rf /usr/lib64/libevent-1.4.so.2
+参考来自：http://blog.sina.com.cn/s/blog_4b93170a0100mbm9.html
+
+编译成功结果如下：
+view plainprint?
+
+    rm -Rf gearmand-1.1.12  
+    tar -zxvf gearmand-1.1.12.tar.gz   
+    export CC=/usr/bin/gcc44  
+    export CXX=/usr/bin/g++44  
+    cd gearmand-1.1.12  
+    ./configure --with-sqlite3=/usr/local/sqlite3 --without-mysql   --with-boost=/usr/local/boost-1.57   --with-boost-libdir=/usr/local/boost-1.57/lib  
+     make && make install  
+     ......  
+    make[2]: Leaving directory `/home/xiangdong/software/gearmand-1.1.12' 
+    make[1]: Leaving directory `/home/xiangdong/software/gearmand-1.1.12'  
+
+
+
+启动gearmand的方法：
+[root@test gearmand-1.1.12]# whereis gearmand
+gearmand: /usr/local/sbin/gearmand
+[root@test ~]# mkdir -p /usr/local/gearman/log
+
+ls /usr/local/sqlite3/bin/
+sqlite3
+
+*特别提醒，(mysql性能上可能在做队列上并不比sqlite强到哪儿去)
+使用sqlite更加简单方便 ：
+/usr/local/sbin/gearmand -l /usr/local/gearman/log/trace2.log --verbose INFO -p 4830 -q libsqlite3 --libsqlite3-db /usr/local/sqlite/bin/gearman --libsqlite3-table gearman_queue -d
+很遗憾，我到现在也没能编译出对MySQL的持久化
+
+[root@test ~]# /usr/local/sbin/gearmand -l /usr/local/gearman/log/trace2.log --verbose INFO -p 4830 -q libsqlite3 --libsqlite3-db /usr/local/sqlite/bin/gearman --libsqlite3-table gearman_queue -d
+/usr/local/sbin/gearmand: Error while initializing the queue : libsqlite3
+
+原来是sqlite的位置不对，修改路径后就OK了：
+
+    /usr/local/sbin/gearmand -l /usr/local/gearman/log/trace2.log --verbose INFO -p 4830 -q libsqlite3 --libsqlite3-db /usr/local/sqlite3/bin/gearman --libsqlite3-table gearman_queue -d  
+
+
+启动成功：
+[root@test sqlite3]# /usr/local/sbin/gearmand -l /usr/local/gearman/log/trace2.log --verbose INFO -p 4830 -q libsqlite3 --libsqlite3-db /usr/local/sqlite3/bin/gearman --libsqlite3-table gearman_queue -d
+[root@test sqlite3]#
+端口存在了，说明是真的启动成功了：
+[root@test sqlite3]# netstat -atlunp|grep 4830
+tcp        0      0 0.0.0.0:4830                0.0.0.0:*                   LISTEN      17820/gearmand      
+tcp        0      0 :::4830                     :::*                        LISTEN      17820/gearmand  
+
+也就是说gearmand启动时候自己建立一个sqlite的表，如下：
+[root@test sqlite3]# cat /usr/local/sqlite3/bin/gearman
+SQLite format 3@  ''blegearman_queuegearman_queueCREATE TABLE gearman_queue ( unique_key TEXT, function_name TEXT, priority INTEGER, data BLOB, when_to_run INTEGER, PRIMARY KEY (unique_key, function_name))9M'indexsqlite_autoindex_gearman_queue_1gearman_queue
+
+经过一陈折腾，说明这个gearmand对boost库的要求高，对libevent的版本也要求高，不是能经过yum install能解决得了的，得自己安装后指定，再就是对编译器的版本也是有要求的，也就是说相对来说其安装比较苛刻一些，如Lamp架构相比较的话，难度要高一些。
+——————————————————————————————————————————————————————————————
+总之，一大堆问题，这货居然还这么流行听说Gearman最初用于LiveJournal的图片resize功能，由于图片resize需要消耗大量计算资 源，因此需要调度到后端多台服务器执行，完成任务之后返回前端再呈现到界面。，看来广大分发系统还真得靠它啊，其它各种小问题不断，参考：
+http://www.111cn.net/sys/CentOS/65334.htm
+
+二、PHP的gearmand扩展编译及遇到问题解决实践如下：
+PHP的gearmand折腾扩展，这块试了好几个版本的扩展要么configure不过去，要么是lib里却啥，但最后还是以当前最新的版本gearman-1.1.2.tgz给解决了：
+
+./configure --with-php-config=/usr/local/php/bin/php-config
+出现如下所示的配置错误：
+configure: WARNING: You will need re2c 0.13.4 or later if you want to regenerate PHP parsers.
+checking for gawk... gawk
+checking whether to enable gearman support... yes, shared
+found in /usr/local
+checking for gearman_create in -lgearman... no
+configure: error: wrong libgearman version or lib not found
+
+问题一：
+gearman的PHP扩展时出现configure: WARNING: You will need re2c 0.13.4 or later if you want to regenerate PHP parsers.警告信息。
+警告信息说明需要安装 re2c
+执行下面命令安装：
+wget http://sourceforge.net/projects/re2c/files/re2c/0.13.5/re2c-0.13.5.tar.gz/download
+2014-12-31 11:01:59 (999 KB/s) - `re2c-0.13.5.tar.gz' saved [782725/782725]
+tar -zxvf re2c-0.13.5.tar.gz
+cd re2c-0.13.5
+./configure && make && make install //安装成功，警告得到了解决，第二个依旧存在。
+它的意思是好像没有找到lib，不对是找到了没有找到里面的某个叫gearman_create的函数，这个就奇怪了，找下：
+[root@test /]# find . -name "*gearman*.so*"
+./usr/local/lib/libgearman.so.8.0.0
+./usr/local/lib/libgearman.so
+./usr/local/lib/libgearman.so.8
+
+[root@test /]# vi /etc/ld.so.conf
+include ld.so.conf.d/*.conf
+/lib
+/lib64
+/usr/lib                                                                                                                                                                                            
+/usr/lib64
+/usr/local/lib
+/usr/local/lib
+有这个位置的啊。
+[root@test /]# ldconfig  //重新lib的位置载入。
+
+[root@test gearman-0.4.0]# phpize
+Configuring for:
+PHP Api Version:         20090626
+Zend Module Api No:      20090626
+Zend Extension Api No:   220090626
+[root@test gearman-0.4.0]# ./configure --with-php-config=/usr/local/php/bin/php-config
+
+问题依旧，去官网看一下呗，http://gearman.org/download/：
+文字摘录：PHP
+There are two PHP client/worker libraries, one which is a pure PHP extension and one which wraps the libgearman C library.
+Gearman Extension
+A PHP extension that wraps the libgearman C library.
+Gearman PHP Extension (1.0.2) (Source)
+官方的PHP扩展高V1.0.2，我这个是gearman-0.4.0太旧了，好像还有更高的gearman-1.1.2.tgz,http://pecl.php.net/package/gearman，放上官网这个上去重新试下了：
+tar -zxvf gearman-1.0.2.tgz
+cd gearman-1.0.2
+[root@test gearman-1.0.2]# phpize
+./configure --with-php-config=/usr/local/php/bin/php-config   //这个没有问题
+[root@test gearman-1.0.2]# make && make install
+/home/xiangdong/software/gearman-1.0.2/php_gearman.c: In function ‘zm_startup_gearman’:
+/home/xiangdong/software/gearman-1.0.2/php_gearman.c:4638: error: ‘GEARMAN_MAGIC_TEXT’ undeclared (first use in this function)
+/home/xiangdong/software/gearman-1.0.2/php_gearman.c:4638: error: (Each undeclared identifier is reported only once
+还是差啥么子玩意，换个更新的看下，gearman-1.1.2.tgz 实践OK了，如下：
+Libraries have been installed in:
+   /home/xiangdong/software/gearman-1.1.2/modules
+
+If you ever happen to want to link against installed libraries
+in a given directory, LIBDIR, you must either use libtool, and
+specify the full pathname of the library, or use the `-LLIBDIR'
+flag during linking and do at least one of the following:
+   - add LIBDIR to the `LD_LIBRARY_PATH' environment variable
+     during execution
+   - add LIBDIR to the `LD_RUN_PATH' environment variable
+     during linking
+   - use the `-Wl,--rpath -Wl,LIBDIR' linker flag
+   - have your system administrator add LIBDIR to `/etc/ld.so.conf'
+
+See any operating system documentation about shared libraries for
+more information, such as the ld(1) and ld.so(8) manual pages.
+----------------------------------------------------------------------
+
+Build complete.
+Don't forget to run 'make test'.
+
+[root@test gearman-1.1.2]# make install
+Installing shared extensions:     /usr/local/php/lib/php/extensions/no-debug-non-zts-20090626/
+真在的：
+ls  /usr/local/php/lib/php/extensions/no-debug-non-zts-20090626/gearman.so
+/usr/local/php/lib/php/extensions/no-debug-non-zts-20090626/gearman.so
+在php.ini里加上这个扩展就成了。Successful....EOF
+
+
+[root@test gearman-1.1.2]# php -v
+PHP 5.3.10 (cli) (built: Feb  3 2012 14:04:56)
+Copyright (c) 1997-2012 The PHP Group
+Zend Engine v2.3.0, Copyright (c) 1998-2012 Zend Technologies
+    with eAccelerator v0.9.6.1, Copyright (c) 2004-2010 eAccelerator, by eAccelerator
+
+[root@test gearman-1.1.2]# vi /usr/local/php/etc/php.ini
+extension = "gearman.so"  
+
+[root@test gearman-1.1.2]# php -m|grep gearman
+gearman
+
+
+
+三、代码编写task的分发及client的及简单代码实践OK及其情况实践Ok：
+cd /usr/local/gearman/
+[root@test gearman]# mkdir codesTest
+[root@test gearman]# cd codesTest/
+[root@test codesTest]# vi myworker.php
+view plainprint?
+
+    <?php  
+    $worker = new GearmanWorker();  
+    $worker->addServer('192.168.109.8', 4830);  
+    $worker->addFunction('sayhello', function(GearmanJob $job){  
+        $name = $job->workload();  
+        return "hello, " . $name;  
+    });  
+    $worker->addFunction('logMsg', function(GearmanJob $job){  
+        $msg = $job->workload();  
+        file_put_contents(__DIR__ . '/Msg.log', $msg, FILE_APPEND);  
+    });  
+    while ($worker->work()){  
+        usleep(50000);  
+    }  
+
+
+
+以守护进程方式启动worker:
+# nohup php myworker.php >/dev/null 2>&1 &
+[root@test codesTest]# nohup php myworker.php >/dev/null 2>&1 &
+[1] 31238
+
+一个发送任务处理请求的client:
+vi  myclient.php
+[root@test codesTest]# vi  myclient.php
+view plainprint?
+
+    <?php  
+    $name = $argv[1];  
+    if (emptyempty($name)) {  
+        echo "Usage: $argv[0] {name}";  
+        exit(1);  
+    }  
+    try {  
+        $client = new GearmanClient();  
+        $client->addServer('192.168.109.8', 4830);  
+    } catch(Exception $e){  
+        echo "oops", $e->getMessage();  
+        exit(1);  
+    }  
+    // 同步处理(Blocking),返回直接的处理结果  
+    $result = $client->doNormal('sayhello', $name);  
+    echo $result . PHP_EOL;  
+      
+    // 异步处理(Non-Blocking),仅返回一个处理状态的句柄  
+    $job_handle = $client->doBackground('logMsg', $name);  
+    echo $job_handle . PHP_EOL;  
+
+
+
+运行myclient.php:
+[root@test codesTest]# php myclient.php "Jose"
+hello, Jose
+H:test.local:2
+
+一个发出并行处理任务请求的例子tasksclient:
+[root@test codesTest]# vi  tasksclient.php
+view plainprint?
+
+    <?php  
+    try {  
+        $client = new GearmanClient();  
+        $client->addServer('192.168.109.8', 4830);  
+    } catch(Exception $e){  
+        echo "oops", $e->getMessage();  
+        exit(1);  
+    }  
+    $client->setCompleteCallback(function(GearmanTask $task){  
+        echo 'Completed task:: id :', $task->unique(), ' , handled result:', $task->data(), PHP_EOL;  
+    });  
+    $client->addTask('sayhello', 'Jose', null, 1);  
+    $client->addTask('sayhello', 'John', null, 2);  
+    $client->addTaskBackground('logMsg', 'Peter');  
+    $client->runTasks();  
+
+
+
+运行tasksclient:
+[root@test codesTest]# php tasksclient.php
+Completed task:: id :2 , handled result:hello, John
+Completed task:: id :1 , handled result:hello, Jose
+
+查看worker及队列情况:
+(echo "workers"; sleep 0.1) | nc 192.168.109.8 4830
+[root@test codesTest]#  (echo "workers"; sleep 0.1) | nc 192.168.109.8 4830
+34 192.168.109.8 - : sayhello logMsg
+35 192.168.109.8 - :
+.
+查看当前队列情况(显示格式FUNCTION\tTOTAL\tRUNNING\tAVAILABLE_WORKERS):
+(echo "status"; sleep 0.1) | nc 192.168.109.8 4830
+[root@test codesTest]# (echo "status"; sleep 0.1) | nc 192.168.109.8 4830
+sayhello        0       0       1
+logMsg  0       0       1
+.
+
+监控php的守护进程（没实践）， 可以开多个，并同时监控：
+关于Worker守护进程的启动和监控
+上面例子中直接启动worker脚本作为守护进程,无法监控到worker进程是否存活.
+使用Unix进程监控supervisord则可轻松解决这个问题.
+将如下配置添加到supervisord的配置中,即可实现由supervisord来启动和监控myworker.
+编辑配置文件 vi /etc/supervisord.conf
+[program:myworker]
+command=/usr/local/php5415/bin/php myworker.php
+process_name=%(program_name)s_%(process_num)02d
+;修改numprocs即可同时开启多个worker进程
+numprocs=1
+directory=/usr/local/gearman/codesTest
+autostart=true
+autorestart=true
+user=gearmand
+stopsignal=KILL
+Posted in Daemon / Worker, Gearman.
+Tagged gearman.
+
+监控这块看：
+http://jingyan.baidu.com/article/375c8e198d1b1425f2a2290c.html
+
+上面这块的PHP扩展代码及实践来自：
+http://www.51itstudy.com/30114.html
+http://codego.net/384693/
+
+_________下面是摘录别的文章不一定自己配置时可完全过得过，得按自己环境作配置安装，只是用作参考！_______
+Gearman的目的在于用PHP扩展分发，于是PHP扩展如何安装：
+tar zxvf gearman-1.1.1.tgz
+cd gearman-1.1.1
+/opt/local/php/bin/phpize
+./configure --with-php-config=/opt/local/php/bin/php-config --with-gearman
+make
+make install
+编辑 php.ini
+vi php.ini
+增加
+extension = "gearman.so"
+重启php
+
+启动gearmand 服务
+gearmand -L 10.6.0.6 -p 4730  -u root -l /var/log/gearmand.log -d
+其他参数请  gearmand --help
+
+摘自：http://jicki.blog.51cto.com/1323993/1177487
+
+通常，多语言多系统之间的集成是个大问题，一般来说，人们多半会采用WebService的方式来处理此类集成问题，但不管采用何种风格的WebService，如RPC风格，或者REST风格，其本身都有一定的复杂性。相比之下，Gearman也能实现类似的作用，而且更简单易用。
+
+一个Gearman请求的处理过程涉及三个角色：Client -> Job -> Worker。
+
+Client：请求的发起者，可以是C，PHP，Perl，MySQL UDF等等。
+Job：请求的调度者，用来负责协调把Client发出的请求转发给合适的Work。
+Worker：请求的处理者，可以是C，PHP，Perl等等。
+
+因为Client，Worker并不限制用一样的语言，所以有利于多语言多系统之间的集成。
+
+甚至我们通过增加更多的Worker，可以很方便的实现应用程序的分布式负载均衡架构。
+
+下面看看如何安装运行一个例子，条件所限，我们把Client，Job，Worker三个角色运行在一台服务器上：
+
+安装libevent：
+wget http://www.monkey.org/~provos/libevent-1.4.12-stable.tar.gz
+tar zxvf libevent-1.4.12-stable.tar.gz
+cd libevent-1.4.12-stable/
+./configure --prefix=/usr
+make && make install
+/sbin/ldconfig
+cd ../
+
+
+
+安装Gearman server and library：
+
+wget http://launchpad.net/gearmand/trunk/0.9/+download/gearmand-0.9.tar.gz
+tar zxvf gearmand-0.9.tar.gz
+cd gearmand-0.9
+./configure
+make
+make install
+/sbin/ldconfig
+cd ../
+
+
+安装Gearman PHP extension：
+
+wget http://pecl.php.net/get/gearman-0.5.0.tgz
+tar zxvf gearman-0.5.0.tgz
+cd gearman-0.5.0
+/usr/local/webserver/php/bin/phpize
+./configure --with-php-config=/usr/local/webserver/php/bin/php-config --with-gearman
+make
+make install
+cd ../
+
+编辑php.ini配置文件加载相应模块并使之生效：
+
+extension = "gearman.so"
+
+启动Job：
+
+gearmand -d
+
+如果当前用户是root的话，则需要这样操作：
+
+gearmand -d -u root
+
+缺省会使用4730端口，下面会用到。
+
+注意：如果找不到gearmand命令的路径，别忘了用whereis gearmand确认。
+
+
+
+我们可以用 ps 指令來查看启动是否成功：
+
+ps aux |grep gearman
+编写Worker：
+
+worker.php文件内容如下：
+
+<?php
+$worker= new GearmanWorker();
+$worker->addServer('127.0.0.1', 4730);
+$worker->addFunction('reverse', 'my_reverse_function');
+
+while ($worker->work());
+
+function my_reverse_function($job)
+{
+    return strrev($job->workload());
+}
+?>
+
+设置后台运行work：
+
+#php /var/www/html/worker.php &
+
+编写Client：
+
+client.php文件内容如下：
+
+<?php
+$client= new GearmanClient();
+$client->addServer('127.0.0.1', 4730);
+echo $client->do('reverse', 'Hello World!'), "n";
+?>
+
+运行client：
+
+#php /var/www/html/client.php
+
+输出：!dlroW olleH
+
+
+
+首先， PHP Gearman Extension 提供了一个名为GearmanClient 的类别，它可以让程序安排工作给 Job Server 。
+
+而 addServer 方法表示要通知的是哪些 Job Server ，也就是说如果有多台 Job Server 的话，就可以透过 addServer 新增。
+
+然后我们将要呼叫哪个 Worker 以及该 Worker 所需要的数据，利用 GearmanClient 的doBackground 方法传送过去。 doBackground 方法顾名思义就是在背景执行， Client 在丢出需求后就可以继续处理其他的程序。
+
+=============
+
+$client->doBackground('sendEmail', serialize($emailData));
+echo "Email sending is done.n";
+
+============
+
+doBackground 方法的第一个参数是告诉 Job Server 要执行哪个功能，而这个功能则是由 Worker 提供的；要注意是，这个参数只是识别用的，并不是真正的函式名称。而第二个参数是要传给 Worker 的数据，它必须是个字符串；因此如果要传送的是数组的话，我们就要用 PHP 的 serialize 函式来对这些资料做串行化。
+
+出于方便的考虑，Worker，Client使用的都是PHP，但这并不影响演示，实际应用中，你完全可以通过Gearman集成不同语言实现的Worker，Client。或许此时你还想了解前面提到的负载均衡功能：很简单，只要增加多个Worker即可，你可以按照worker.php的样子多写几个类似的文件，并设置不同的返回值用以识别演示效果。然后依次启动这几个Worker文件，并多次使用client.php去请求，你就会发现Job会把Client请求转发给不同的Worker。
+
+以守护进程启动
+gearmand -L 192.168.0.1 -p 4730 -u root -d
+
+命令行工具
+
+如果你觉得安装PHP之类的东西太麻烦的话，你也可以仅仅通过命令行工具来体验Gearman的功能：
+
+启动Worker：gearman -w -f wc -- wc -l &
+运行Client：gearman -f wc < /etc/passwd
+
+具体可以参考官方文档。
+摘自：http://www.codesky.net/article/201107/174139.html
+安装时会出现一个小问题：
+configure出现以下错误 checking for gperf... no configure: error: could not find gperf. 解决办法： #yum search gperf #yum install gperf.x86_64.
+gperf.x86_64 : A perfect hash function generator.
+
+Gearman 安装使用 以及 问题处理  
+http://deapge.blog.163.com/blog/static/1113114792013929380253
+
+
+gearman.h:53:23: error: cinttypes: No such file or directory
+tr1/cinttypes: No such file or directory
+错误代码：
+make[1]: Entering directory `/usr/local/src/gearmand-0.38'
+  CXX    libgearman/libgearman_libgearman_la-actions.lo
+In file included from ./libgearman/common.h:44,
+                 from libgearman/actions.cc:39:
+./libgearman-1.0/gearman.h:53:27: error: tr1/cinttypes: No such file or directory
+make[1]: *** [libgearman/libgearman_libgearman_la-actions.lo] Error 1
+make[1]: Leaving directory `/usr/local/src/gearmand-0.38'
+解决：[root@localdomain gearmand-0.38]# yum install gcc44 gcc44-c++
+来自google快照：https://webcache.googleusercontent.com/search?q=cache:GhqVv51gppAJ:www.livingelsewhere.net/2012/08/22/gearman-instal/+&cd=1&hl=zh-CN&ct=clnk&gl=cn
+google来自：http://www.livingelsewhere.net/2012/08/22/gearman-instal/
+
+解决./libgearman-1.0/gearman.h:53:23: error: cinttypes: No such file or directory 实践OK如下：
+后补来自：http://blog.slogra.com/post-234.html
+如果出现configure: error: Unable to find libevent,则输入命令:
+yum -y install libevent libevent-devel
+然后重新configure.
+没有问题后再执行
+make
+这步出现./libgearman-1.0/gearman.h:53:27: error: tr1/cinttypes: No such file or directory错误,可以推断是gcc编译器的问题,执行命令:
+yum install gcc44 gcc44-c++ libstdc++44-devel -y
+然后在环境变量里加入:
+export CC=/usr/bin/gcc44 or export CC=/usr/bin/gcc
+export CXX=/usr/bin/g++44
+保存退出后执行:
+source /etc/profile
+删除gearmand-0.34文件夹重新进行编译.
+重新进行编译后执行make这步,如图
+点击查看原图
+没有报错的话才能继续执行
+make install
+如果没有报错的话,那么恭喜你可以继续安装gearman了.
+
+看下yum后新的gcc在不在，在的：
+yum install gcc44 gcc44-c++ libstdc++44-devel -y
+view plainprint?
+
+    [root@test software]# ls /usr/bin/gcc44  
+    /usr/bin/gcc44  
+    [root@test software]# ls /usr/bin/gcc  
+    /usr/bin/gcc  
+    [root@test software]# ls /usr/bin/g++44  
+    /usr/bin/g++44  
+      
+    export CC=/usr/bin/gcc44 or export CC=/usr/bin/gcc  
+    export CXX=/usr/bin/g++44  
+
+
+Total download size: 4.1 M
+Downloading Packages:
+libstdc++44-devel-4.4.7-1.el5.i386.rpm      | 4.1 MB     00:00    
+Transaction Test Succeeded
+Running Transaction
+  Installing     : libstdc++44-devel        1/1
+Installed:
+  libstdc++44-devel.i386 0:4.4.7-1.el5        
+Complete!
+
+方法二：
+http://www.cnblogs.com/cenalulu/archive/2013/04/03/2998140.html
+关键信息：error: tr1/cinttypes: No such file or directory
+
+报错原因：libmemcached需要 gcc 4.2 以上版本才可编译，而centos 5.4 的gcc版本只有4.1 ，详见：https://bugs.launchpad.net/libmemcached/+bug/1076181
+
+解决方法：安装gcc44的扩展包，详见：http://gearman.info/build/centos5-8.html
+
+解决步骤引用如下：
+
+wget http://mirrors.ustc.edu.cn/fedora/epel/5/i386/epel-release-5-4.noarch.rpm
+rpm -ivh epel-release-5-4.noarch.rpm
+yum -y -q install boost141-devel
+ln -s /usr/include/boost141/boost/ /usr/include/boost
+export LDFLAGS="-L/usr/lib64/boost141"
+export LD_LIBRARY_PATH=/usr/lib64/boost141:$LD_LIBRARY_PATH
+yum -y -q install e2fsprogs-devel e2fsprogs
+yum -y -q install gcc44 gcc44-c++
+export CC="gcc44"
+export CXX="g++44"
+
+所有操作完成后，重新执行：
+
+./configure --enable-memaslap && make && make install
+
+安装完成！！
+
+实践如下问题：
+[root@test software]# rpm -ivh epel-release-5-4.noarch.rpm
+rpm: error while loading shared libraries: libbeecrypt.so.6: cannot open shared object file: No such file or directory
+
+
+http://pecl.php.net/package/gearman
+http://sourceforge.net/projects/boost/?source=pdlp
+提示没有安装boost libraries，那么安装之。
+下载地址：http://sourceforge.net/projects/boost/?source=pdlp
+关于boost的了解，可以到官网：
+http://www.boost.org/doc/libs/1_55_0/more/getting_started/index.html
+http://www.boost.org/doc/libs/1_55_0/more/getting_started/windows.html
+
+Boost库的安装步骤参照：(漫长的编译过程……)
+Linux下安装gearman的方法：
+https://justwinit.cn/post/7706/
+————————————————————————————————————————
+http://www.cnblogs.com/longcpp/archive/2012/06/06/2538251.html
+还有http://m.blog.csdn.net/blog/yan420523/9096871(……晕晕呼呼)
+http://www.cnblogs.com/cocowool/archive/2011/08/18/2144142.html
+接着重新执行上面的./configure
+又出现错误了:
+
+http://www.cnblogs.com/youlechang123/archive/2013/10/22/3382425.html
+用apt-get install gperf安装了gperf，重新执行./configure，执行一段时间，又出错了：
+=====================================================================
+重点参考：http://blog.chinaunix.net/uid-27177626-id-4325909.html
+
+参照http://blog.slogra.com/post-234.html解决
+用apt-get install libevent libevent-devel安装缺少的依赖，但是又出错了：ubuntu E: Unable to locate package libevent
+更新源：apt-get apdate  apt-get upgrade
+还是无法安装libevent，只有去官网下载，用源码安装方式安装：http://libevent.org/
+下载之后，./configure make make install
+重新执行./configure，执行一段时间，又出错：
+
+用apt-get install libuuid无法安装，因此，只有去官网下载：
+http://sourceforge.net/projects/libuuid/
+用源码安装方式安装。
+然后，再次重新执行gearman目录下的./configure。呼呼~~~~~，终于不再出错了，这次顺利执行完毕。
+
+Boost DownLoad:
+http://jaist.dl.sourceforge.net/project/boost/boost/1.57.0/boost_1_57_0.zip
