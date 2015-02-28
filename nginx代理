@@ -58,7 +58,7 @@ http {
     client_body_buffer_size 128k; // 缓存区代理用户端文件字节数
     client_body_temp_path /tmp/client_body_temp; // 请求试图写入到缓存文件的目录路径
     proxy_connect_timeout 600; // 和后端服务器连接的超时时间
-    proxy_read_timeout 600; // 连接成功等待后端相应的时间，默认60s
+    proxy_read_timeout 600; // 连接成功等待后端响应的时间，默认60s
     proxy_send_timeout 600; // 后端服务器的回传时间，规定服务器在一定的时间内传送完
     proxy_buffer_size 12k; // 代理服务器的缓存文件头部文件大小，默认4k
 	proxy_buffers 4 32k;   // 后端真实服务器的数量和大小
@@ -105,6 +105,8 @@ http {
 			proxy_pass http://wslm.csc86.com;  // 指定需要代理的url
 			proxy_redirect off; // 如果需要从后端打开location和Refresh字段，可以开启。 
 			proxy_set_header X-Real-IP $remote_addr; // 允许将发送到后端的服务器请求重新定义或者增加一个字段，这个可以是变量也是文本组合。
+			proxy_set_header REMOTE_ADDR $remote_addr;
+			proxy_set_header HTTP_CLIENT_IP $remote_addr;
 			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; //联系下面PS中所写，在后端web中就算加上$http_x_Forwarded_for这条，也得不到用户的IP，所以在nginx反向代理添加Header头信息 X-Forwarded-For在配合后端服务器日志文件的$http_x_Forwarded_for这条就可以获得用户的IP地址了。
 			proxy_set_header Host $host; //首先说明 proxy_set_header 指令在向反向代理的后端Web服务器发起请求时添加指定的 Header头信息，后端web服务器有多个基于域名的虚拟主机时，通过头信息Host，用于指定请求的域名，这样后端web才能识别反向代理请求哪个虚拟主机处理。
 			proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504 http_404; // 服务器头部超时相应的各种状态 
