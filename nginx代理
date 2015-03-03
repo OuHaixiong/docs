@@ -3,10 +3,18 @@ nginx 代理：
 
 server {
     listen 80;
-    server_name yiitest;
+    server_name yiitest yiitest.com;
     error_log /var/log/www/yiitest_error.log;
+    access_log /data/logs/nginx/wslm_access.log;
     root /home/bear/www/yiitest; # 如果全部的请求都代理到别的服务器上了，就可以不用写这个网站所在目录
-
+    
+    #if ($remote_addr != "192.168.0.54"){
+    #    set $root /data/wwwroot/wslm;
+    #}
+    #if ($remote_addr = "192.168.0.54"){
+    #    set $root /data/javaroot/wslm;
+    #}
+    #root $root;
     location /weixin/life-orderBuy.html {
         proxy_pass http://wslm1.csc86.com/life/orderBuy.html; # 后面的参数会原样代理过去
     }
@@ -26,16 +34,17 @@ server {
     location ^~ /life/checkBuy {
         proxy_pass http://wslm.csc86.com/life/checkBuy;
     }
-   
+
+    autoindex off;   
 
     location / {
         index index.php index.html;
-        if (!-e $request_filename) {
-            rewrite ^(.*)$ /index.php last;
+        if (!-e $request_filename) { # 重写规则
+            rewrite ^(.*)$ /index.php last; # 或 rewrite (.*) /index.php last;
         }
     }
 
-    location ~ .*\.php$ {
+    location ~ .*\.php$ { # 或 location ~ \.php {
         fastcgi_pass   127.0.0.1:9000;
         fastcgi_index  index.php;
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
