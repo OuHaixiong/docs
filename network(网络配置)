@@ -12,7 +12,7 @@ DEVICE=eth0              # 网卡对应的设备别名
 BOOTPROTO=static         # 静态ip
 HWADDR=48:5B:39:0B:28:C7 # 网卡物理地址
 TYPE=Ethernet            # 
-IPV6INIT=no              # ipv6不初始化
+IPV6INIT=no              # ipv6不初始化(禁止IPV6)
 IPV6_AUTOCONF=no         # 不开启ipv6
 ONBOOT=yes               # 系统启动时，激活此设备
 IPADDR=10.10.10.73       # ip地址 192.168.1.86
@@ -39,3 +39,9 @@ service network restart/start 重启/开启网络
 或 /etc/init.d/network restart
 
 通过ping 163.com 查看网络是否已通
+
+service ip6tables stop   #停止IPV6服务
+chkconfig ip6tables off  #禁止IPV6开机启动
+service yum-updatesd stop   #关闭系统自动更新
+chkconfig yum-updatesd off  #禁止开启启动
+
