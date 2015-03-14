@@ -37,6 +37,8 @@ useradd bear 添加新用户  (sudo adduser bear 貌似一样的)
 userdel -f bear 删除用户，并删除用户目录
 smbpasswd -a bear 为samba服务器的用户设置一个秘密（修改密码也一样）
 smbpasswd -x bear 删除samba服务器中的一个账号
+groupadd group 添加用户组
+useradd -g group bear 添加用户并所属组
 
 # 服务器相关
 sudo /etc/init.d/smbd restart 重启samba服务器
