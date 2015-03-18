@@ -1,0 +1,15 @@
+
+1，解决重启apache2报如下错误：
+apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.1.1 for ServerName
+ ... waiting apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.1.1 for ServerName
+ 在Ubuntu上装完Apache后，每次启动apache服务器都会得到如下警告：
+ $ sudo /etc/init.d/apache2 restart
+ * Restarting web server apache2 
+apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.1.1 for ServerName
+ ... waiting apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.1.1 for ServerName
+解决办法也很简单：
+ $ sudo vim /etc/apache2/httpd.conf  加入
+ ServerName localhost
+ 注意httpd.conf默认是个空文件
+ 重启apache2就不会再报如上错误了。
+ 

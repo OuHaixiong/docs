@@ -29,7 +29,7 @@ scp -rvp /usr/local/redis/ root@192.168.1.113:/usr/local/   通过ssh向远端�
 　-i或–interactive 　删除既有文件或目录之前先询问用户。 
 　-r或-R或–recursive 　递归处理，将指定目录下的所有文件及子目录一并处理。 
 　-v或–verbose 　显示指令执行过程。 
-
+find . -type d -name ".svn"|xargs rm -rf 批量删除.svn文件夹
 
 
 # 用户相关
