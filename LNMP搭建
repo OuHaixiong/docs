@@ -256,8 +256,9 @@ cd ../
 tar -jxvf php-5.4.35.tar.bz2
 cd php-5.4.35/
 编译,安装
-./configure --prefix=/usr/local/php  --with-mysql --with-mysqli --with-pdo_mysql --with-openssl --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-bz2 --with-libxml-dir=/usr --enable-xml --with-iconv-dir=/usr/local --with-curl --with-mcrypt --with-gd --enable-gd-native-ttf --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap
-make ZEND_EXTRA_LIBS='-liconv'
+./configure --prefix=/usr/local/php  --with-mysql --with-mysqli --with-pdo_mysql --with-openssl --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-bz2 --with-libxml-dir=/usr --enable-xml --with-iconv=/usr/local/lib --with-curl --with-mcrypt --with-gd --enable-gd-native-ttf --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap
+#make ZEND_EXTRA_LIBS='-liconv' 如果libiconv路径设置对了，可以编译通过就不需要后面这节
+make
 make test
 make install
 
@@ -369,7 +370,7 @@ pm.max_requests = 500
  强制停止 pkill -9 nginx/php-fpm 
  
  开启80端口
- /sbin/iptables -I INPUT -p tcp --dport 21 -j ACCEPT
+ /sbin/iptables -I INPUT -p tcp --dport 80 -j ACCEPT
  /etc/rc.d/init.d/iptables save
  /etc/init.d/iptables restart
  
