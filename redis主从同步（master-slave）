@@ -2,8 +2,8 @@
 redis：master-slave(主从)同步
 
 1，解压并安装
-tar -zxvpf redis-2.8.17.tar.gz   
-cd redis-2.8.17  
+tar -zxvf redis-2.8.19.tar.gz 
+cd redis-2.8.19 
 make
 make install
 
@@ -77,6 +77,7 @@ hz 10
 aof-rewrite-incremental-fsync yes
 
 4，命令行下进行测试：
+先创建数据文件夹：mkdir -p /data/db/redis/
 sudo /usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf （启动redis）
 netstat -ntpl |grep 6379 
 sudo /usr/local/redis/bin/redis-cli -h 192.168.17.130
@@ -89,6 +90,11 @@ OK
 192.168.17.130:6379> get number
 (nil)
 192.168.17.130:6379> quit
+
+开启6379端口：
+/sbin/iptables -I INPUT -p tcp --dport 6379 -j ACCEPT
+/etc/rc.d/init.d/iptables save
+/etc/init.d/iptables restart
 
 5，关闭主节点的redis，复制/usr/local/redis/目录至从节点
 ps -ef |grep redis
@@ -165,7 +171,7 @@ redis 192.168.17.130:6379> quit
 192.168.17.134:6379> quit
 redis-cli shutdown // 关闭redis
 关闭某个端口上的redis
-# redis-cli -p 6379 shutdown //关闭6379端口的redis
+# /usr/local/redis/bin/redis-cli -p 6379 shutdown //关闭6379端口的redis
 
 到此，配置OK
 
