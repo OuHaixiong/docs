@@ -85,6 +85,7 @@ ps -ef |grep nginx 查看进程
 service iptables start/stop 打开或关闭防火墙
 /sbin/chkconfig --add mysql 把MySQL添加到系统启动服务中去
 /sbin/chkconfig --del mysql 把MySQL从系统启动服务组中删除
+nohup /usr/local/php/bin/php /data/www/wa/worker/common_push.php > /data/logs/push.log 2>&1 & 在后台运行
 jobs -l 查看所有运行的进程
 fg %n 让后台运行的进程n到前台来， n为jobs查看到的进程编号，非进程号（到前台了就可以Ctrl+C结束掉）
 lsb_release -a 查看centos版本

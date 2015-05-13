@@ -60,6 +60,7 @@ gearmand -L 10.0.0.51 -p 4730 -u root -d
  -d 以守护进程启动(deamon) 
  -L 表示要监听IP   
  -p 表示要监听的端口 
+可以用 netstat -tupln 查看4730端口是否存在
 
 
 client代码如下：
