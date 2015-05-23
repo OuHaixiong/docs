@@ -1,0 +1,8 @@
+
+1，下载源码包：https://nodejs.org/download/   node-v0.12.3.tar.gz
+2，解压文件：tar -zxvf node-v0.12.3.tar.gz
+3，创建编译文件：
+   cd node-v0.12.3
+   ./configure
+4，编译并安装：make && make install
+5，测试：node --version
