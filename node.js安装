@@ -6,3 +6,4 @@
    ./configure
 4，编译并安装：make && make install
 5，测试：node --version
+6，后台运行：nohup node  /data/www/push/app.js >/data/logs/push.log 2>&1 &
