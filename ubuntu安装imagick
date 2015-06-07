@@ -1,0 +1,101 @@
+
+ 1，安装zlib
+ tar -zxvf zlib-1.2.8.tar.gz 
+ cd zlib-1.2.8/
+ ./configure --prefix=/usr/local/zlib --shared 
+ sudo make 
+ sudo make install 
+ sudo cp /usr/include/zlib.h /usr/local/include/zlib.h
+ 
+ 2，安装libpng
+ tar -xvf libpng-1.6.16.tar.xz
+ cd libpng-1.6.16   
+ sudo cp scripts/makefile.linux makefile
+ sudo make
+ sudo make install
+ 
+ 3，安装jpeg
+ tar -zxvf jpegsrc.v9a.tar.gz 
+ cd jpeg-9a/
+ #./configure --prefix=/usr/local/jpeg9a --enable-shared
+ sudo ./configure --enable-shared  （这里最好别指定路径，不然后面安装imagemagick时，可能找不到jpeg库）
+ sudo make 
+ sudo make install
+ （
+ 下面的我在ubuntu上没有执行，貌似也安装成功了
+ cp  /usr/bin/libtool  ./
+ mkdir  /usr/local/man/man1
+ mkdir /usr/local/jpeg6
+ mkdir -p /usr/local/jpeg6/include
+ mkdir -p /usr/local/jpeg6/lib
+ mkdir -p /usr/local/jpeg6/bin
+ mkdir -p /usr/local/jpeg6/man/man1
+ make install-lib
+ 
+ 注意：这里configure一定要带--enable-shared参数，不然，不会生成共享库
+ 这个jpeg软件一般默认安装，不指定路径的话，应该很顺利的；但是如果指定安装目录后，就需要我们手动创建很多目录。
+ ）
+ 
+ 4，安装freetype
+ tar -xvf freetype-2.5.5.tar.bz2
+ cd freetype-2.5.5/
+ ./configure --prefix=/usr/local/freetype
+ sudo make
+ sudo make install
+ 
+ 这时可以运行下sudo ldconfig 更新动态库
+ 
+ 5，安装ImageMagick
+ unzip ImageMagick-6.9.0-3.zip
+ cd ImageMagick-6.9.0-3
+ ./configure --prefix=/usr/local/imagemagick
+ sudo make 
+ sudo make install
+ 
+ sudo ldconfig   更新下动态库
+ 
+ 测试是否安装成功：
+ convert -version
+ Version: ImageMagick 6.9.0-3 Q16 i686 2015-01-13 http://www.imagemagick.org
+Copyright: Copyright (C) 1999-2015 ImageMagick Studio LLC
+Features: DPC OpenMP
+Delegates (built-in): png zlib  （Delegates (built-in): jng jpeg png zlib这样表示支持了jpeg和png）
+
+sudo convert -sample 25%x25% abc.jpeg 3.png
+convert: no decode delegate for this image format `JPEG' @ error/constitute.c/ReadImage/501.
+convert: no images defined `3.jpeg' @ error/convert.c/ConvertImageCommand/3210.
+如果出现如上错误，说明jpeg还是没有安装成功，需要重新安装
+
+ 
+ 6，安装imagick
+ tar -zxvf imagick-3.1.2.tgz
+ cd imagick-3.1.2/
+ sudo /usr/bin/phpize
+ sudo ./configure --with-php-config=/usr/bin/php-config --with-imagick=/usr/local/imagemagick
+ sudo make
+ sudo make install
+ （
+ 编译过程中，可能会遇到这样的问题。MagickWand.h: No such file or directory
+首先确保pkg-config是已安装，如果未安装，安装。
+然后是安装GTK。（sudo apt-get install libgtk2.0*）
+安装完毕：export PKG_CONFIG_PATH=/usr/local/ImageMagick/lib/pkgconfig/
+再重新安装imagick的php扩展。
+参考：http://www.cnblogs.com/niocai/archive/2011/07/15/2107472.html
+ ）
+ 
+ 7，编译安装成功后会在php的扩展目录：/usr/lib/php5/20090626+lfs/ 中生成 imagick.so文件
+ 然后在/etc/php5/conf.d目录中加上imagick的配置
+ sudo vim imagick.ini 加上：
+ extension=imagick.so
+ 重起apache：
+ sudo /etc/init.d/apache2 restart
+ 用phpinfo();查看
+ imagick module version 	3.1.2  说明安装成功，安装到此结束
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

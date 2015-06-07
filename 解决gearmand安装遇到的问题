@@ -1,0 +1,140 @@
+
+http://justwinit.cn/post/7693/
+
+1，
+checking for boostlib >= 1.39... configure: We could not detect the boost libraries (version 1.39 or higher). If you have a staged boost library (still not installed) please specify $BOOST_ROOT in your environment and do not give a PATH to --with-boost option.  If you are sure you have boost installed, then check your version number looking in <boost/version.hpp>. See http://randspringer.de/boost for more documentation.
+configure: error: could not find boost
+需要安装boost，
+解决：yum -y install boost.x86_64 boost-devel.x86_64
+特别注意：如果用yum安装的boost版本低于1.39时，是无法安装高版本的gearmand的。
+解决办法有两种：
+一是安装低版本的gearmand
+二是手动安装高版本的boost，这里安装这个类库真痛苦，各种依赖包搞死人
+
+2，
+configure: error: could not find gperf
+需要安装gperf
+可以在CentOS 第二个安装盘中找gperf的rpm安装包：
+rpm -ivh gperf-3.0.3-9.1.el6.x86_64.rpm 
+
+3，
+如果出现configure: error: Unable to find libevent,则输入命令:
+yum -y install libevent libevent-devel
+然后重新configure.
+没有问题后再执行
+如果你是手动安装libevent的，且安装目录是在/usr/local/lib/下的话，需要修改Linux动态库的搜索路径 
+查看libevent的安装路径
+# whereis libevent
+libevent: /usr/local/lib/libevent.a /usr/local/lib/libevent.la /usr/local/lib/libevent.so
+修改动态库搜索路径：
+通过查看文件vim /etc/ld.so.conf我们知道：include ld.so.conf.d/*.conf  在本目录下的ld.so.conf.d目录下可以建立动态库配置
+cd /etc/ld.so.conf.d/
+vim libevent.conf  加入
+/usr/local/lib
+然后更新配置：
+ldconfig
+最后重新 ./configure
+
+4,
+configure: error: Unable to find libuuid
+可执行：yum install libuuid-devel
+或 rpm -ivh libuuid-2.17.2-12.14.el6.x86_64.rpm 
+rpm -ivh libuuid-devel-2.17.2-12.14.el6.x86_64.rpm
+
+5，
+继续make，然后问题来了，报如下错误：
+/gearmand-1.1.12/libgearman-server/gearmand_con.cc:677: undefined reference to `event_initialized'
+collect2: ld returned 1 exit status
+这个问题的原因是livevent的版本太老，我们需要重新安装一个新的版本。
+真汗颜：gearmand对boost库的要求高，对libevent的版本也要求高。
+下面我们来安装最新的libevent:
+先看下我们之前的libevent安装在哪里了，
+#whereis libevent
+libevent: /usr/lib64/libevent.so /usr/lib64/libevent.a
+我们可以知道系统默认的安装在/usr/lib64里。
+可以查看下文件：
+#ls -al /usr/lib64 |grep libevent
+lrwxrwxrwx.  1 root root       21 1月   4 14:15 libevent-1.4.so.2 -> libevent-1.4.so.2.1.3
+-rwxr-xr-x.  1 root root   106656 6月  22 2012 libevent-1.4.so.2.1.3
+-rw-r--r--.  1 root root   176258 6月  22 2012 libevent.a
+lrwxrwxrwx.  1 root root       26 1月   4 14:15 libevent_core-1.4.so.2 -> libevent_core-1.4.so.2.1.3
+-rwxr-xr-x.  1 root root    40280 6月  22 2012 libevent_core-1.4.so.2.1.3
+-rw-r--r--.  1 root root    62192 6月  22 2012 libevent_core.a
+lrwxrwxrwx.  1 root root       26 1月   5 11:29 libevent_core.so -> libevent_core-1.4.so.2.1.3
+lrwxrwxrwx.  1 root root       27 1月   4 14:15 libevent_extra-1.4.so.2 -> libevent_extra-1.4.so.2.1.3
+-rwxr-xr-x.  1 root root    84536 6月  22 2012 libevent_extra-1.4.so.2.1.3
+-rw-r--r--.  1 root root   137314 6月  22 2012 libevent_extra.a
+lrwxrwxrwx.  1 root root       27 1月   5 11:29 libevent_extra.so -> libevent_extra-1.4.so.2.1.3
+lrwxrwxrwx.  1 root root       21 1月   5 11:29 libevent.so -> libevent-1.4.so.2.1.3
+
+好，我们用rpm命令进行卸载
+#rpm -e libevent
+error: Failed dependencies:
+	libevent-1.4.so.2()(64bit) is needed by (installed) nfs-utils-1:1.2.3-39.el6.x86_64
+	libevent-1.4.so.2()(64bit) is needed by (installed) libevent-devel-1.4.13-4.el6.x86_64
+	libevent_core-1.4.so.2()(64bit) is needed by (installed) libevent-devel-1.4.13-4.el6.x86_64
+	libevent_extra-1.4.so.2()(64bit) is needed by (installed) libevent-devel-1.4.13-4.el6.x86_64
+	libevent is needed by (installed) nfs-utils-1:1.2.3-39.el6.x86_64
+	libevent = 1.4.13-4.el6 is needed by (installed) libevent-devel-1.4.13-4.el6.x86_64
+提示有依赖包，无法卸载。同样rpm -e libevent-devel也是一样的，无法卸载。
+
+那怎么办，上网查到方法如下：
+我们先把/usr/lib64下的所有libevent开头的文件备份下，以防万一，cp libevent* /data/libevent_back/。
+卸载libevent:
+rpm -e --allmatches --nodeps libevent-1.4.13-4 libevent-devel-1.4.13-4
+提示不存在包libevent-1.4.13-4
+然后用如下命令重试：
+rpm -e --allmatches --nodeps libevent-1.4.13 libevent-devel-1.4.13
+OK,可以，成功卸载。
+我们看下是否卸载干净：
+#whereis libevent-devel
+libevent-devel:
+#whereis libevent
+libevent:
+#ls -al /usr/lib |grep libevent
+也没有文件了，说明我们已经卸载干净了，如果没有卸载干净，需要手动用 rm -rf XXX 命令删除文件。
+
+下面安装最新的libevent:
+下载libevent：libevent-2.0.21-stable.tar.gz
+解压：#tar -zxf libevent-2.0.21-stable.tar.gz
+进入目录，编译并安装
+#cd libevent-2.0.21-stable
+#./configure --prefix=/usr
+#make && make install
+安装完后，查看是否安装成功。
+#whereis libevent
+libevent: /usr/lib/libevent.so /usr/lib/libevent.a /usr/lib/libevent.la
+#ll /usr/lib |grep libevent
+lrwxrwxrwx.  1 root root      21 1月   5 22:27 libevent-2.0.so.5 -> libevent-2.0.so.5.1.9
+-rwxr-xr-x.  1 root root  968690 1月   5 22:27 libevent-2.0.so.5.1.9
+-rw-r--r--.  1 root root 1571842 1月   5 22:27 libevent.a
+lrwxrwxrwx.  1 root root      26 1月   5 22:27 libevent_core-2.0.so.5 -> libevent_core-2.0.so.5.1.9
+-rwxr-xr-x.  1 root root  585233 1月   5 22:27 libevent_core-2.0.so.5.1.9
+-rw-r--r--.  1 root root  978514 1月   5 22:27 libevent_core.a
+-rwxr-xr-x.  1 root root     970 1月   5 22:27 libevent_core.la
+lrwxrwxrwx.  1 root root      26 1月   5 22:27 libevent_core.so -> libevent_core-2.0.so.5.1.9
+lrwxrwxrwx.  1 root root      27 1月   5 22:27 libevent_extra-2.0.so.5 -> libevent_extra-2.0.so.5.1.9
+-rwxr-xr-x.  1 root root  404852 1月   5 22:27 libevent_extra-2.0.so.5.1.9
+-rw-r--r--.  1 root root  593400 1月   5 22:27 libevent_extra.a
+-rwxr-xr-x.  1 root root     977 1月   5 22:27 libevent_extra.la
+lrwxrwxrwx.  1 root root      27 1月   5 22:27 libevent_extra.so -> libevent_extra-2.0.so.5.1.9
+-rwxr-xr-x.  1 root root     935 1月   5 22:27 libevent.la
+lrwxrwxrwx.  1 root root      29 1月   5 22:27 libevent_openssl-2.0.so.5 -> libevent_openssl-2.0.so.5.1.9
+-rwxr-xr-x.  1 root root   94273 1月   5 22:27 libevent_openssl-2.0.so.5.1.9
+-rw-r--r--.  1 root root  131924 1月   5 22:27 libevent_openssl.a
+-rwxr-xr-x.  1 root root    1006 1月   5 22:27 libevent_openssl.la
+lrwxrwxrwx.  1 root root      29 1月   5 22:27 libevent_openssl.so -> libevent_openssl-2.0.so.5.1.9
+lrwxrwxrwx.  1 root root      30 1月   5 22:27 libevent_pthreads-2.0.so.5 -> libevent_pthreads-2.0.so.5.1.9
+-rwxr-xr-x.  1 root root   18430 1月   5 22:27 libevent_pthreads-2.0.so.5.1.9
+-rw-r--r--.  1 root root   18678 1月   5 22:27 libevent_pthreads.a
+-rwxr-xr-x.  1 root root     998 1月   5 22:27 libevent_pthreads.la
+lrwxrwxrwx.  1 root root      30 1月   5 22:27 libevent_pthreads.so -> libevent_pthreads-2.0.so.5.1.9
+lrwxrwxrwx.  1 root root      21 1月   5 22:27 libevent.so -> libevent-2.0.so.5.1.9
+说明安装成功了。
+注意：如果libevent的安装目录为/usr/local/lib下，则还需要建立软连接到/usr/lib
+
+下面继续安装gearmand：
+[root@meng gearmand-1.1.12]# make
+#make install
+不报错了，安装成功。
+运行 #gearman 测试是否安装成功

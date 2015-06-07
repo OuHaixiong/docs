@@ -1,0 +1,6 @@
+
+安装svn图像化客户端RabbitVCS
+
+1，rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+
+2，yum install rabbitvcs*

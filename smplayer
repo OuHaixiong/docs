@@ -1,0 +1,9 @@
+
+下面介绍使用第三方源，安装SMPlayer
+
+1，安装第三方源：rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+rpm -ivh rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+（挂载NTFS分区也是需要这个源的：yum install fuse-ntfs-3g 或 yum install ntfs-3g ）  
+
+2, yum install mplayer smplayer
