@@ -1,0 +1,116 @@
+
+   MySQL 5.5和5.6默认值差异
+   
+   
+    MySQL 5.5和5.6默认值差异
+     
+    作为 MySQL 5.5 和 5.6 性能比较的一部分，我研究了下两个版本默认参数的差异，为了了解差异内容，我使用如下的 SQL 语句分别在 MySQL 5.5 和 5.6 版本进行查询，得出下表：
+     
+    加载中...
+     
+    让我们来看看这些差异的配置中最重要的也是影响最大的部分：
+     
+    performance_schema 在 MySQL 5.6 中默认是开启的，但相关的很多参数相比 MySQL 5.5 却是降低了，例如 performance_schema 自动调整到 445 个表和 224 线程，比 MySQL 5.5 低。尽管默认 max_connections 只是 150 ，比 200 还小。
+     
+    innodb_stats_on_metadata 在 MySQL 5.6 默认关闭，使得 information_schema 的查询速度快很多。
+     
+    innodb_log_file_size – 默认值从 5MB 提升到 50MB，这是一个好的改变，虽然我觉得这个默认数值还可以再大些。对于写负载高的情况下，默认配置的 MySQL 5.6 性能更好。
+     
+    back_log 改动比较小，从 50 改为 80。如果系统每秒处理的连接数很高，还需要继续提高这个配置的值。
+     
+    open_files_limit 由原来的 1024 改为 5000
+     
+    innodb_auto_extend_increment 由 8MB 改为 64MB，可帮助降低碎片。
+     
+    max_connect_errors 从 10 改为 100，可降低潜在的连接堵塞，但还可以更高些。
+     
+    sort_buffer_size 从 2M 将为 256K，这可避免小排序导致的资源浪费，但是对大的排序有负面的影响。
+     
+    max_allowed_packet 从 1MB 改为 4MB 让 MySQL 可处理更大的查询。
+     
+    join_buffer_size 从 128K 改为 256K，我觉得这个改动影响不大。
+     
+    table_open_cache 从 400 提高到 2000，挺好！
+     
+    innodb_buffer_pool_instances 从 1 改为 8，用于优化更高并发的负载。
+     
+    query_cache_type 和 query_cache_size. The behavior is “no cache” by default still but it is achieved differently now. The query_cache_type is now off by default with default size of 1MB while in MySQL 5.5 and before it was “ON” by default with query cache size of 0 which makes it disabled. I wish query_cache_size though would be larger by default as value of 1M is too small to be practical if someone tries to enable it.
+     
+    sql_mode has NO_ENGINE_SUBSTITUTION value by default which is good change as trying to create Innodb table but getting MyISAM because Innodb was disabled for some reason was very error prone gotcha. Note this is as far as MySQL 5.6 goes – STRICT_MODE and other safer behaviors are not enabled by default.
+     
+    innodb_old_blocks_time 设置为 1000，很好的改变，默认扫描 InnoDB 缓冲池大小。
+     
+    thread_cache_size 默认启用，对很多连接和断开连接操作的情况下有帮助。
+     
+    sync_relay_log_info and sync_master_info 默认值有原来的 0 改为 10000. 该改动几乎不会影响负载。
+     
+    secure_auth 默认开启，要求新的密码握手，特别是阻止老的不安全的做法，很好！
+     
+    innodb_concurrency_tickets has been increased from 500 to 5000. If you’re using innodb_thread_concurrency this will reduce overhead associated with grabbing and releasing innodb_thread_concurrency slot but will increase potential starvation of queued threads especially for IO bound workloads. Most users will not be affected though as innodb_thread_concurrency is 0 by default so this queuing feature is disabled.
+     
+    innodb_purge_threads 默认为 1 ，使用专用的后台 purge 线程，好！
+     
+    innodb_open_files 由 300 改为 2000，好！
+     
+    innodb_data_file_path got a small change with starting ibdata1 size raised from 10M to 12M. I’m not sure what is the purpose of this change but it is unlikely to have any practical meaning for users. Considering the default innodb_auto_extend_increment is 64 starting with 64M might have made more sense.
+     
+    innodb_purge_patch_size 从 20 改为 300.
+     
+    innodb_file_per_table 默认启用，这个改变很大，而且很棒。特别是当你的表非常大的时候。
+     
+    optimizer_switch is the catch all variable for a lot of optimizer options. I wonder why was not it implemented as number of different variables which would make more sense in my opinion. MySQL 5.6 adds a lot more optimizer switches which you can play with:
+     
+    mysql
+     [localhost] {msandbox} (test) &gt; select
+     
+    * from
+     
+    var55 where
+     
+    variable_name='OPTIMIZER_SWITCH'
+     
+    \G
+     
+    ***************************
+     1. row ***************************
+     
+     VARIABLE_NAME:
+     OPTIMIZER_SWITCH
+     
+    VARIABLE_VALUE:
+     index_merge=on,index_merge_union=on,index_merge_sort_union=on,index_merge_intersection=on,engine_condition_pushdown=on
+     
+    1
+     row in
+     
+    set 
+    (0.00 sec)
+     
+     
+     
+    mysql
+     [localhost] {msandbox} (test) &gt; select
+     
+    * from
+     
+    var56 where
+     
+    variable_name='OPTIMIZER_SWITCH'
+     
+    \G
+     
+    ***************************
+     1. row ***************************
+     
+     VARIABLE_NAME:
+     OPTIMIZER_SWITCH
+     
+    VARIABLE_VALUE:
+     index_merge=on,index_merge_union=on,index_merge_sort_union=on,index_merge_intersection=on,engine_condition_pushdown=on,index_condition_pushdown=on,mrr=on,mrr_cost_based=on,block_nested_loop=on,batched_key_access=off,materialization=on,semijoin=on,loosescan=on,firstmatch=on,subquery_materialization_cost_based=on,use_index_extensions=on
+     
+    1
+     row in
+     
+    set 
+    (0.00 sec)
+    总结: MySQL 5.6 对默认配置进行了一些微调，这些调整大多数都非常不错。

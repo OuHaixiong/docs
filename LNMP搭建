@@ -1,7 +1,7 @@
 Nginx是一个小巧而高效的Linux下的Web服务器软件，是由 Igor Sysoev 为俄罗斯访问量第二的 Rambler 站点开发的，已经在一些俄罗斯的大型网站上运行多年，相当的稳定。 用Nginx搭建web服务器,比Apache相比,占用更少的资源,支持更多的并发连接，体现更高的效率。
 
 第一步编译环境:
-yum -y install make pcre pcre-devel gcc gcc-c++ autoconf libjpeg libjpeg-devel freetype freetype-devel libxml2 libxml2-devel zlib zlib-devel glibc glibc-devel glib2 glib2-devel bzip2 bzip2-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel openldap openldap-devel nss_ldap openldap-clients openldap-servers gd gd-devel vim-minimal zip unzip file libpng.x86_64 libpng-devel.x86_64 libpng-static.x86_64 vim-enhanced 
+yum -y install make pcre pcre-devel gcc gcc-c++ autoconf libjpeg libjpeg-devel freetype freetype-devel libxml2 libxml2-devel zlib zlib-devel glibc glibc-devel glib2 glib2-devel bzip2 bzip2-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel krb5-devel libidn libidn-devel openssl openssl-devel openldap openldap-devel openldap-clients openldap-servers gd gd-devel vim-minimal zip unzip file libpng.x86_64 libpng-devel.x86_64 libpng-static.x86_64 vim-enhanced 
 (貌似还有：patch gcc-g77 flex bison gmp-devel pspell-devel
 libtool libtool-libs 貌似跟动态库有关
 kernel-devel sendmail 
@@ -133,7 +133,7 @@ mkdir -p /etc/nginx/sites-enabled
 安装结束后启动nginx,/usr/local/webserver/nginx/sbin/nginx, 
 平滑重启： kill -HUP 住进称号或进程号文件路径
 
-然后用netstat -tunpl | grep:80查看端口是否启动。 
+然后用netstat -tunpl | grep :80查看端口是否启动。 
 在浏览器里输入192.168.127.6(当前实验主机)，看到welcome to nginx!则表示nginx安装成功。 
 
 安装libiconv
@@ -208,14 +208,51 @@ which mysql 查询运行文件所在路径（目录）
 默认没有my.cnf配置文件，可拷贝：cp /usr/share/mysql/my-default.cnf /etc/my.cnf
 卸载 rpm -ev MySQL-client-5.6.19-1.el6.x86_64 MySQL-server-5.6.19-1.el6.x86_64
 
-下面是源码安装mysql开始：（未验证）
-wget -c http://soft.vpser.net/datebase/mysql/mysql-5.1.44.tar.gz
+下面是源码安装mysql开始：
+ 1，下载mysql最新版：mysql-5.6.25-linux-glibc2.5-x86_64.tar.gz
+ 2，解压文件：tar -xf mysql-5.6.25-linux-glibc2.5-x86_64.tar.gz -C /data/temp     // -C 代表需要解压到哪个目录
+ 3，添加mysql用户和组：
+    groupadd -r -g 306 mysql 或直接： groupadd mysql
+    useradd -g mysql -r -s /sbin/nologin mysql
+ 4，拷贝文件：cp -r /data/temp/mysql-5.6.25-linux-glibc2.5-x86_64 /usr/local/mysql
+ 5，进入文件目录：cd /usr/local/
+ 6，设置目录权限：chown -R mysql.mysql mysql
+ 7，建立数据目录并设置权限：
+    mkdir -p /data/db/mysql
+    chown -R mysql.mysql /data/db/mysql
+ 8，进入mysql目录并初始化mysql：
+    cd mysql
+    ./scripts/mysql_install_db --user=mysql --datadir=/data/db/mysql/
+ 9，复制mysql的服务启动脚本，并添加到chkconfig --list
+    cp support-files/mysql.server /etc/init.d/mysqld
+    chkconfig --add mysqld  // 添加mysqld开机启动
+    chkconfig --list mysqld // 查看mysqld在那几个模式下开机启动
+ 10，复制mysql的默认配置文件到/etc目录下并改名my.cnf
+    cp support-files/my-default.cnf /etc/my.cnf （这里可以用my.cnf主服务器的配置）
+ 11，设置日记文件目录可写：mkdir -p /data/db/mysql/binlog/
+     chown mysql.mysql /data/db/mysql/binlog
+ 12，首次启动mysql：./bin/mysqld_safe & // 貌似还有错误信息提示，写在文件/data/db/mysql/ou.err中
+ 13，将mysql的man文档加入系统man
+     vim /etc/man.config 添加如下一条：
+     MANPATH /usr/local/mysql/man
+ 14，输出mysql的库文件
+     vim /etc/ld.so.conf.d/mysql.conf 添加如下一条：
+     /usr/local/mysql/lib
+     ldconfig -v     //  重新建立操作系统库缓存
+ 15，输出mysql的头文件
+     ln -sv /usr/local/mysql/include /usr/include/mysql (貌似有问题)
+ 16，安装完毕。可使用 service mysqld start|stop|restart 来启动和关闭mysql
+
 wget -c http://soft.vpser.net/web/pdo/PDO_MYSQL-1.0.2.tgz
 tar -zxvf mysql-5.1.44.tar.gz
 cd mysql-5.1.44/
+
+
 ./configure --prefix=/usr/local/mysql --with-extra-charsets=all --enable-thread-safe-client --enable-assembler --with-charset=utf8 --enable-thread-safe-client --with-extra-charsets=all --with-big-tables --with-readline --with-ssl --with-embedded-server --enable-local-infile
 make && make install
 cd ../
+
+
 
 groupadd mysql
 useradd -g mysql mysql

@@ -210,5 +210,6 @@ esac
 执行下面命令，svnserve即可开机自启动
 
 sudo chmod a+x /etc/init.d/svnd
+// chmod +x /etc/init.ds/vnd 为脚本赋予执行权限
 
 sudo chkconfig –add svnd
