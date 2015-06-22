@@ -212,7 +212,7 @@ which mysql 查询运行文件所在路径（目录）
  1，下载mysql最新版：mysql-5.6.25-linux-glibc2.5-x86_64.tar.gz
  2，解压文件：tar -xf mysql-5.6.25-linux-glibc2.5-x86_64.tar.gz -C /data/temp     // -C 代表需要解压到哪个目录
  3，添加mysql用户和组：
-    groupadd -r -g 306 mysql 或直接： groupadd mysql
+    groupadd -r -g 306 mysql 或直接： groupadd -r mysql
     useradd -g mysql -r -s /sbin/nologin mysql
  4，拷贝文件：cp -r /data/temp/mysql-5.6.25-linux-glibc2.5-x86_64 /usr/local/mysql
  5，进入文件目录：cd /usr/local/
@@ -225,7 +225,7 @@ which mysql 查询运行文件所在路径（目录）
     ./scripts/mysql_install_db --user=mysql --datadir=/data/db/mysql/
  9，复制mysql的服务启动脚本，并添加到chkconfig --list
     cp support-files/mysql.server /etc/init.d/mysqld
-    chkconfig --add mysqld  // 添加mysqld开机启动
+    chkconfig --add mysqld  // 添加mysqld开机启动 或 chkconfig --level 345 mysqld on
     chkconfig --list mysqld // 查看mysqld在那几个模式下开机启动
  10，复制mysql的默认配置文件到/etc目录下并改名my.cnf
     cp support-files/my-default.cnf /etc/my.cnf （这里可以用my.cnf主服务器的配置）
@@ -241,42 +241,8 @@ which mysql 查询运行文件所在路径（目录）
      ldconfig -v     //  重新建立操作系统库缓存
  15，输出mysql的头文件
      ln -sv /usr/local/mysql/include /usr/include/mysql (貌似有问题)
- 16，安装完毕。可使用 service mysqld start|stop|restart 来启动和关闭mysql
-
-wget -c http://soft.vpser.net/web/pdo/PDO_MYSQL-1.0.2.tgz
-tar -zxvf mysql-5.1.44.tar.gz
-cd mysql-5.1.44/
-
-
-./configure --prefix=/usr/local/mysql --with-extra-charsets=all --enable-thread-safe-client --enable-assembler --with-charset=utf8 --enable-thread-safe-client --with-extra-charsets=all --with-big-tables --with-readline --with-ssl --with-embedded-server --enable-local-infile
-make && make install
-cd ../
-
-
-
-groupadd mysql
-useradd -g mysql mysql
-cp /usr/local/mysql/share/mysql/my-medium.cnf /etc/my.cnf
-/usr/local/mysql/bin/mysql_install_db --user=mysql
-chown -R mysql /usr/local/mysql/var
-chgrp -R mysql /usr/local/mysql/.
-cp /usr/local/mysql/share/mysql/mysql.server /etc/init.d/mysql
-chmod 755 /etc/init.d/mysql
-chkconfig --level 345 mysql on
-echo "/usr/local/mysql/lib/mysql" >> /etc/ld.so.conf
-echo "/usr/local/lib" >>/etc/ld.so.conf
-
-ldconfig
-ln -s /usr/local/mysql/lib/mysql /usr/lib/mysql
-ln -s /usr/local/mysql/include/mysql /usr/include/mysql
-/etc/init.d/mysql start
-
-/usr/local/mysql/bin/mysqladmin -u root password $mysqlrootpwd
-
-/etc/init.d/mysql restart
-/etc/init.d/mysql stop
-chkconfig mysql-ndb off
-chkconfig mysql-ndb-mgm off
+ 16，安装完毕。可使用 service mysqld start|stop|restart 来启动和关闭mysql 或 /etc/init.d/mysqld restart
+     可查看3306端口是否被监控：netstat -ntulp |grep 3306
 上面是源码安装mysql结束。
 
 下面是安装apache开始：（未验证）
