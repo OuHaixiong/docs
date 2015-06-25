@@ -17,6 +17,38 @@ getOption 查看redis设置的模式
 
 ping 查看连接状态
 
+string命令
+getSet
+返回原来key中的值，并将value写入key
+$redis->set('x', '42');
+$exValue = $redis->getSet('x', 'lol'); // return '42', replaces x by 'lol'
+$newValue = $redis->get('x')' // return 'lol'
+
+append
+string，名称为key的string的值在后面加上value
+$redis->set('key', 'value1');
+$redis->append('key', 'value2');
+$redis->get('key');
+
+getRange （方法不存在）
+返回名称为key的string中start至end之间的字符
+$redis->set('key', 'string value');
+$redis->getRange('key', 0, 5);
+$redis->getRange('key', -5, -1);
+
+setRange （方法不存在）
+改变key的string中start至end之间的字符为value
+$redis->set('key', 'Hello world');
+$redis->setRange('key', 6, "redis");
+$redis->get('key');
+
+strlen
+得到key的string的长度
+$redis->strlen('key');
+
+getBit/setBit
+返回2进制信息
+
 get 得到某个key的值（string值）
 如果该key不存在，return false
 
@@ -88,7 +120,8 @@ getMultiple
 由key组成的数组
 返回参数
 如果key存在返回value，不存在返回false
-$redis->set('key1', 'value1'); $redis->set('key2', 'value2'); $redis->set('key3', 'value3'); $redis->getMultiple(array('key1', 'key2', 'key3'));
+$redis->set('key1', 'value1'); $redis->set('key2', 'value2'); $redis->set('key3', 'value3'); 
+$redis->getMultiple(array('key1', 'key2', 'key3'));
 $redis->lRem('key1', 'A', 2);
 $redis->lRange('key1', 0, -1);
 
@@ -220,42 +253,16 @@ sort
 'alpha' => TRUE,
 'store' => 'external-key'
 例子
-$redis->delete('s'); $redis->sadd('s', 5); $redis->sadd('s', 4); $redis->sadd('s', 2); $redis->sadd('s', 1); $redis->sadd('s', 3);
+$redis->delete('s'); 
+$redis->sadd('s', 5); 
+$redis->sadd('s', 4); 
+$redis->sadd('s', 2); 
+$redis->sadd('s', 1); 
+$redis->sadd('s', 3);
 var_dump($redis->sort('s')); // 1,2,3,4,5
 var_dump($redis->sort('s', array('sort' => 'desc'))); // 5,4,3,2,1
 var_dump($redis->sort('s', array('sort' => 'desc', 'store' => 'out'))); // (int)5
  
-string命令
-getSet
-返回原来key中的值，并将value写入key
-$redis->set('x', '42');
-$exValue = $redis->getSet('x', 'lol'); // return '42', replaces x by 'lol'
-$newValue = $redis->get('x')' // return 'lol'
-
-append
-string，名称为key的string的值在后面加上value
-$redis->set('key', 'value1');
-$redis->append('key', 'value2');
-$redis->get('key');
-
-getRange （方法不存在）
-返回名称为key的string中start至end之间的字符
-$redis->set('key', 'string value');
-$redis->getRange('key', 0, 5);
-$redis->getRange('key', -5, -1);
-
-setRange （方法不存在）
-改变key的string中start至end之间的字符为value
-$redis->set('key', 'Hello world');
-$redis->setRange('key', 6, "redis");
-$redis->get('key');
-
-strlen
-得到key的string的长度
-$redis->strlen('key');
-
-getBit/setBit
-返回2进制信息
 
 zset（sorted set）操作相关
 zAdd(key, score, member)：向名称为key的zset中添加元素member，score用于排序。如果该元素已经存在，则根据score更新该元素的顺序。
@@ -445,5 +452,3 @@ list: Redis::REDIS_LIST
 zset: Redis::REDIS_ZSET
 hash: Redis::REDIS_HASH
 other: Redis::REDIS_NOT_FOUND
-
-
