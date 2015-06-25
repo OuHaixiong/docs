@@ -1,0 +1,15 @@
+
+<VirtualHost *:80>
+    ServerAdmin bear@maimengmei.com
+    DocumentRoot /home/u32/www/life
+    ServerName life.csc86.com
+    
+    #ServerAlias lifes.csc86.com
+
+    ErrorLog ${APACHE_LOG_DIR}/life_error.log
+    LogLevel debug
+    CustomLog ${APACHE_LOG_DIR}/life_access.log combined
+
+    #Alias /doc/ "/usr/share/doc/"
+
+</VirtualHost>
