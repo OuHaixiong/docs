@@ -17,7 +17,7 @@ ln -s[symbolic:符合] 源文件 目标文件 创建软连接(在目标文件夹
 pwd 查看所在位置的绝对路径
 wget -c http://soft.vpser.net/web/mcrypt/mcrypt-2.6.8.tar.gz 下载网络上的一个文件
 scp -rvp /usr/local/redis/ root@192.168.1.113:/usr/local/   通过ssh向远端服务器传文件或文件夹
-
+grep '/data/wwwroot' ./*  在当前目录下的所有文件中查找字符串
 
 
 删除目录、文件 rm(remove)
