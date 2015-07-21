@@ -1,5 +1,5 @@
 # 文件相关（不包括解压缩文件，解压缩请看“解压缩相关”文件）
-tail -f logs/log  查看文件
+tail -f logs/log  查看文件（会把文件里最尾部的内容[默认最后10行]显示在屏幕上,并且不断刷新,使你看到最新的文件内容）
 cat /etc/hosts 查看文件内容
 mkdir [-p:递归创建文件夹] newdir 创建一个目录
 touch newfile 新建文件
@@ -12,7 +12,7 @@ ls ~/t2 查看home目录下的t2目录下的所有文件（文件夹）
 ll config.inc.* 查找以config.inc.开头的所有文件
 find /etc -name '*srm*' 查找etc目录下所有包含srm文件名的文件 （全名：find /usr -name "libchm.so.0"）
 find . |grep config.inc. 在本目录下查找文件
-locate php.ini 根据文件名进行查找文件
+locate php.ini 根据文件名进行查找文件（这个速度不错，默认从根目录开始搜索）
 ln -s[symbolic:符合] 源文件 目标文件 创建软连接(在目标文件夹下创建一个目录可以链接到源文件夹)
 pwd 查看所在位置的绝对路径
 wget -c http://soft.vpser.net/web/mcrypt/mcrypt-2.6.8.tar.gz 下载网络上的一个文件
