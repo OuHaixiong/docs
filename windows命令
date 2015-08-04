@@ -1,3 +1,6 @@
 
 创建软链接
 mklink /d | /h | /j 目标路径 源路径
+
+
+win+R:打开运行，输入cmd打开windows的命令行
