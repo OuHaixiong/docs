@@ -1,24 +1,32 @@
+
 server {
-        listen       80; 
-        server_name  164.localhost; 
-
-        location / {
-		root /data/www; 
-		index index.php index.html index.htm ;  
-	}
-
-        #error_page  404              /404.html; （404错误提示页面）
-        # redirect server error pages to the static page /50x.html
-        error_page   500 502 503 504  /50x.html; 
-        location = /50x.html {
-            root   html;
+    listen 80;
+    server_name 164.localhost;
+    error_log /data/log/nginx/164_localhost_error.log;
+    
+    location / {
+        root /data/www;
+        index index.php index.html index.htm;
+        if (!-e $request_filename) {
+            rewrite ^(.*)$ /index.php last;
         }
+    }
+    
+    #error_page 404 /404.html; （404错误提示页面）
+    # redirect server error pages to the static page /50x.html
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+        root html;
+    }
+    
+    location ~ .*\.php$ {
+    #location ~ .*\.(php|php5)?$ {
+    #    root /data/www
+        fastcgi_pass   127.0.0.1:9000;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include        /usr/local/webserver/nginx/conf/fastcgi_params;
+        #上面这句也可以用相对路径
+    }
 
-	location ~ .*\.(php|php5)?$ {
-            root          /data/www;
-	    fastcgi_pass  127.0.0.1:9000; 
-	    fastcgi_index index.php; 
-	    fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
-	    include       fastcgi_params; 
-        }
 }
