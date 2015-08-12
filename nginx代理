@@ -37,6 +37,15 @@ server {
 
     autoindex off;   
 
+    #location / { # 代理到一台服务器，如果不是用域名代理就无法做负载均衡
+    #    proxy_set_header Host $host;
+    #    proxy_set_header Scheme $scheme;
+    #    proxy_set_header X-Request-URI $request_uri;
+    #    proxy_pass http://192.168.0.55:8083/member-app/; #指向upstream i.csc86.com
+    #}
+    #rewrite ^/remoting http://i.csc86.com/404; # 重写可以不在location中
+    
+    
     location / {
         index index.php index.html;
         if (!-e $request_filename) { # 重写规则

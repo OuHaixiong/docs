@@ -4,8 +4,10 @@ server {
     server_name 164.localhost;
     error_log /data/log/nginx/164_localhost_error.log;
     
+    root /data/www;
+    
     location / {
-        root /data/www;
+        #root /data/www; # 最好配置在外层
         index index.php index.html index.htm;
         if (!-e $request_filename) {
             rewrite ^(.*)$ /index.php last;
@@ -21,7 +23,7 @@ server {
     
     location ~ .*\.php$ {
     #location ~ .*\.(php|php5)?$ {
-    #    root /data/www
+    #    root /data/www   #如果外层没有配置根目录的路径，这里是不可或缺的
         fastcgi_pass   127.0.0.1:9000;
         fastcgi_index  index.php;
         fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;

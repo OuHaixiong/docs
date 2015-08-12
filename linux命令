@@ -4,6 +4,7 @@ cat /etc/hosts 查看文件内容
 mkdir [-p:递归创建文件夹] newdir 创建一个目录
 touch newfile 新建文件
 chmod -R 0775 share 改变目录和其所有的子文件、子目录的权限(1:执行, 2:写, 4:读)
+chmod +x phpinfo.php 给文件/文件夹加一个可执行权限 
 chown -R www:www /home/wwwroot 更改文件及子文件的用户和组
 rm -r abc.zip phpMyAdmin-4.1.13-all-languages/ 递归删除文件或文件夹（子文件、子文件夹全删除）
 cp -r phpMyAdmin-4.1.13-all-languages/ /home/u32 拷贝文件夹和其所有的子文件（子文件夹）
