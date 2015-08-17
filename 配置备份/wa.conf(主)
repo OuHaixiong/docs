@@ -1,4 +1,5 @@
 upstream wa.dragon-design.cn {
+    #ip_hash;
     server 10.170.12.126:80 weight=8 max_fails=2 fail_timeout=30s;
 #    server 192.168.1.81:80 weight=6 max_fails=2 fail_timeout=30s;
 }
@@ -15,11 +16,27 @@ server {
 		proxy_pass http://wa.dragon-design.cn;  
 		proxy_redirect off; 
 		proxy_set_header X-Real-IP $remote_addr; 
+		#下面两句不知道什么意思，貌似可以不要
+		#proxy_set_header REMOTE_ADDR $remote_addr;
+        #proxy_set_header HTTP_CLIENT_IP $remote_addr;
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 		proxy_set_header Host $host;
-		#proxy_connect_timeout 300;
-        #proxy_send_timeout 300;
-        #proxy_read_timeout 300;
+		#proxy_connect_timeout 300; # nginx跟后端服务器连接超时时间(代理连接超时)
+        #proxy_send_timeout 300; # 后端服务器的回传时间，规定服务器在一定的时间内传送完
+        #proxy_read_timeout 300; # 连接成功等待后端响应的时间，默认60s
+        #下面的如果写在http段，会对所有的虚拟主机受影响
+        #proxy_buffers 32 4k; # 后端真实服务器的数量和大小
+        #proxy_buffer_size 16k;
+        #client_body_buffer_size 128k;
+ 
 		proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504 http_404;
     }
+    
+    #可以重写，对不同的类型或链接地址，可以转发到不同的地址
+    #location ~\.(jpg|gif|png)$ {
+    #    if (!-e $request_filename) {
+    #        proxy_pass http://img.mvc.com/$request_uri;
+    #    }
+    #}
+ 
 }
