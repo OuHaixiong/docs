@@ -1,0 +1,68 @@
+，下载所需的软件包：
+wget https://codeload.github.com/openresty/lua-nginx-module/zip/master
+wget http://luajit.org/download/LuaJIT-2.0.4.tar.gz
+
+，解压包：
+unzip lua-nginx-module-master.zip
+tar -zxvf LuaJIT-2.0.4.tar.gz
+tar -zxvf pcre-8.37.tar.gz 
+tar -zxvf openssl-1.0.2d.tar.gz 
+
+，安装 LuaJIT
+cd LuaJIT-2.0.4
+make
+make install 
+
+yum -y install make gcc gcc-c++ autoconf libjpeg libjpeg-devel freetype freetype-devel libxml2 libxml2-devel zlib zlib-devel glibc glibc-devel glib2 glib2-devel bzip2 bzip2-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel krb5-devel libidn libidn-devel openldap openldap-devel openldap-clients openldap-servers gd gd-devel vim-minimal zip unzip file libpng.x86_64 libpng-devel.x86_64 libpng-static.x86_64 vim-enhanced
+（pcre pcre-devel openssl openssl-devel）
+
+，设置环境变量
+export LUAJIT_LIB=/usr/local/lib
+export LUAJIT_INC=/usr/local/include/luajit-2.0
+
+tar -zxvf nginx-1.7.3.tar.gz
+cd nginx-1.7.3
+./configure --user=www --group=www --prefix=/usr/local/webserver/nginx --sbin-path=/usr/local/webserver/nginx/sbin/nginx  --conf-path=/usr/local/webserver/nginx/conf/nginx.conf  --with-http_stub_status_module  --with-http_ssl_module --with-pcre=../pcre-8.37  --lock-path=/var/run/nginx.lock --pid-path=/var/run/nginx.pid --with-openssl=../openssl-1.0.1p --add-module=../lua-nginx-module-master --with-http_gzip_static_module --with-http_flv_module
+(
+PCRE:Perl Compatible Regular Expressions , 是一个Perl库，包括 perl 兼容的正则表达式库。这些在执行正规表达式模式匹配时用与Perl 5同样的语法和语义是很有用的。
+Boost太庞大了，使用boost regex后，程序的编译速度明显变慢。测试了一下，同样一个程序，使用boost::regex编译时需要3秒，而使用pcre不到1秒。
+因此改用pcre来解决C语言中使用正则表达式的问题
+)
+make
+make install
+
+，测试是否安装成功
+/usr/local/webserver/nginx/sbin/nginx -V
+/usr/local/webserver/nginx/sbin/nginx: error while loading shared libraries: libluajit-5.1.so.2: cannot open shared object file: No such file or directory
+如果报以上错误就建立软连接：
+ln -s /usr/local/lib/libluajit-5.1.* /lib64/
+再测试： /usr/local/webserver/nginx/sbin/nginx -V
+
+，修改配置文件，详见nginx.conf（首次配置）
+mkdir -p /etc/nginx/sites-enabled
+启动nginx：
+/usr/local/webserver/nginx/sbin/nginx -t
+/usr/local/webserver/nginx/sbin/nginx
+ps aux |grep nginx 查看nginx的用户
+
+，新建白名单和黑名单，以及赋予权限
+mkdir -p /etc/nginx/lua
+cd /etc/nginx/lua
+touch blockip.txt
+touch whiteip.txt // 建立文件
+chown www:www /etc/nginx/lua/*.txt
+把配置备份中的文件：denycc.lua和fun.lua 放到目录 /etc/nginx/lua/ 下面
+修改nginx.conf配置文件，在http段加入如下内容：
+vim /usr/local/webserver/nginx/conf/nginx.conf
+======================================================
+lua_package_path "/etc/nignx/lua/?.lua";
+lua_shared_dict limit 10m;
+init_by_lua_file /etc/nginx/lua/fun.lua;
+access_by_lua_file /etc/nginx/lua/denycc.lua;
+
+
+
+
+
+
+

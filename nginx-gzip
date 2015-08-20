@@ -1,0 +1,103 @@
+gzip是GNU zip的缩写，它是一个GNU自由软件的文件压缩程序，可以极大的加速网站.有时压缩比率高到80%,近来测试了一下,最少都有40%以上,还是相当不错的。
+貌似gzip是默认安装进nginx里的
+
+gzip on;
+
+//该指令用于开启或关闭gzip模块(on/off)
+
+gzip_min_length 1k;
+
+//设置允许压缩的页面最小字节数，页面字节数从header头得content-length中进行获取。默认值是0，不管页面多大都压缩。建议设置成大于1k的字节数，小于1k可能会越压越大。
+
+gzip_buffers 4 16k;
+
+//设置系统获取几个单位的缓存用于存储gzip的压缩结果数据流。4 16k代表以16k为单位，安装原始数据大小以16k为单位的4倍申请内存。
+
+gzip_http_version 1.1;
+
+//识别http的协议版本(1.0/1.1)
+
+gzip_comp_level 2;
+
+//gzip压缩比，1压缩比最小处理速度最快，9压缩比最大但处理速度最慢(传输快但比较消耗cpu)
+
+gzip_types text/plain application/x-javascript text/css application/xml
+
+//匹配mime类型进行压缩，无论是否指定,”text/html”类型总是会被压缩的。
+
+gzip_vary on;
+
+//和http头有关系，加个vary头，给代理服务器用的，有的浏览器支持压缩，有的不支持，所以避免浪费不支持的也压缩，所以根据客户端的HTTP头来判断，是否需要压缩
+
+
+
+
+ gzip
+决定是否开启gzip模块
+example:gzip on;
+
+gzip_buffers 
+设置gzip申请内存的大小,其作用是按块大小的倍数申请内存空间
+param2:int(k) 后面单位是k
+example: gzip_buffers 4 8k;
+
+gzip_comp_level
+设置gzip压缩等级，等级越底压缩速度越快文件压缩比越小，反之速度越慢文件压缩比越大
+param:1-9
+example:gzip_com_level 1;
+
+gzip_min_length
+当返回内容大于此值时才会使用gzip进行压缩,以K为单位,当值为0时，所有页面都进行压缩
+param:int
+example:gzip_min_length 1000;
+
+gzip_http_version
+用于识别http协议的版本，早期的浏览器不支持gzip压缩，用户会看到乱码，所以为了支持前期版本加了此选项,目前此项基本可以忽略
+param: 1.0|1.1
+example:gzip_http_version 1.0
+
+gzip_proxied
+Nginx做为反向代理的时候启用，
+param:off|expired|no-cache|no-sotre|private|no_last_modified|no_etag|auth|any]
+expample:gzip_proxied no-cache;
+off – 关闭所有的代理结果数据压缩
+expired – 启用压缩，如果header中包含”Expires”头信息
+no-cache – 启用压缩，如果header中包含”Cache-Control:no-cache”头信息
+no-store – 启用压缩，如果header中包含”Cache-Control:no-store”头信息
+private – 启用压缩，如果header中包含”Cache-Control:private”头信息
+no_last_modified – 启用压缩，如果header中包含”Last_Modified”头信息
+no_etag – 启用压缩，如果header中包含“ETag”头信息
+auth – 启用压缩，如果header中包含“Authorization”头信息
+any – 无条件压缩所有结果数据
+
+gzip_types
+设置需要压缩的MIME类型,非设置值不进行压缩
+param:text/html|application/x-javascript|text/css|application/xml
+example:gzip_types text/html;
+
+对于多数以文本为主的站点来说，文本自身内容占流量的绝大部分。虽然单个文本体积并不算大，但是如果数量众多的话，流量还是相当可观。启用GZIP以后，可以大幅度减少所需的流量(如上图所示，本站首页大小从28K压缩到了7K)。以下是以nginx服务器为例开启gzip的一般代码。
+
+#启用gzip
+gzip on;
+#需要压缩文件的最小尺寸，单位是B
+gzip_min_length  1100;
+#gzip文件缓存大小
+gzip_buffers     4 8k;
+#gzip压缩文件格式，以下涵盖了一般所需的类型
+gzip_types       text/plain text/css application/x-javascript;
+#gzip压缩等级，数值越高压缩得越狠，也越占资源
+gzip_comp_level 4
+
+Demo
+gzip on;
+gzip_min_length 1000;
+gzip_buffers 4 8k;
+gzip_types text/html application/x-javascript text/css application/xml;
+
+以上代码可以插入到 http {...}整个服务器的配置里，也可以插入到虚拟主机的 server {...}或者下面的location模块内。
+
+值得注意的是纯文本类文件的Gzip压缩，效果颇佳，所有的浏览器都能很好支持。而图片格式不不论是PNG/GIF还是JPG，在IE6下支持都非常差，甚至会出现卡死的情况。一个可行的办法是可以在GZIP配置里面加入一行
+gzip_disable msie6;
+然而实际情况是图片实际不需要压缩——当然我是指网络传输格式的，这些文件已经高度压缩过了（明证是用7Z格式压缩同样为300M大小的文本和图片格式，前者可以压到2M，后者几乎大小不变），启用GZIP不但相当占用资源，还会起负面效果。
+
+最后需要说明的是GZIP是否起作用，可以用网页GZIP压缩检测工具来测试（站长工具）。 : http://tool.chinaz.com/Gzips/

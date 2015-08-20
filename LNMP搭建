@@ -133,6 +133,7 @@ mkdir -p /etc/nginx/sites-enabled
 安装结束后启动nginx,/usr/local/webserver/nginx/sbin/nginx, 
 平滑重启： kill -HUP 住进称号或进程号文件路径
 也可以用 /usr/local/webserver/nginx/sbin/nginx -s reload 来重启nginx
+/usr/local/webserver/nginx/sbin/nginx -V 可以用来查看nginx的编译参数和版本号等
 
 然后用netstat -tunpl | grep :80查看端口是否启动。 
 在浏览器里输入192.168.127.6(当前实验主机)，看到welcome to nginx!则表示nginx安装成功。 
