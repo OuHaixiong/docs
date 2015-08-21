@@ -8,11 +8,11 @@
 --==================================================
 
 --默认为(120/60)60秒内访问次数超过120次视为CC攻击
-local CCrate = "120/60"
+local CCrate = "12/10"
 --白名单文件
-local whitefile = "/opt/nginx/conf/lua/whiteip.txt"
+local whitefile = "/etc/nginx/lua/whiteip.txt"
 --黑名单文件
-local blockfile = "/opt/nginx/conf/lua/blockip.txt"
+local blockfile = "/etc/nginx/lua/blockip.txt"
 
 local whiteip = read(whitefile)
 local blockip = read(blockfile)
