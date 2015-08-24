@@ -296,7 +296,6 @@ You may want to add: /usr/local/php/lib/php to your php.ini include_path
 ln -s -f /usr/local/php/bin/phar.phar /usr/local/php/bin/phar
 Installing PDO headers:          /usr/local/php/include/php/ext/pdo/
 
-安装目录：/usr/local/php
 拷贝配置文件（/usr/local/php/lib/php.ini ）：
 cp /data/tool/php-5.4.35/php.ini-development /usr/local/php/lib/php.ini
 vim /usr/local/php/lib/php.ini
@@ -310,6 +309,7 @@ error_reporting = E_ALL
 display_errors = On
 
 路径：
+/usr/local/php                安装目录：
 /usr/local/php/bin/php        php所在的目录
 /usr/local/php/bin/phpize     phpize所在目录
 /usr/local/php/lib/php.ini    php配置文件
