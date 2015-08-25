@@ -1,3 +1,7 @@
+在CentOS和ubuntu上安装imagick
+
+
+下面是ubuntu上安装imagick扩展：
 
  1，安装zlib
  tar -zxvf zlib-1.2.8.tar.gz 
@@ -93,9 +97,40 @@ convert: no images defined `3.jpeg' @ error/convert.c/ConvertImageCommand/3210.
  imagick module version 	3.1.2  说明安装成功，安装到此结束
  
  
+  下面是CentOS上安装imagick扩展：
+  
+ 1，安装ImageMagick
+ unzip ImageMagick-6.9.0-3.zip
+ cd ImageMagick-6.9.0-3
+ ./configure --prefix=/usr/local/imagemagick
+ make 
+ make install
  
+ ldconfig   更新下动态库
  
+ 测试是否安装成功：
+ /usr/local/imagemagick/bin/convert -version 出现如下提示说明成功：
+ Version: ImageMagick 6.9.0-3 Q16 x86_64 2015-08-25 http://www.imagemagick.org
+Copyright: Copyright (C) 1999-2015 ImageMagick Studio LLC
+Features: DPC OpenMP
+Delegates (built-in): bzlib fontconfig freetype jng jpeg png x xml zlib
+
+ 执行 /usr/local/imagemagick/bin/convert -sample 25%x25% /data/www/a.jpg /data/www/3.png 不出错，说明安装成功
  
+ 2，安装imagick
+ tar -zxvf imagick-3.1.2.tgz
+ cd imagick-3.1.2/
+ /usr/local/php/bin/phpize
+ ./configure --with-php-config=/usr/local/php/bin/php-config --with-imagick=/usr/local/imagemagick
+ make
+ make install
  
- 
- 
+ 3，编译安装成功后会在php的扩展目录：/usr/local/php/lib/php/extensions/no-debug-non-zts-20100525 中生成 imagick.so文件
+ 然后在/usr/local/php/lib/php.ini 文件中加上imagick的配置
+ vim /usr/local/php/lib/php.ini 加上：
+ extension=/usr/local/php/lib/php/extensions/no-debug-non-zts-20100525/imagick.so
+ 重起php：
+ps -ef |grep php
+kill -quit 1415
+/usr/local/php/sbin/php-fpm
+ 用phpinfo();查看是否已加载imagick，到此安装结束。
