@@ -233,7 +233,7 @@ which mysql 查询运行文件所在路径（目录）
     cp support-files/my-default.cnf /etc/my.cnf （这里可以用my.cnf主服务器的配置）
  11，设置日记文件目录可写：mkdir -p /data/db/mysql/binlog/
      chown mysql.mysql /data/db/mysql/binlog
- 12，首次启动mysql：./bin/mysqld_safe & // 貌似还有错误信息提示，写在文件/data/db/mysql/ou.err中
+ 12，首次启动mysql：./bin/mysqld_safe & // 一定需要首次启动下，这里会生成/data/db/mysql/localhost.localdomain.pid文件。（貌似还有错误信息提示，写在文件/data/db/mysql/ou.err中）
  13，将mysql的man文档加入系统man
      vim /etc/man.config 添加如下一条：
      MANPATH /usr/local/mysql/man
@@ -244,7 +244,21 @@ which mysql 查询运行文件所在路径（目录）
  15，输出mysql的头文件
      ln -sv /usr/local/mysql/include /usr/include/mysql (貌似有问题)
  16，安装完毕。可使用 service mysqld start|stop|restart 来启动和关闭mysql 或 /etc/init.d/mysqld restart
-     可查看3306端口是否被监控：netstat -ntulp |grep 3306
+          可查看3306端口是否被监控：netstat -ntulp |grep 3306
+ 17，修改root用户的密码
+     cd /usr/local/mysql
+     ./bin/mysqladmin -u root password
+     （./bin/mysqladmin -u root -h localhost.localdomain password 'new-password'）
+          输入新密码即可
+          重启服务：service mysqld restart
+ 18，验证登录
+     /usr/local/mysql/bin/mysql -u root -p    输入密码
+     show databases;
+     quit;
+ 19，开启3306端口
+     /sbin/iptables -I INPUT -p tcp --dport 3306 -j ACCEPT
+     /etc/rc.d/init.d/iptables save
+     /etc/init.d/iptables restart
 上面是源码安装mysql结束。
 
 下面是安装apache开始：（未验证）

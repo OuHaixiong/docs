@@ -26,7 +26,7 @@ datadir = /data/db/mysql
 
 server-id=2 
 log-bin=/data/db/mysql/binlog/salve_mysql_binlog
-replicate-do-db=vragon_debug # 只复制某个库
+replicate-do-db=vragon_debug # 只复制某个库；如果不写，默认就是同步所有的数据库
 binlog-ignore-db=mysql # 不复制某个库
 binlog-ignore-db=information_schema # 或 replicate-ignore-db=mysql
 binlog-ignore-db=performance_schema
