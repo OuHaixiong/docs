@@ -36,6 +36,11 @@ sudo ./configure [--with-php-config=/usr/local/php/bin/php-config] (注意这个
 sudo make
 sudo make install
 
+开启4730端口：
+/sbin/iptables -I INPUT -p tcp --dport 4730 -j ACCEPT
+/etc/rc.d/init.d/iptables save
+/etc/init.d/iptables restart
+
 cd /etc/php5/apache2/conf.d/
 sudo vim gearman.ini 加入如下：
 extension=gearman.so
@@ -49,6 +54,7 @@ libgearman version      1.1.12
 Default TCP Host        localhost
 Default TCP Port         4730 
 
+貌似gearman.so(本地)可直接拿来用
 
 
 下面就client、job、worker是如何工作的举例说明：
@@ -100,7 +106,7 @@ function title_function($job) {
 sudo /usr/bin/php -c /etc/php5/apache2/php.ini[添加-c参数是为了加载php.ini配置文件]  /home/u32/www/yiitest/workers/test.php
 /usr/local/php/bin/php /home/bear/www/test.php
 然后在client访问：可以看到不同的结果：5和evniL
-worker应该做成守护进程（CLI模式）
+worker应该做成守护进程（CLI模式）如：nohup /usr/local/php/bin/php -c /usr/local/php/lib/php.ini  /data/www/gearmanWorker.php &
 job、client、worker都可以开启多个
 
      命令行
