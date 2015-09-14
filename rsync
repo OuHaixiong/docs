@@ -1,0 +1,102 @@
+rsync，remote synchronize顾名思意就知道它是一款实现远程同步功能的软件，它在同步文件的同时，可以保持原来文件的权限、时间、软硬链接等附加信息。 rsync是用 “rsync 算法”提供了一个客户机和远程文件服务器的文件同步的快速方法，而且可以通过ssh方式来传输文件，这样其保密性也非常好，另外它还是免费的软件。
+　　rsync 包括如下的一些特性：
+
+　　能更新整个目录和树和文件系统；
+　　有选择性的保持符号链链、硬链接、文件属于、权限、设备以及时间等；
+　　对于安装来说，无任何特殊权限要求；
+　　对于多个文件来说，内部流水线减少文件等待的延时；
+　　能用rsh、ssh 或直接端口做为传输入端口；
+　　支持匿名rsync 同步文件，是理想的镜像工具；
+
+rsync的安装:
+1，下载并安装
+可以到网站http://rsync.samba.org进行下载
+也可以在线安装：
+# sudo apt-get  install  rsync  注：在debian、ubuntu 等在线安装方法；
+# yum install rsync    注：Fedora、Redhat 等在线安装方法；
+# rpm -ivh rsync       注：Fedora、Redhat 等rpm包安装方法；
+下面是源码包安装：
+tar -xvf rsync-3.1.2pre1.tar.gz
+cd rsync-3.1.2pre1
+./configure --prefix=/usr/local/rsync
+make && make install
+
+2，配置配置文件
+touch /etc/rsyncd.conf // 创建rsyncd.conf，这是rsync服务器的配置文件。加入如下内容：
+
+pid file = /var/run/rsyncd.pid
+port = 873
+address = 192.168.253.4
+uid = root
+gid = root
+use chroot = yes
+read only = yes
+hosts allow = 192.168.17.0/255.255.255.0 192.168.1.0/255.255.255.0
+hosts deny = *
+max connections = 5
+motd file = /etc/rsyncd.motd
+log file = /data/logs/rsync/rsync.log
+log format = %t %a %m %f %b
+syslog facility = local3
+timeout = 300
+
+[mvc]
+path = /data/www/mvc
+list = yes
+ignore errors
+auth users = root
+secrets file = /etc/rsyncd.secrets
+comment = PHP code mvc 
+#exclude = easylife/ samba/ .svn/ .settings/ .buildpath .project
+
+也可以直接用配置备份里的 rsyncd.conf 
+
+3，创建密码文件和服务器信息文件
+vim /etc/rsyncd.secrets 加入：
+root:123
+# 密码可以和系统密码不一样
+easylife:keer
+修改权限：chmod 0600 /etc/rsyncd.secrets // 出于安全考虑，文件的属性必须是只有属主可读写
+vim /etc/rsyncd.motd 加入：
+##########################++++
+ Welcome to use rsync services
+##########################++++
+
+4，开启对应的端口
+/sbin/iptables -I INPUT -p tcp --dport 873 -j ACCEPT
+/etc/rc.d/init.d/iptables save
+/etc/rc.d/init.d/iptables restart
+
+5，启动rsync服务器端
+/usr/local/rsync/bin/rsync --daemon --config=/etc/rsyncd.conf
+// 以后端进程方式启动，使用/etc/rsyncd.conf配置文件，如果默认在/etc/下可以不写
+通过telnet测试是否开启了873端口：telnet 192.168.253.4 873
+
+6，通过rsync客户端来同步数据
+首先安装rsync，安装步骤和安装服务器版rsync一样
+测试列出rsync服务器上所提供的同步内容：
+rsync --list-only root@192.168.253.4::  返回如下：
+##########################++++
+ Welcome to use rsync services
+##########################++++
+
+mvc            	PHP code mvc
+查看mvc模块下的文件：
+rsync --list-only root@192.168.253.4::mvc
+通过客户端发出rsync命令来实现各种同步操作，如：
+rsync -avzP --delete root@192.168.253.4::mvc /data/www/mvc  // 只能同步一次，如需自动同步，需要做成定时任务
+通过设定密码文件来同步：
+cd /etc/
+touch rsyncd.secrets
+chmod 0600 rsyncd.secrets
+echo "123" > rsyncd.secrets
+rsync -avzP --delete --password-file=/etc/rsyncd.secrets root@192.168.253.4::mvc /data/www/mvc
+
+下面制成定时任务：
+crontab -e  输入如下内容：
+* * * * * sleep 1; rsync -avzP --delete --password-file=/etc/rsyncd.secrets root@192.168.253.4::mvc /data/www/mvc
+重启crond服务器
+killall crond 杀死crond 服务器的进程
+ps aux |grep crond 查看一下是否被杀死
+/usr/sbin/crond 启动 crond 服务器
+(貌似还是需要等1分钟才能执行，定时任务只能在脚本中无限循环来实现)
