@@ -1,6 +1,5 @@
 rsync，remote synchronize顾名思意就知道它是一款实现远程同步功能的软件，它在同步文件的同时，可以保持原来文件的权限、时间、软硬链接等附加信息。 rsync是用 “rsync 算法”提供了一个客户机和远程文件服务器的文件同步的快速方法，而且可以通过ssh方式来传输文件，这样其保密性也非常好，另外它还是免费的软件。
 　　rsync 包括如下的一些特性：
-
 　　能更新整个目录和树和文件系统；
 　　有选择性的保持符号链链、硬链接、文件属于、权限、设备以及时间等；
 　　对于安装来说，无任何特殊权限要求；
@@ -70,7 +69,8 @@ vim /etc/rsyncd.motd 加入：
 5，启动rsync服务器端
 /usr/local/rsync/bin/rsync --daemon --config=/etc/rsyncd.conf
 // 以后端进程方式启动，使用/etc/rsyncd.conf配置文件，如果默认在/etc/下可以不写
-通过telnet测试是否开启了873端口：telnet 192.168.253.4 873
+在本机可以用：netstat -lntpu |grep 873 查看是否已经启动
+在他机可以通过telnet测试是否开启了873端口：telnet 192.168.253.4 873
 
 6，通过rsync客户端来同步数据
 首先安装rsync，安装步骤和安装服务器版rsync一样
@@ -94,9 +94,33 @@ rsync -avzP --delete --password-file=/etc/rsyncd.secrets root@192.168.253.4::mvc
 
 下面制成定时任务：
 crontab -e  输入如下内容：
-* * * * * sleep 1; rsync -avzP --delete --password-file=/etc/rsyncd.secrets root@192.168.253.4::mvc /data/www/mvc
+* * * * * sleep 1;rsync -avzP --delete --password-file=/etc/rsyncd.secrets root@192.168.253.4::mvc /data/www/mvc
+(M：分钟（0-59）
+H：小时（0-23）
+D：日期（1-31）
+m：月份（1-12）
+d：一个星期中的某天（0-6，0代表周日）)
 重启crond服务器
 killall crond 杀死crond 服务器的进程
 ps aux |grep crond 查看一下是否被杀死
 /usr/sbin/crond 启动 crond 服务器
 (貌似还是需要等1分钟才能执行，定时任务只能在脚本中无限循环来实现)
+
+下面用shell脚本写的定时更新任务：
+vim /data/shell/sync_mvc.sh
+#!/bin/bash
+while true
+do
+    rsync -avzP --delete --password-file=/etc/rsyncd.secrets root@192.168.253.4::mvc /data/www/mvc
+    sleep 2
+done
+给脚本赋予执行权限：chmod 0700 /data/shell/sync_mvc.sh
+在后台运行该脚本：
+nohup /data/shell/sync_mvc.sh > /data/logs/shell/sync_mvc.log 2>&1 &
+（如果没有日记文件或文件夹，需要手动创建下）
+通过jobs查看进程是否存在
+最后在 /data/www/mvc 文件夹下面进行增、删、改操作，看是否同步过去了。
+加入开机执行里面去
+vim /etc/rc.local 加入：
+nohup /data/shell/sync_mvc.sh > /data/logs/shell/sync_mvc.log 2>&1 &
+至此rsync配置完毕
