@@ -2,13 +2,15 @@
 <VirtualHost *:80>
     ServerAdmin bear@maimengmei.com
     DocumentRoot /home/u32/www/life
-    ServerName life.csc86.com
+    ServerName www.mvc.com
     
-    #ServerAlias lifes.csc86.com
+    #ServerAlias mvc.com upload.mvc.com res.mvc.com img.mvc.com
 
-    ErrorLog ${APACHE_LOG_DIR}/life_error.log
+#    ErrorDocument 404 /404.html
+    ErrorLog ${APACHE_LOG_DIR}/mvc_error.log
     LogLevel debug
-    CustomLog ${APACHE_LOG_DIR}/life_access.log combined
+    CustomLog ${APACHE_LOG_DIR}/mvc_access.log combined
+    #CustomLog /var/log/apache2/sunny_accesses.log common
 
     #Alias /doc/ "/usr/share/doc/"
 

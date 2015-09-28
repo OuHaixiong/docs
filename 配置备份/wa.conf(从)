@@ -1,6 +1,7 @@
 server {
     listen 80;
-    server_name wa.dragon-design.cn;
+    server_name wa.dragon-design.cn wwawo.com www.wwawo.com;
+
     #access_log  logs/host.access.log  main;
     error_log /data/logs/nginx/wa_error.log;
 

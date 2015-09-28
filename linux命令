@@ -12,6 +12,7 @@ cp -r phpMyAdmin-4.1.13-all-languages/ /home/u32 拷贝文件夹和其所有的�
 mv ../app/YiiTestCscUser.ini ../app/y.ini 重命名，移动文件
 ls ~/t2 查看home目录下的t2目录下的所有文件（文件夹）
 ll config.inc.* 查找以config.inc.开头的所有文件
+ll -Srh 按大小排序文件；ll -rt 按时间排序文件
 find /etc -name '*srm*' 查找etc目录下所有包含srm文件名的文件 （全名：find /usr -name "libchm.so.0"）
 find . |grep config.inc. 在本目录下查找文件
 locate php.ini 根据文件名进行查找文件（这个速度不错，默认从根目录开始搜索）

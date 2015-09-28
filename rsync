@@ -124,3 +124,4 @@ nohup /data/shell/sync_mvc.sh > /data/logs/shell/sync_mvc.log 2>&1 &
 vim /etc/rc.local 加入：
 nohup /data/shell/sync_mvc.sh > /data/logs/shell/sync_mvc.log 2>&1 &
 至此rsync配置完毕
+(貌似加入开机启动后执行并不成功)

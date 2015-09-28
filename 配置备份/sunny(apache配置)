@@ -1,7 +1,0 @@
-<VirtualHost *:80>
-    ServerAdmin 258333309@163.com
-    DocumentRoot /var/www/sunny/public
-    ServerName sunny
-    ErrorLog /var/log/apache2/sunny_errors.log
-    CustomLog /var/log/apache2/sunny_accesses.log common
-</VirtualHost>
