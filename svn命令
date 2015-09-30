@@ -26,6 +26,7 @@ svn update test.php(更新，于版本库同步。如果在提交的时候提示
 WC：Working Copy 你的工作区
 Versioned：受控的；受版本控制的
  
+ svn resolve --accept working test.txt  标记已经解决冲突
 
 SVN是什么？
 

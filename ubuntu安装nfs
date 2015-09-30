@@ -78,6 +78,12 @@ rw表示可讀可寫；sync表示同步寫內存和磁盤，fsid=0表示將/home
 /home/exp  192.168.0.11
 NFSv4已經不使用portmap了，而是rpcbind，這一點要注意。
 
+开启各服务所用的端口：（可以通过rpcinfo -p 192.168.253.10查看所有端口）
+/sbin/iptables -I INPUT -p tcp --dport 2049 -j ACCEPT
+
+/etc/rc.d/init.d/iptables save && /etc/init.d/iptables restart
+
+
 NFS 客户端
 首先還是和服務器端一樣，安裝nfs套件；然後啟動rpcbind服務。
 還是先開啟rpcbind服務隨機啟動：
