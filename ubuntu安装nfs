@@ -48,7 +48,7 @@ umount -l[-f] /data/u32_www 强制卸载
 編輯/etc/exports文件，此文件初始狀態下什麼內容都沒有，自己加吧。
 # vim /etc/exports
 /home/exp             192.168.0.10(rw,sync,fsid=0)  192.168.0.11(rw,sync,fsid=0)
-或 /data/www/resource *(rw,sync,no_root_squash)
+或 /data/www/resource *(rw,sync,no_root_squash)  【 192.168.*.*(rw,sync,fsid=0) 】
 192.168.0.10 和192.168.0.11兩台機器可以掛載NFS服務器上的/home/exp目錄到自己的文件系統中。
 rw表示可讀可寫；sync表示同步寫內存和磁盤，fsid=0表示將/home/exp這個導出文件夾包裝成起始根目錄。
 
@@ -62,7 +62,7 @@ rw表示可讀可寫；sync表示同步寫內存和磁盤，fsid=0表示將/home
 #service nfs start
 
 確認nfs服務啟動成功：
-# rpcinfo -p
+# rpcinfo -p (检查NFS服务启动时占用哪些端口)
    program vers proto   port
     100000    2   tcp    111  portmapper
     100000    2   udp    111  portmapper
@@ -78,10 +78,27 @@ rw表示可讀可寫；sync表示同步寫內存和磁盤，fsid=0表示將/home
 /home/exp  192.168.0.11
 NFSv4已經不使用portmap了，而是rpcbind，這一點要注意。
 
+因端口号不固定，使用防火墙(iptables)对NFS端口进行限制就会有点麻烦，我们需要修改配置，把端口号固定下来：
+编辑配置文件，分配端口：
+vim /etc/sysconfig/nfs 加入如下内容：
+RQUOTAD_PORT=30001
+LOCKD_TCPPORT=30002
+LOCKD_UDPPORT=30002
+MOUNTD_PORT=30003
+STATD_PORT=30004 
+
 开启各服务所用的端口：（可以通过rpcinfo -p 192.168.253.10查看所有端口）
 /sbin/iptables -I INPUT -p tcp --dport 2049 -j ACCEPT
-
+/sbin/iptables -I INPUT -p udp --dport 2049 -j ACCEPT
+/sbin/iptables -I INPUT -p tcp --dport 111 -j ACCEPT
+/sbin/iptables -I INPUT -p udp --dport 111 -j ACCEPT
+/sbin/iptables -I INPUT -p tcp --dport 30001:30004 -j ACCEPT
+/sbin/iptables -I INPUT -p udp --dport 30001:30004 -j ACCEPT
 /etc/rc.d/init.d/iptables save && /etc/init.d/iptables restart
+
+重启nfs和rpcbind：
+service rpcbind restart
+service nfs restart
 
 
 NFS 客户端
@@ -97,7 +114,7 @@ NFS 客户端
 
 使用 mount挂载服务器端的目录/data/www/resource到客户端某个目录下：
 # mkdir /data/www/resource
-# mount -t nfs4 10.169.205.42:/data/www/resource /data/www/resource
+# mount -t nfs 10.169.205.42:/data/www/resource /data/www/resource
 # df -h 看一下掛上來了沒有。
 
 下面的好像直接加在开机启动里面就可以：
