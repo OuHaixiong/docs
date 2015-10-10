@@ -48,7 +48,7 @@ umount -l[-f] /data/u32_www 强制卸载
 編輯/etc/exports文件，此文件初始狀態下什麼內容都沒有，自己加吧。
 # vim /etc/exports
 /home/exp             192.168.0.10(rw,sync,fsid=0)  192.168.0.11(rw,sync,fsid=0)
-或 /data/www/resource *(rw,sync,no_root_squash)  【 192.168.*.*(rw,sync,fsid=0) 】
+或 /data/www/resource *(rw,sync,no_root_squash)  【 /data/www/img 192.168.*.*(rw,sync,all_squash,root_squash,fsid=0) 】
 192.168.0.10 和192.168.0.11兩台機器可以掛載NFS服務器上的/home/exp目錄到自己的文件系統中。
 rw表示可讀可寫；sync表示同步寫內存和磁盤，fsid=0表示將/home/exp這個導出文件夾包裝成起始根目錄。
 
