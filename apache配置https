@@ -1,0 +1,79 @@
+
+apache https配置步骤
+
+1、  确认是否安装ssl模块
+ 
+是否有mod_ssl.so文件
+用phpinfo查看是否有该模块，搜索mod_ssl，如果没有按下面步骤安装ssl
+sudo apt-get install openssl  //安装openssl
+sudo a2enmod ssl // 启用apache的ssl模块
+重新查看就有了mod_ssl模块
+
+启用 ssl 模块
+
+[plain] view plaincopyprint?在CODE上查看代码片派生到我的代码片
+
+    sudo a2enmod ssl  
+
+
+2. 安装openssl
+
+[plain] view plaincopyprint?在CODE上查看代码片派生到我的代码片
+
+    sudo apt-get install openssl  
+
+
+3. 创建CA签名(不使用密码去除-des3选项)
+
+[plain] view plaincopyprint?在CODE上查看代码片派生到我的代码片
+
+    openssl genrsa -des3 -out server.key 1024  
+
+
+4. 创建CSR(Certificate Signing Request)
+
+[plain] view plaincopyprint?在CODE上查看代码片派生到我的代码片
+
+    openssl req -new -key server.key -out server.csr  
+
+
+5. 自己签发证书
+
+[plain] view plaincopyprint?在CODE上查看代码片派生到我的代码片
+
+    openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt  
+
+
+6. 复制到相应目录
+
+[plain] view plaincopyprint?在CODE上查看代码片派生到我的代码片
+
+    sudo cp server.crt /etc/ssl/certs  
+    sudo cp server.key /etc/ssl/private  
+
+
+7. 修改配置文件
+
+[plain] view plaincopyprint?在CODE上查看代码片派生到我的代码片
+
+    sudo cp /etc/apache2/sites-enabled/000-default /etc/apache2/sites-enabled/001-ssl  
+    sudo vim 001-ssl  
+
+在<VirtualHost *:80>段中，DocumentRoot一行的下方加入内容：
+
+[plain] view plaincopyprint?在CODE上查看代码片派生到我的代码片
+
+    SSLEngine On  
+    SSLOptions +StrictRequire  
+    SSLCertificateFile /etc/ssl/certs/server.crt  
+    SSLCertificateKeyFile /etc/ssl/private/server.key  
+
+端口修改为：443，即<VirtualHost *:443>(ssl的端口)
+
+
+8. 重启apache
+
+[plain] view plaincopyprint?在CODE上查看代码片派生到我的代码片
+
+    sudo /etc/init.d/apache2 force-reload  
+    sudo /etc/init.d/apache2 restart  
