@@ -70,6 +70,8 @@ convert: no decode delegate for this image format `JPEG' @ error/constitute.c/Re
 convert: no images defined `3.jpeg' @ error/convert.c/ConvertImageCommand/3210.
 如果出现如上错误，说明jpeg还是没有安装成功，需要重新安装
 
+如果老是出现Illegal instruction，就只能自动安装了；sudo  apt-get install imagemagick
+后面换了一个新的版本就能安装成功并能用了，ImageMagick-6.9.2-4（sudo ldconfig /usr/local/lib）
  
  6，安装imagick
  tar -zxvf imagick-3.1.2.tgz
