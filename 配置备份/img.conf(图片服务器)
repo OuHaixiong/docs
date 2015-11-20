@@ -1,0 +1,40 @@
+
+upstream img.mvc.com {
+    server 127.0.0.1:8080 weight=2 max_fails=2 fail_timeout=30s; 
+    # 192.168.253.10
+    server 192.168.253.4 weight=4 max_fails=2 fail_timeout=30s;
+    server 192.168.253.12 weight=4 max_fails=2 fail_timeout=30s;
+}
+
+upstream image.mvc.com {
+    server 192.168.253.10 weight=10 max_fails=2 fail_timeout=30s;
+}
+
+server {
+    listen 80;
+    server_name img.mvc.com;
+
+	#access_log  logs/host.access.log  main;
+    error_log /data/logs/nginx/img_error.log;
+
+    root /data/www/img;
+    index index.php index.html;
+
+    location ^~ / {
+        if (!-e $request_filename) {
+            #rewrite (.*) /index.php last;
+            proxy_pass http://image.mvc.com;
+        }
+    }
+	
+    location ~ / {
+        proxy_pass http://img.mvc.com;
+        proxy_redirect off;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header REMOTE_ADDR $remote_addr;
+        proxy_set_header HTTP_CLIENT_IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504 http_404;
+    }
+}
