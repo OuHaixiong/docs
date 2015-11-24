@@ -1,0 +1,10 @@
+server {
+    listen 80;
+    server_name img.mvc.com;
+
+    #access_log  logs/host.access.log  main;
+    error_log /data/logs/nginx/img_error.log;
+
+    root /data/www/img;
+    index index.php index.html;
+}
