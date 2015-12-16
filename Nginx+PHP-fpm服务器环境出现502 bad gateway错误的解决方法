@@ -1,0 +1,103 @@
+ 502错误是所有用nginx跑php的运维人员不愿意看见的
+
+nginx出现502有很多原因，但大部分原因可以归结为资源数量不够用,也就是说后端php-fpm处理有问题，nginx将正确的客户端请求发给了后端的php-fpm进程，但是因为php-fpm进程的问题导致不能正确解析php代码，最终返回给了客户端502错误。
+
+服务器出现502的原因是连接超时 我们向服务器发送请求 由于服务器当前链接太多，导致服务器方面无法给于正常的响应,产生此类报错
+
+因此如果你服务器并发量非常大，那只能先增加机器，然后按以下方式优化会取得更好效果;但如果你并发不大却出现502，一般都可以归结为配置问题，脚本超时问题。
+
+1.php-fpm进程数不够用
+
+使用 netstat -napo |grep "php-fpm" | wc -l 查看一下当前fastcgi进程个数，如果个数接近conf里配置的上限，就需要调高进程数。
+
+但也不能无休止调高，可以根据服务器内存情况，可以把php-fpm子进程数调到100或以上，在4G内存的服务器上200就可以。
+
+2. 调高调高linux内核打开文件数量
+
+可以使用这些命令(必须是root帐号)
+
+echo 'ulimit -HSn 65536' >> /etc/profile
+
+echo 'ulimit -HSn 65536' >> /etc/rc.local
+
+source /etc/profile
+
+ 3.脚本执行时间超时
+
+如果脚本因为某种原因长时间等待不返回 ，导致新来的请求不能得到处理，可以适当调小如下配置。
+
+nginx.conf里面主要是如下
+
+fastcgi_connect_timeout 300;
+fastcgi_send_timeout 300;
+fastcgi_read_timeout 300;
+
+php-fpm.conf里如要是如下
+
+request_terminate_timeout = 10s
+
+4.缓存设置比较小
+
+修改或增加配置到nginx.conf
+
+proxy_buffer_size 64k;
+proxy_buffers  512k;
+proxy_busy_buffers_size 128k;
+
+5. recv() failed (104: Connection reset by peer) while reading response header from upstream
+
+可能的原因机房网络丢包或者机房有硬件防火墙禁止访问该域名
+
+但最重要的是程序里要设置好超时，不要使用php-fpm的request_terminate_timeout，
+
+最好设成request_terminate_timeout=0;
+
+因为这个参数会直接杀掉php进程，然后重启php进程，这样前端nginx就会返回104: Connection reset by peer。这个过程是很慢，总体感觉就是网站很卡。
+
+May 01 10:50:58.044162 [WARNING] [pool www] child 4074, script '/usr/local/nginx/html/quancha/sameip/detail.php' execution timed out (15.129933 sec), terminating
+May 01 10:50:58.045725 [WARNING] [pool www] child 4074 exited on signal 15 SIGTERM after 90.227060 seconds from start
+May 01 10:50:58.046818 [NOTICE] [pool www] child 4082 started
+
+说一千道一万最重要的就是程序里控制好超时，gethostbyname、curl、file_get_contents等函数的都要设置超时时间。
+
+另一个就是多说，这个东西是增加了网站的交互性，但是使用的多了反应就慢了，如果你网站超时且使用了多说是，可以关闭它
+
+
+
+
+
+
+
+ 查过网上的资源，基本都是认为是php线程打开文件句柄受限导致的错误。具体的解决的办法如下：
+
+1、提升服务器的文件句柄打开打开
+/etc/security/limits.conf : (增加)
+*    soft    nofile    51200
+*    hard    nofile    51200
+# vi /etc/security/limits.conf 加上
+* soft nofile 51200
+* hard nofile 51200
+
+2、提升nginx的进程文件打开数
+
+nginx.conf : worker_rlimit_nofile 51200;
+
+3、修改php-fpm.conf文件，主要需要修改2处。
+
+命令 ulimit -n 查看限制的打开文件数，php-fpm.conf 中的选项rlimit_files 确保和此数值一致。
+
+ <value name="max_requests">10240</value>
+
+<value name="rlimit_files">51200</value>
+
+4、
+# vi /etc/sysctl.conf 
+底部添加
+fs.file-max=51200
+
+完成以上修改，重启PHP，警告信息再也没了。
+
+世界从此安宁，502 Bad Gateway 没有了。 
+
+
+执行时间超过request_terminate_timeout 设置。导致502产生。

@@ -1,3 +1,6 @@
+freelancer 类似猪八戒
+BigTable Google设计的分布式数据存储系统
+代码市场
 
 PHP技术主管
 
