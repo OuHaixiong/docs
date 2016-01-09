@@ -11,6 +11,7 @@ memcache配置文件 /etc/php5/apache2/conf.d/memcache.ini
 phpize 路径 /usr/bin/phpize （需 sudo apt-get install php5-dev）
 扩展所在的文件目录 /usr/lib/php5/20090626+lfs/
 php的扩展配置文件所在文件夹：/etc/php5/conf.d
+php可执行文件在：/usr/bin/php
 /etc/apache2/envvars 环境变量
 /etc/apache2/ports.conf httpd服务端口信息
 /etc/apache2/conf.d/ 一般性配置文件存放地
