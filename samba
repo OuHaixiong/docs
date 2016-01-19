@@ -183,3 +183,9 @@ guest ok = yes
 smbpasswd -a root
 service iptables stop
 service smb reload
+
+开启服务端口：
+/sbin/iptables -I INPUT -p tcp --dport 139 -j ACCEPT
+/etc/rc.d/init.d/iptables save
+/etc/init.d/iptables restart
+
