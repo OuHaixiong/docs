@@ -42,7 +42,7 @@ service mysql start
 2，配置主从同步
 
  在主服务器上建立同步帐号
-GRANT REPLICATION SLAVE,FILE ON *.* TO 'replication'@'10.1.1.%' IDENTIFIED BY '123456';
+GRANT REPLICATION SLAVE,FILE ON *.* TO 'replication'@'10.1.1.%' IDENTIFIED BY '123456' WITH GRANT OPTION;
 //GRANT ALL PRIVILEGES ON *.* TO 'mvcUser'@"%" IDENTIFIED BY '123456' WITH GRANT OPTION;
 FLUSH PRIVILEGES; 
 如果有多台需要同步，就需要建立多个账号

@@ -222,7 +222,7 @@ sudo vim /etc/mysql/my.cnf
 #bind-address = 127.0.0.1
 
 2.授权法
-mysql>GRANT ALL PRIVILEGES ON *.* TO <user>@"%" IDENTIFIED BY '<password>' WITH GRANT OPTION;
+mysql>GRANT ALL PRIVILEGES ON *.* TO 'link'@'%' IDENTIFIED BY '123456' WITH GRANT OPTION;
 // grant select,insert,update,delete on *（数据库）.*（表） to user@"%"[localhost] Identified by "123456" with grant option; 
 // 增加一个用户user密码为123456，让他可以在任何主机上登录，并对所有数据库有查询、插入、修改、删除的权限
 mysql>FLUSH PRIVILEGES

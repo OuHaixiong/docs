@@ -1,0 +1,125 @@
+sphinx全文搜索引擎
+
+1, 下载源码包coreseek-4.1-beta.tar.gz
+
+2, 解压包tar -zxvf coreseek-4.1-beta.tar.gz；进入目录cd coreseek-4.1-beta/mmseg-3.2.14
+
+3, 检查环境；
+./bootstrap  // 输出的warning信息可以忽略，如果出现error则需要解决
+
+ 如果出现如下信息：
+ configure.in:26: warning: macro `AM_PROG_LIBTOOL' not found in library
++ libtoolize --force --copy
+./bootstrap: line 24: libtoolize: command not found
++ autoheader
++ automake --add-missing --copy
+src/Makefile.am:37: Libtool library used but `LIBTOOL' is undefined
+src/Makefile.am:37:   The usual way to define `LIBTOOL' is to add `AC_PROG_LIBTOOL'
+src/Makefile.am:37:   to `configure.in' and run `aclocal' and `autoconf' again.
+src/Makefile.am:37:   If `AC_PROG_LIBTOOL' is in `configure.in', make sure
+src/Makefile.am:37:   its definition is in aclocal's search path.
++ autoconf
+configure.in:26: error: possibly undefined macro: AM_PROG_LIBTOOL
+      If this token and others are legitimate, please use m4_pattern_allow.
+      See the Autoconf documentation.
+  说明：缺失libtool包
+  #设置路径和中文环境：
+    $ export PATH=/usr/local/bin:$PATH   (可以通过echo $PATH查看环境变量的路径)
+    $ export LC_ALL=zh_CN.UTF-8
+    $ export LANG=zh_CN.UTF-8
+ 如果没有安装m4、autoconf、automake、libtool就需要如下安装：
+ curl -O -L http://mirrors.kernel.org/gnu/m4/m4-1.4.13.tar.gz   
+ // -O ： 可以把目标的文件保存到本地（类似wget）；-L：只显示头部信息；-i显示全部信息；-v：显示get请求全过程解析；-l/--list-only：列出ftp目录下的文件名称
+ tar -zxvf m4-1.4.13.tar.gz
+ cd m4-1.4.13
+ ./configure --prefix=/usr/local
+ make && make install
+ cd ../
+ curl -O -L http://mirrors.kernel.org/gnu/autoconf/autoconf-2.65.tar.gz
+ tar -zxvf autoconf-2.65.tar.gz 
+ cd autoconf-2.65
+ ./configure --prefix=/usr/local
+ make && make install
+ cd ../
+ curl -O -L http://mirrors.kernel.org/gnu/automake/automake-1.11.tar.gz
+ tar -zxvf automake-1.11.tar.gz
+ cd automake-1.11
+ ./configure --prefix=/usr/local
+ make && make install
+ cd ../
+ wget http://mirrors.kernel.org/gnu/libtool/libtool-2.4.6.tar.gz
+ （yum -y install wget ； -O ： 下载并以不同的文件名保存，如：wget -O wordpress.zip http://www.centos.bz/download.php?id=1080 ）
+ tar -zxvf libtool-2.4.6.tar.gz
+ cd libtool-2.4.6
+ ./configure --prefix=/usr/local
+ make && make install
+ cd ../
+
+4, 重新编译：cd coreseek-4.1-beta/mmseg-3.2.14 && ./bootstrap
+ 如果出现如下错误：
+ config.status: creating Makefile
+ config.status: WARNING:  'Makefile.in' seems to ignore the --datarootdir setting
+ config.status: error: cannot find input file: src/Makefile.in
+ 则需执行如下命令
+ yum -y install autoconf automake
+ aclocal
+ 出错：configure.in:26: warning: macro `AM_PROG_LIBTOOL' not found in library
+ yum -y install libtool
+ aclocal
+ libtoolize --force
+ automake --add-missing
+ autoconf
+ autoheader
+ make clean
+
+5, ./configure --prefix=/usr/local/mmseg3 （配置成功：真他妈的郁闷，还不能用yum安装的，非得手动安装到/usr/local目录下）
+
+6, 编译并安装mmseg：make && make install
+
+7, 安装coreseek
+   cd csft-4.1/
+   sh buildconf.sh  #输出的warning信息可以忽略，如果出现error则需要解决
+   ./configure --prefix=/usr/local/coreseek --without-unixodbc --with-mmseg --with-mmseg-includes=/usr/local/mmseg3/include/mmseg/ --with-mmseg-libs=/usr/local/mmseg3/lib/ --with-mysql
+   （如果不直接用mysql做数据源，就可以--without-mysql）
+   make
+   make install
+   
+8, 测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh_CN.UTF-8，确保正确显示中文）
+$ cd testpack
+$ cat var/test/test.xml    #此时应该正确显示中文
+$ /usr/local/mmseg3/bin/mmseg -d /usr/local/mmseg3/etc var/test/test.xml
+$ /usr/local/coreseek/bin/indexer -c etc/csft.conf --all
+$ /usr/local/coreseek/bin/search -c etc/csft.conf 网络搜索
+  出现如下错误提示：
+  indexing index 'xml'...
+WARNING: source 'xml': xmlpipe2 support NOT compiled in. To use xmlpipe2, install missing XML libraries, reconfigure, and rebuild Sphinx
+ERROR: index 'xml': failed to configure some of the sources, will not index.
+ 解决：
+ yum install expat-devel* 或（在安装盘上找到expat-2.0.1-9.1.el6.i686.rpm、expat-devel-2.0.1-9.1.el6.i686.rpm）
+  然后重新安装sphinx/coreseek 即可
+
+9, 开启9312端口
+ /sbin/iptables -I INPUT -p tcp --dport 9312 -j ACCEPT
+ /etc/rc.d/init.d/iptables save
+ /etc/init.d/iptables restart
+  
+10, 至此安装完毕。遇到问题如下：
+ 问题：
+ libsphinx.a(sphinx.o): In function `xmlUnknownEncoding':
+/data/tool/coreseek-4.1-beta/csft-4.1/src/sphinx.cpp:22292: undefined reference to `libiconv_open'
+/data/tool/coreseek-4.1-beta/csft-4.1/src/sphinx.cpp:22310: undefined reference to `libiconv'
+/data/tool/coreseek-4.1-beta/csft-4.1/src/sphinx.cpp:22316: undefined reference to `libiconv_close'
+collect2: ld returned 1 exit status
+解决：
+vim /data/tool/coreseek-4.1-beta/csft-4.1//src/Makefile
+把 LIBS = -ldl -lm -lz -lexpat  -L/usr/local/lib -lrt  -lpthread 改成：
+LIBS = -ldl -lm -lz -lexpat -liconv  -L/usr/local/lib -lrt  -lpthread
+然后重新编译
+
+问题：
+如果出现错误提示：“ERROR: cannot find MySQL include files.......To disable MySQL support, use --without-mysql option.“，可按照如下方法处理：
+解决：
+请找到头文件mysql.h所在的目录，一般是/usr/local/mysql/include，请替换为实际的
+请找到库文件libmysqlclient.a所在的目录，一般是/usr/local/mysql/lib，请替换为实际的
+configure参数加上：--with-mysql-includes=/usr/local/mysql/include --with-mysql-libs=/usr/local/mysql/lib，执行后，重新编译安装
+
