@@ -1,0 +1,77 @@
+
+mysql优化建议：
+
+1，字段尽量用字符串（varchar、char）和整形数据（int、tinyint）。存储引擎统一用InnoDB，因为考虑后续可能会用到事务。数据库和表均采用utf8编码。
+
+2，数据库以csc开头，如：csc_caigou。表名以“大模块_具体业务”，表名以具有一定含义的英文单词组成，如：内容管理系统中的栏目表：content_column
+
+3，字段名采用驼峰式[小写开头；有多个单词，第二个单词开始，首字母大写]，名称最好具有一定含义的英文单词，能做到读其名知其意最好。如：是否显示：isShow
+
+4，约定俗成的一些字段名如下：
+  id： 主键
+  name： 名称
+  title： SEO的标题
+  keywords： SEO的关键字
+  description： SEO的描述
+  status： 状态
+  remark： 备注
+  createdTime： 创建时间
+  updatedTime： 更新时间
+  sort： 排序
+
+5，表示状态的字段时，用tinyint(2)[不推荐使用enum],用正数表示正常状态，负数表示非正常状态，如：status：-1：已删除；1：正常。尽量避免使用0。
+  如性别：  1：男；2：女；3：人妖
+
+6，所有字段需要设置默认值，如果与业务有关的判断需在程序中实现，如：栏目名称字段（name）是必填项，不能为空，需在程序中进行判断，不应在数据库中设置not null，如下正确应该如：
+   `name` VARCHAR(30) DEFAULT '' COMMENT '栏目名称'
+
+7，字符串字段（varchar、char）不允许设置为null，默认为空字符串''。因为如果设置为空时，在一些查询中需要加入条件判断is not null，此查询并不高效；且设置为null后，添加索引会失效
+
+8，如果一个字段是别的表的主键，这个字段命名为：来自表的表名+Id，如：栏目表中有站点id，如下：
+  `siteId` INT(10) UNSIGNED DEFAULT 0 COMMENT '站点id'
+
+9，时间戳统一保存为10位的整形数据，如：
+  `updatedTime` INT(10) UNSIGNED DEFAULT 0 COMMENT '更新时间'
+
+10，绝对不允许用mysql的关键字做字段名，如 ，用order做排序字段名。下面列出部分关键字：
+  select、insert、delete、update、use、limit、like、order、by、as、and、or、desc、dec、asc、call、in、on、out、add、all、alter、before、between、from、bigint、int、
+  both、char、varchar、where、with、exit、goto、tinyint、character、count等，更多关键字请看：http://www.360doc.com/content/12/0203/11/3688062_183844013.shtml
+
+11，字段如果表示是否XXX，最好用is开头，如，是否删除：isDelete。字段名的单词不建议缩写，如果单词过长，可以考虑动词[动词会比名词短点]或换个单词，
+  如：描述description不建议缩写成des；位置position不建议缩写成pos
+
+12，为每个表设置一个主键，且为自动增长的无符号整形，如：`id` int(10) unsigned AUTO_INCREMENT PRIMARY KEY COMMENT '主键id'
+
+13，尽量为每表加入创建时间和更新时间字段[方便后续的查找和导出sql脚本]，如：
+  `createdTime` INT(10) UNSIGNED DEFAULT 0 COMMENT '创建时间',
+  `updatedTime` INT(10) UNSIGNED DEFAULT 0 COMMENT '更新时间',
+
+14，ip地址尽量存成整形入库，如：`ip` INT(10) UNSIGNED DEFAULT 0 COMMENT 'ip地址', 程序中可以直接调用函数ip2long对ip进行转整操作
+
+15，将经常要用到的字段（比如经常要用这些字段来排序，或者用来做搜索,或者查询），则最好将这些字段设为索引，前提条件是该字段的值唯一性比较好，如果唯一性差的不建议设索引
+
+16，当然无可避免某些字段会用到TEXT、VARCHAR、BLOB等字符（大字符）类型，最好将text字段的单独出另外一个表出来（用主键关联好）
+
+17，select * 尽量少用，你想要什么字段 就select 什么字段出来 不要老是用 * 号！同理，只要一行数据时尽量使用 LIMIT 1
+
+18，绝对不要轻易用order by rand() ，很可能会导致mysql的灾难！！
+
+19，不要用永久链接 mysql_pconnect()；除非你真的非常肯定你的程序不会发生意外，不然很可能也会导致你的mysql死掉
+
+20，如果一个文本列是固定大小的话，建议使用char而不是使用varchar
+
+21，开启慢查询日志(slow query log)，装上mtop。针对具体的sql进行，EXPLAIN，SHOW STATUS，SHOW PROCESSLIST。它们会告诉你资源都消耗在哪了，查询语句的缺陷在哪，优化它
+
+22，开启查询缓存，EXPLAIN你的SELECT查询语句
+
+23，用来Join的字段，应该是被建过索引的，而且应该是相同的类型的；对于STRING类型，还需要有相同的字符集；否则MySQL就无法使用它们的索引。
+
+24，PROCEDURE ANALYSE() 会让MySQL帮你去分析你的字段和其实际的数据，并会给你一些有用的建议。只有表中有实际的数据，这些建议才会变得有用，因为要做一些大的决定是需要有数据作为基础的。SELECT * FROM `bage_admin` PROCEDURE ANALYSE()
+
+25，适当的垂直分割。被分出去的字段所形成的表，你不会经常性地去Join他们，不然的话，这样的性能会比不分割时还要差，而且，会是几数级的下降
+
+26，拆分大的DELETE或INSERT语句[比如你批量插入10000数据]。可按批处理[如每批处理1000条]，每处理一批后休息几秒。
+，
+，
+，
+

@@ -1,0 +1,508 @@
+
+            一：alter table用来创建普通索引，unique索引或primary key索引
+                普通索引：alter table t1 add index in_name(name)   --t1表中的那么字段添加索引名为in_name
+                唯一索引：alter table t1 add unique(name)   --不给名字，默认是字段名
+       alter table t1 add unique un_name(name)
+                           
+                主键索引(自增才有意义)：alter table t1 add primary key(id)
+                主键索引不是自增记得改成自增：alter table t1 modify id int unsigned not null auto_increment；
+                 
+                查看索引：show index from t1;
+                删除：alter table t1 drop index in_name;
+                删除索引：      drop index in_name on t1;    --t1表中的in_name索引删除
+                 
+       @*删除主键索引单独处理*
+            二：alter table table_name drop index index_name
+         alter型删除索引:alter table t1 drop index in_name;
+                     
+                    @*删除主键索引*：
+                    注意：删除主键索引的时候，如果你的主键索引是自增（如：id）删除是会报错的
+                          实在想玩的话就把主键的auto_increment消掉
+                          alter table t1 modify id int unsigned not null;
+                          改成自增：alter table t1 modify id int unsigned not null auto_increment；
+                 
+            三：create index（不常用学习下，不能对主键索引操作，只能操作普通和唯一索引）
+               *创建普通索引： create index in_name on t1(name);  --将t1表中的那么字段添加为普通索引
+               *创建唯一索引：  create unique index un_name on t1(name);
+
+            创建视图：create view v_t1 as select * from t1 where id>4 and id<11;
+
+            查看视图：show tables;
+            删除视图：drop view v_t1;
+            视图帮助信息：？view;
+             
+             
+        4：MySQL内置函数
+            字符串函数：
+            select  concat("hello","word");              链接字串 ->hello world
+                    lcase("MYSQL")                       转换成小写
+                    ucase("mysql")                       转换成大写
+                    length("leyangjun")                  string长度
+                    ltrim("   userName")                 去除前端空格
+                    rtrim("userName   ")                 去除后端空格
+                    repeat("linux",count)                重复count次( select repeat('d',2);重复输出2次dd)
+                    replace(str,search_str,replace_str)  在str中使用replace_str替换search_str
+                    substring(str,position[length])      从str的position开始，取length个字符串->substring 和 substr一样
+                    select substr("leyangjun",1,5);      从第一个开始取5个字符串
+                    space(count)                         生成count（数字）个空格
+            数学函数
+                bin(decimal_number)         十进制转二进制（select bin(120);）
+                ceiling(number2)            向上取整(select ceiling(10.10);--->11)
+                floor（number2）            向下取整(select ceiling(10.10);--->10)
+                Max(列)              取最大值
+                MIN(列)              取最小值
+                sqrt(number2)               开平方
+                rand()                      返回0-1内的随机值
+         
+            日期函数：
+                curdate();       返回当前日期
+                curtime();       返回当前时间
+                now();           返回当前的日期和时间
+                unix_timestamp(date)   返回date的unix时间戳
+                from_unixtime()        返回unix时间戳日期值
+                week(date)             返回日期date为一年中的第几周
+                year(date)             返回日期中的年份
+                datediff(expr,expr2)   返回起始时间expr和结束时间expr2间隔天数select datediff("2014-08-03","2014-08-04");
+
+
+            修改表引擎方法：alter table t1 engine=innodb
+             
+            一：事务操作
+                查看是否自动提交：select @@autocommit;   
+                关闭自动提交
+                set autocommit=0;
+                delete from t1 where id>5;  数据只是临时删除，如果commit就真正的执行删除语句
+                rollback;     只要没commit还原刚才删除的数据
+                commit；
+             
+            二：还原点的使用：
+                insert into t1 values("user4");
+                savepoint p1;
+                insert into t1 values("user5");
+                savepoint p2;
+                insert into t1 values("user6");
+                savepoint p3;
+                 
+                --3个数据已经插进去啦，能后你觉得user6不要，你就找到还原点 savepoint p2就行
+                rollback to p2;    --还原到P2  user6不要
+                commit；
+                 
+                 
+             
+        7：MySQL存储（可以认为是自定义的函数）
+            创建一个存储：
+                \d //
+                create procedure p1()
+                begin
+                set @i=0;
+                while @i<10 do
+                insert into t2(name) values(concat("user",@i));        --这里可以做增删改查。。。都行
+                set @i=@i+1;
+                end while;
+                end;
+                //
+            执行一个存储：
+                \d ;
+                call p1();
+            查看存储：
+                show procedure status;
+                show create procedure p1\G   --查看p1存储的基本信息
+         
+        8：MySQL触发器（自动执行）
+            *查询没有必要做触发器！：select * from t1 union select * from t2;
+            一：增加触发器
+                
+                创建一个名字为tg1的触发器，当向表中插入数据时，就向t2表中插入一条数据
+                create trigger tg1 before insert on t1 for each row
+                begin
+                insert into t2(id) values(new.id);    --new.id 比如向t1表里面插入了id=4的    能后new.id=4 直接复制到这
+                end//
+                 
+                准备好t1 表 和 t1表
+                向t1表中插入多条数据
+             
+            查看：show triggers；
+            删除触发器：drop trigger t2;
+             
+            二：删除触发器(注意下：删除的时候2个表的值一定要对称，比如t1：1,2,3 t2：11,12,13这么删除是不行会报错，以一定要对称
+                            比如t1和t2表都有user1，这样删除就是没问题 )
+ 
+                create trigger tg2 before delete on t1 for each row
+                begin delete from t2 where id=old.id;   --插入的时候里面没有这个值叫new.id  提前有的值叫old.id
+                end//
+                 
+            三：更改触发器：
+                create trigger tg3 before update on t1 for each row
+                begin update t2 set id=new.id where old.id;  --（update t1 set name="leyangjun"-new.id where name="zhangfei"-old.id）
+                end//
+             
+        9：重排auto_increment值
+            MySQL数据库自动增长的ID如何恢复：
+                清空表的时候，不能用delete from tableName;
+                              而是用truncate tableName;
+                这样auto_increment就恢复成1了
+                 
+                或者清空内容后直接用alter命令修改表：alter table tableName auto_increment=1;
+                    
+ 
+2.常用的SQL技巧
+    一：正则表达式的使用 --（注意匹配到了是1 没有则为0）
+        select "linux is very ok" regexp ".*" ;     --匹配所有
+        select "linux is very ok" regexp "^linux"   --匹配以linux为开头的
+         
+         
+        ->通用的一些：
+            ^     在字符串的开始处进行匹配                  a?     匹配1个或0个
+            $     在字符串的末尾处进行匹配                  a1|a2  匹配a1或a2
+            .     匹配任意单个字符，包括换行符号           a(m)   匹配m个a
+            [...] 匹配括号内的任意字符                        a(m,)  匹配至少m个a
+            [^...]匹配不出现括号内的任意字符             a(m,n) 匹配m到n个a
+            a*    匹配0个或多个a(包括空串)                    a(,n)  匹配0到n个a
+            a+    匹配1个或多个（不包括空串）                (...)  将模式元素组成单一元素
+        匹配邮箱（根据匹配.,正则效率高）：
+            --但是正则比like的缺点就是更消耗程序消耗资源
+            1使用正则表达式“$” 和 [...] 进行匹配：
+                select name,email from leyangjun where email REGEXP "@163[.,]com$";   --[.,]匹配. 或 ，
+         
+            2使用like方式查询：
+                select name,email from leyangjun where email like "@163.com" or email like "%@163,com";
+               
+    三：利用group by 的 with rollup 子句统计
+        *注意：with rollup不可以和order by同时使用
+        使用group by的with rollup 子句可以检索出更多的分组聚合信息
+            select cname,pname,count(pname) from demo group by cname,pname;
+        使用with rollup可以统计出更多的信息：
+            select name,pname,count(pname) from demo group by cname,pname with rollup;   --会吧算出来的数加起来 比如：bj  hd  5      sh  hd 4    最后会增加个null 列 总数9
+         
+    四：用bit group functions做统计（用的少）,就是二进制进行运算
+        *只有聚合分组的时候这个2个函数才会有意义。
+            在使用group by 语句时可以同时使用bit_and 、bit_or函数来完成统计工作。这两个函数的
+        作用主要是做数值之间的逻辑运算。
+        2个函数把数值转成二进制
+        bit_or或运算->二进制的值-就是0和1（0,1=1    0,0=0    1,1=1）：
+            select id,bit_or(kind) from order_rab group by id;  
+        bit_and是&&运算(只有1,1=1，其他值全为0)：   
+            select id,bit_and(kind) from order_rab group by id;
+         
+    五：使用外键需要注意的问题（不鼓励在MySQL中使用外键）
+        外键：我这个表的字段是楞一个表的主键，依赖关系
+        create table temp(id int,name char(20),foreign key(id) references outTable(id) on delete cascade on update cascade);
+        *注意：innodb类型的表支持外键，myisam类型的表，虽能创建外键可以成功，但是不起作用，主要原因是不支持外键。 
+         
+    六：MySQL中help的使用
+        在MySQL中有很多命令如果不记得，要使用MySQL的提示下的操作也就是  ？：
+        1：？%   可以获得多有的MySQL里面的命令，这个事最多的，建议不使用下面
+        2：？create
+        3：？opti% 以为记不住optimize的全称，这个时候可以用%来代替
+        4：？reg%  获取了记不住的regexp的用法
+        5：? contents; 查看所有帮助信息 -> 可以得到所有的帮助大纲，通过这个目录在用？继续往下细查
+            比如：？contents；
+                  ？ functions;   查看所有的函数，就是？contents得出来的functions
+                  ?  string funtions;   .......
+                   
+===============================================================================================================================               
+ 
+3.SQL语句优化
+    一：优化SQL语句的一般步骤
+        1：通过show status命令了解各种SQL的执行频率
+                    格式：show session|global status;
+                        session:(默认)表示当前连接
+                        global：表示自数据库启动至今
+                     
+                    show status;
+                    show global status;
+                    show status like 'Com_%';  --一般只差以Com开头的东西
+                    show global status like 'Com_%';
+                     
+                重点跟踪这几个值（登入以来，所有的操作都会有记载）：
+                    show status like "Com_insert%";   --查看到：总共插了多少条  insert_select方式插入使用了几次
+                    show status like "Com_select%";   --登入以来，插入了几次
+                    show status like "Com_update%";
+                    show status like "Com_delete%";
+                     
+                只针对于innoDB存储引擎的(记载的是影响行数)：
+                SQL：show status like "innodb_rows%";  --就可以查看到下面的内容
+                        InnoDB_rows_read执行select操作的次数
+                        InnoDB_rows_updated执行update操作的次数
+                        InnoDB_rows_inserted执行insert操作的次数
+                        InnoDB_rows_deleted执行delete操作的次数
+                 
+                其他：
+                sql: show status like "connections";
+                    connections 链接MySQL的数量(包括你链接成功或不成功都会记载)
+                    Uptime 服务器已经工作的秒伤
+                    Slow_queries 慢查询次数
+                    show variables like "%slow%";  查看是否开启慢查询 OFF关闭（默认慢查询文件等详细信息）
+                    show variables like "%long%";  查看默认慢查询的时间默认是10s
+                     
+        *2:定位执行效率较低的语句(解析sql)
+                可以查出：有没有用索引啊  单表查还是多表查 还是嵌套查询啊。。。,看这几个值既能分析出来
+                *重点查看的是 row:8   影响行数
+                ref:null  如果你表建立的所有，ref会推荐你使用什么索引
+                explain select * from tables where id=10 \G;  可以用 \G排下  
+                desc select * from tables where id=10;
+             
+    二：索引问题
+        索引是数据库优化中最常见也是最重要的手段之一，通过索引通常可以帮助用户解决大多数的SQL性能问题。
+        1：索引的存储分类
+            MyISam存储引擎的表的数据和索引是自动分开存储的，各自是独立的一个文件（3个文件 frm-表结构文件 d-数据文件 i-索引文件）
+            InnoDB存储引擎的表数据和索引是存储在同一个表空间里面的，但可以有多个文件组成（默认是共享表空间，所以是同一个文件）
+             
+            MySQL目前不支持函数索引，但是能对列的前面某一部分进行索引，例如name字段，可以只取name的前4个字符进行索引，
+        这个特性可以大大缩小索引文件的大小，用户在设计表结构的时候也可以对文本列根据此特性进行灵活设计。
+         
+        SQL:create index ind_company2_name on company(name(4));--其中company表名ind_company2_name索引名 且 针对name4个字符进行索引
+         
+        2：MySQL如何使用索引
+            索引用于快速查找在某个列中有一特定值的行。对相关列使用索引是提高select操作性能的最佳途径。
+            一：使用索引：
+                （1）：对于创建的多列索引，只要查询的条件中用到左边的列，索引一般就会被使用。
+                    如下创建个复合索引：
+                        create index ind_sales2_com_mon on sales2(commpany_id,moneys);
+                    能后按company_id进行查询，发现使用到了复合索引
+                        explain select * from sales2 where commpany_id=100 \G;
+                    使用下面的查询就没有使用到复合索引
+                        explain select * from sales2 where moneys=1 \G;
+                 
+                （2）：like使用索引要注意，有时候用不上看你like是怎么写的，%号放后面就可以用上索引
+                    索引什么时候用不上(已经建了索引sql时候没用上)
+                    使用like的查询，后面如果是常量并且只有%号不在第一个字符，索引才可能会被使用，如下：
+                        explain select * from commpany2 where name like "%3%" \G; --没用上
+                        explain select * from commpany2 where name like "3%%" \G; --用上啦
+                 
+                （3）：如果对大额文本进行搜索，使用全文索引而不使用like"%...%";
+                （4）：如果列名是索引，使用column_name is null将使用索引，如下：
+                    explain select * from commpany2 where name is null \G   --查找那么是null的值，也会用到索引
+                    explain select * from commpany2 where name is not null \G  --也会用到索引
+            二：存在索引但不使用索引（索引没用上）
+                （1）：如果MySQL估计使用索引比全表扫描更慢，则不适用索引。列如：如果列key_part1均匀分布在1到100之间，查询时使用索引就不是很好
+                    select * from tableName where key_part1>1 and key_part<90;
+                （2）：如果使用memory/heap 表并且where条件中不适用"="进行索引列，那么不会用到索引。heap表只是有在"="的条件下回使用索引。
+                （3）：用or分割开的条件，如果or前的条件中的列有索引，而后面的列中没有索引，那么涉及的所有都不会被用到。
+                    show index from sales \G
+                 
+                ****注意******
+                    如果你的sql语句中使用了 where  and 什么 ，or 什么的时候，
+                    and / or 前面和后面的字段必须都要加索引，如果只一个加索引那么where查询后面的整个索引将会失效->导致整个索引都用不上，最终索引是没有意义的
+                     
+                    从上面可以发现只有year列上面有索引，如：
+                        explain select * from sales where year=2001 or country='China' \G
+                 
+                （4）：如果不是索引列的第一部分，如下列子：可见虽能在moeney上建有复合索引，但是由于money不是索引的第一列，
+                       那么查询中这个索引也不会被MySQL使用
+                        explain select * from sales2 where moneys=1 \G
+                 
+                （5）：如果like是以为%开始，可能name字段有索引，但是由于条件中like的值得"%"号在第一位MySQL也不会使用索引
+                 
+                （6）：如果列类型是字符串，但是在查询的时候把一个数值型常量给了一个字符型的列名name，
+                       那么虽能name列上有索引，但是也没有用到
+                       explain select * from company2 where name=294 \G   --能找到记录你输入294的会自动转成'294'，但是不会使用索引
+             
+            三：查看所有使用情况
+                如果索引正在工作，Handler_red_key（读取索引的次数） 的值将很高。
+                Handler_read_rnd_next的值高则意味着查询运行低效，并且应该建立索引补救。
+                 
+                show status like 'Handler_red%';  --Handler_read_rnd_next这个值偏高得话就得结合慢查询日志，看看那个sql慢 进而来建索引
+             
+             
+    三：两个简单使用的优化方法
+         对于大多数开发人员来说，可能只希望掌握一些简单实用的优化方法，对于更多复杂的优化，更倾向交给作业DBA来做
+     （1）：定期分析表和检查表
+             
+            *分析的语法如下：（检查一个表或多个表是否有错误，比如视图：视图依赖一个主表，主表删除了，能后你用这个命令查看你的视图表就会报错）
+                check table table_name;
+         
+    （2）：定期优化表
+            优化表的语法格式：
+                就是优化表空间->删除等操作一些碎片和空洞清理出去
+                optimize table table_name;   --如果已经删除了表的一大部分，或者已经对含有可变长度的表进行了很多的改动，则需要
+                                               做定期优化。这个命令可以将表中的空间碎片进行合并，但是次命令只对myiam bdb和innodb表起作用。
+ 
+     
+    四：常用SQL的优化
+        （1）：大批量插入数据
+            一:当用load命令导入数据的时候。适当设置可以提高导入的速度。 ?load data
+                导出 导入数据 新方法：
+                select name from t1 into outfile "/tmp/test.txt";   --将表t1 name字段数据导出到文件里去
+                load data infile "/tmp/test.txt" into table t1(name);  --清空表t1，在将刚才导出来的t1表name字段的数据值在导入t1表中的name中去
+             
+            二：对于myisam存储引擎的表，可以通过以下方式快速的导入大量的数据。
+                注意：一般指关闭非唯一索引,以为怕导入的时候有相同的值就监控不到啦
+                    插入完后再一起做索引，否则每次插入一条索引文件也插入一条
+                    alter table table_name disable keys
+                    load data  .....
+                    alter table table_name enable keys
+                -->disable keys 和 enable keys 用来打开或关闭myisam表非唯一索引（除了住建索引）的更新，可以提高速度 innodb 无效的哦
+                 
+                ->1：使用打开或关闭MyISAM非唯一索引（表已经建立了索引）：
+                        alter table table_Name disable keys;   --关闭
+                        load data infile "/tmp/test.txt" into table t1(name); --导入数据后在统一价索引
+                        alter table table_Name enable keys; --开启，统一加索引
+                         
+                         
+                ->2:关闭唯一索引，可以提高导入效率（保证你数据不会有问题,不会出现冲突值、重复啥的）
+                        在导入数据前先执行set unique_checks=0,关闭唯一性效验，在导入数据后先执行set unique_checks=1，恢复唯一效验，可以提高导入效率
+                    SQL:    
+                        set unique_checks=0；
+                        load data infile "/tmp/test.txt" into table t1(name);
+                        set unique_checks=1；
+             
+            三：针对于Innodb类型表数据导入的优化
+                1:因为innodb表的按照主键顺序保存的，所以将导入的数据主键的顺序呢排序，可以有效地提高导入数据的效率。
+                    使用test3.txt文本是按表film_test4主键存储顺序保存
+                    load data infile "/tmp/test.txt" into table film_test4;
+                2:关闭自动提交可以提高导入效率
+                    在导入数据前先执行set autocommit=0,关闭自动提交事务，在导入数据后先执行set autocommit=1,恢复自动提交，可提高效率。
+                    set autocommit=0；
+                    load data infile "/tmp/test.txt" into table film_test4;
+                    set autocommit=1；
+                     
+            四：优化insert语句：
+                    尽量使用多个值表的insert语句，这样可以大大缩短客户与数据库之间的链接、关闭损耗。
+                    可以尽量使用insert delayed（马上执行）语句得到更高得效率。
+                    将索引文件盒数据文件分别存放不同的磁盘上。
+                    可以增加bulk_inser_buffer_size变量值得方法来提高速度，但是只是对myisam表使用。
+                    当从一个文件中装载一个表时，使用load data infile，这个通常比使用很多insert语句要快20倍。
+                     
+                    插入的时候可以：insert into t1(name) values ("user1"),("user2"),("user3"),("user4"); --程序逻辑里面插入的时候尽量批量插入，要不插一次链接、关闭一次MySQL
+                 
+            五：优化group by语句：
+                    如果查询包含group by但用户想要避免排序结果的损耗，则可以使用 order by null来禁止排序：
+                        如下没有使用order by null来禁止排序
+                            explain select id,sum(moneys) from table_Name group by id \G   --默认是升序排序，desc sql 看下 Extra:using temporary:using filesort
+                         
+                        如下使用order by null来禁止排序(作用：最低的消耗资源)
+                            explain select id,sum(moneys) from table_Name group by id order by null\G  --desc sql 看下 Extra:using temporary
+                     
+            六：优化嵌套查询(表都建立啦索引的前提下)
+                下面是采用嵌套查询的效果（可以使用更有效的链接查询（join）替代）
+                嵌套查询（效率极低，多表的话只会用到一张表的索引）
+                    --里面的能用到索引外面的用不到索引
+                    explain select * from table_Name1 where company_id not in(select id from table_Name2)\G --desc sql看下你会发现如果2张表都建立索引，你会发现改嵌套查询table_Name2会用到索引查询，table_Name1不会
+                    替代（都使用到索引）
+                    explain select * from table_Name1 left join table_Name2 on table_Name1.company_id=table_Name2.id where table_Name1.company_id is not null\G
+                     
+                链接查询优秀嵌套查询（上面）：
+                    desc select * t1.* from t1,t2 where t1.id=t2.uid \G  --这个sql 2张表在查询的时候都会用到索引
+                  
+                    左右链接查询也会同时用到索引：
+                        desc select t1.* from t1 left join t2 on t1.id=t2.uid where t2.uid is not null \G
+
+                         
+4.MySQL数据库优化（主要针对表）
+ 
+    一：优化表的类型    
+            只能考认为的去对表结构进行优化
+             
+    二：通过拆分提高表的访问效率
+        大存储量解决：1：分库分表  2：分区
+        主要目的：1：减少表的记录数  2：减少对操作系统的负担压力
+         
+    三：使用中间表提高统计查询速度
+        中间表生成：1：view视图  2：重新生成一个新表
+        比如：有个存储帖子的表，能后我只是取前3条的热门贴，如果用select * from tiezi where id<4;  会全表扫描,性能低
+        1：就是建立视图（推荐使用视图）
+            create view zj_view as select * from tiezi where id<4;  --查询的时候直接查视图表
+         
+        2：就是建立个表（不灵活）
+            create table zj like tizi;
+            insert into zj select * from tiezi where id<4;  --将数据插入到zj表，查询的时候查这个表即可
+         
+         
+===============================================================================================================================
+5.Myisam表锁
+    一：myisam读锁定（所有人只有读权限不能进行增删改）
+            1：lock table t1 read
+            2：开启另一个MySQL链接端，接着去尝试：select * from t1; 
+            3: 再insert、update 和 delete t1这张表，你会发现所有的执行的sql都停留在终端上没有真正的去操作执行，直到解锁为止自动就执行
+            4：读锁定对我们在多备份大量数据时非常有用
+                mysqldump -uroot -p123456 test>test.sql
+        解锁：unlock tables;
+         
+    二：myisam写锁定(只有本人进行增删改查，其他人不能进行任何操作)
+        1：lock table t1 write 
+        2: 打开另一个mysql终端，尝试select、insert、update 、delete 这个表t1，你会发现都不能操作，
+           都会停留在终端上，只有等一个终端操作完毕，解锁后第二个终端才能真正执行
+        3：可见表的写锁比读锁更严格
+        4：一般情况下我们很少尝试的取对表进行read、write锁定的，myisam会自动进行锁定的
+         
+        解锁：unlock tables; --全部解锁
+         
+ 
+===============================================================================================================================
+6.MySQL服务器优化
+    一：四种字符集问题（尽量统一设置utf8）
+    sql: \s    查看
+        服务器字符集：server characterset: utf8
+        数据库字符集：Db characterset:utf8
+        客户端字符集：client characterset:utf8
+        链接字符集：conn. characterset:utf8 
+     
+    怎么设置字符集：mysql配置文件中找到：   
+        [client]
+        default-character-set = utf8    --控制 客户端字符集 和 链接字符集
+        [mysqld]
+        character-set-server = utf8     --控制服务器的字符集和数据库字符集  以及继承下来的表字符集
+        collation-server = utf8_general_ci  --控制校验字符集（用途：比如 order by来排序，数据库这么知道这么排序就是靠这个）
+         
+        能后重启mysql： pkill mysqld      --杀死进程
+                        pstree |grep mysqld  --看mysql进程还在不在
+                        /mysql/bin/mysqld_safe --user=mysql &   重启
+                         
+                        !ps      --查看进程
+         
+        查看校验字符集：    
+            show character set;     --一堆校验字符集       
+     
+ 
+     
+    二：binary log 日志问题
+        查看bin log日志：
+            show variables like "%bin%";   --看log_bin  是否开启   ON表示开启,;inux默认是开启的
+         
+        开启log-bin日志：
+            配置文件中打开：log-bin=mysql-bin
+         
+         
+    三：slow log 慢查询日志问题
+        查看慢查询是否开启：
+            show variables like "%slow%";  --看slow_query_log 是否开启
+                                           --慢查询日志保存地址 slow_query_log_file -> E:\wamp\bin\mysql\mysql5.5.20\data\asus-PC-slow.log
+            show variables like "%long%";  --查看慢查询时间10s，long_query_time
+         
+        开启和设置慢查询时间：
+            配置文件里[mysqld]下添加就好：
+                        log_slow_queries=E:/data/slow.log
+                        long_query_time=5   大于5秒的SQL就会被记载到slow.log文件中
+             
+     
+    四：socket问题
+        解释：socket是php程序链接操作mysql时候就要用mysql.sock文件要找到这个端口
+              如果把这个文件删除啦也就是说php就不知道往那台机器那个端口去连
+        [client]
+        port=3306
+        socket=/tmp/mysql.sock
+        [mysqld]
+        port=3306
+        socket=/tmp/mysql.sock
+        skip-locking
+         
+        mysql socket无法登陆：（临时急救的办法，php是用不了的）
+            1：有时候mysql登录是提示不能用socket登录，此时可以换成tcp方式去登录，但是可以测试时候可以这样用
+                但是必须要php去用之前把这个事情解决了
+                mysql -uroot -p123456 --protocol tcp -hlocalhost;  --这样就可以登录，这样就不用mysql.socket来登录，而mysql.socket是启动mysqld服务时产生的
+            *能后这个方式登录进来之后，你在重启下mysql服务，mysql.socket文件会自动建立
+         
+         
+    五：root密码丢失
+        破解：（破解思路：跳过授权表，进去后能后在务修改密码）
+            1：server mysqld stop
+            2: mysqld_safe --skip-grant-tables --user=mysql &    ->跳过授权表mysql.user和mysql.db这些表
+            3：mysql -uroot
+            4: set password=password("leyangjun");  --用这条语句结果报错，就是因为加了--skip-grant-tables
+            5：update user set password=password("leyangjun") where user='root' and host='localhost';  --这个sql就可以搞定下面2个演示
+             
+            6: set password for root@localhost=password("leyangjun");
+            7: set password=password("leyangjun");  --和第6步一样，都可以成功修改密码,password("leyangjun")是用PW进行加密比md5更严格
+             
+            能后重新启动下mysql服务即可
