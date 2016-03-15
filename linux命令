@@ -9,6 +9,7 @@ chmod +x phpinfo.php 给文件/文件夹加一个可执行权限
 chown -R www:www /home/wwwroot 更改文件及子文件的用户和组
 rm -r abc.zip phpMyAdmin-4.1.13-all-languages/ 递归删除文件或文件夹（子文件、子文件夹全删除）
 cp -r phpMyAdmin-4.1.13-all-languages/ /home/u32 拷贝文件夹和其所有的子文件（子文件夹）
+cp -r /www/beipetshop/[^upload]* /data/www/bc 拷贝除upload开头目录外的文件（文件及子文件）到bc目录
 mv ../app/YiiTestCscUser.ini ../app/y.ini 重命名，移动文件
 ls ~/t2 查看home目录下的t2目录下的所有文件（文件夹）
 ll config.inc.* 查找以config.inc.开头的所有文件
@@ -35,7 +36,7 @@ echo 'wokao' >> access.log 在文件的末尾追加一行
 　-i或–interactive 　删除既有文件或目录之前先询问用户。 
 　-r或-R或–recursive 　递归处理，将指定目录下的所有文件及子目录一并处理。 
 　-v或–verbose 　显示指令执行过程。 
-find . -type d -name ".svn"|xargs rm -rf 批量删除.svn文件夹
+find . -type d -name ".svn"|xargs rm -rf 批量删除.svn文件夹(-iname -i: 忽略大小写)
 
 
 # 用户相关
