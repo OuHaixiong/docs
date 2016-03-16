@@ -17,6 +17,7 @@ tar -zxvf archive_name.tar.gz -C /tmp/extract_here/ 用tar解压一个文件
 tar -jcvf archive_name.tar.bz2 directory_to_compress 用tar压缩TAR.BZ2目录
 tar -jxvf archive_name.tar.bz2 -C /tmp/extract_here/ 用tar解压缩TAR.BZ2文件
 tar -xf linux-3.14.13.tar.xz 用tar解压.xz文件
+tar -zcvf htdocs.tar.gz --exclude=/opt/apache/htdocs/uploads --exclude=/opt/apache/htdocs/cache  /opt/apache/htdocs 压缩一个目录（压缩除去目录之外的文件）
 
 
 *.tar.gz(*.tgz)   tar -zxvf x.tar.gz(解压 gzip)  tar的参数z是调用gzip解压，x是解包，v是校验，f是显示结果，y是调用bzip2解压，t是列出包的文件清单
