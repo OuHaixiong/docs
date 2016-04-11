@@ -1,50 +1,39 @@
 下载php对应版本的xdebug扩展 或 下载源代码
-http://www.xdebug.org/files/xdebug-2.2.5.tgz 下载  xdebug-2.2.5.tgz
-tar -zxvf xdebug-2.2.5.tgz 
-cd xdebug-2.2.5/
-/usr/bin/phpize
-./configure
+https://xdebug.org/files/xdebug-2.4.0.tgz [下载源码]
+tar -zxvf xdebug-2.4.0.tgz
+cd xdebug-2.4.0
+/usr/local/php/bin/phpize
+ ./configure --with-php-config=/usr/local/php/bin/php-config
 make
 make install
 
 
 修改php.ini配置，在最后加入
-
-[Xdebug]
-zend_extension="E:\wamp\bin\php\ext\php_xdebug.dll"
-;xdebug.var_display_max_depth=10
-;是否允许Xdebug跟踪函数调用，跟踪信息以文件形式存储，默认值为0
-xdebug.auto_trace=1 
-;是否允许Xdebug跟踪函数参数，默认值为0
-xdebug.collect_params=1
-;是否允许Xdebug跟踪函数返回值，默认值为0
-xdebug.collect_return=1
-;函数调用跟踪信息输出文件目录，默认值为/tmp
-xdebug.trace_output_dir="E:\xdebug"
-;打开xdebug的性能分析器，以文件形式存储，这项配置是不能以ini_set()函数配置的，默认值为0
-xdebug.profiler_enable=1
-;性能分析文件的存放位置，默认值为/tmp
-xdebug.profiler_output_dir="E:\xdebug"
-;Xdebug允许远程IDE连接
-xdebug.remote_enable=true
-;允许连接的zend studio的IP地址
-xdebug.remote_host=127.0.0.1
-;反向连接zend studio使用的端口
-xdebug.remote_port=9000
-;用于zend studio远程调试的应用层通信协议
-xdebug.remote_handler=dbgp
-
-;xdebug.profiler_output_name
-;性能分析文件的命名规则，默认值为cachegrind.out.%p
-;xdebug.trace_output_name
-;函数调用跟踪信息输出文件命名规则，默认为trace.%c
-
-;开启远程调试自动启动, 默认值：0
-;xdebug.remote_autostart=1 
+vim /usr/local/php/lib/php.ini
+[xdebug]
+;extension="E:\wamp\bin\php\ext\php_xdebug.dll"   ; 不能用extension，需要用zend_extension
+zend_extension=/usr/local/php/lib/php/extensions/no-debug-non-zts-20100525/xdebug.so
+;xdebug.var_display_max_depth=10                  ; 调试显示最大深度
+xdebug.auto_trace=1                               ; 是否允许Xdebug跟踪函数调用，跟踪信息以文件形式存储，默认值为0
+xdebug.collect_params=1                           ; 是否允许Xdebug跟踪函数参数，默认值为0
+xdebug.collect_return=1                           ; 是否允许Xdebug跟踪函数返回值，默认值为0
+xdebug.trace_output_dir="/data/logs/php"          ; 函数调用跟踪信息输出文件目录，默认值为/tmp      
+xdebug.profiler_enable=1                          ; 打开xdebug的性能分析器，以文件形式存储，这项配置是不能以ini_set()函数配置的，默认值为0
+xdebug.profiler_output_dir="/data/logs/php"       ; 性能分析文件的存放位置，默认值为/tmp
+xdebug.remote_enable=true                         ; xdebug允许远程IDE连接
+xdebug.remote_host=127.0.0.1                      ; 允许连接的zend studio的IP地址
+xdebug.remote_port=9000                           ; 反向连接zend studio使用的端口
+xdebug.remote_handler=dbgp                        ; 用于zend studio远程调试的应用层通信协议
+;xdebug.profiler_output_name                      ; 性能分析文件的命名规则，默认值为cachegrind.out.%p
+;xdebug.trace_output_name                         ; 函数调用跟踪信息输出文件命名规则，默认为trace.%c
+;xdebug.remote_autostart=1                        ; 开启远程调试自动启动, 默认值：0 
 ;一般来说，你需要使用明确的HTTP GET/POST变量来开启远程debug。而当这个参数设置为On，xdebug将经常试图去开启一个远程debug session并试图去连接客户端，即使GET/POST/COOKIE变量不是当前的。
 
-重起apache
+重起php:
+ps -ef |grep php
+kill -quit 27764
+/usr/local/php/sbin/php-fpm
+用phpinfo查看，配置到此结束。
 
 这里容易忽视的一个问题是xdebug.remote_host信息的配置，如果你使用的是局域网或无线路由器，将xdebug.remote_host配置为127.0.0.1是无用的，会导致无法使用zend studio调试PHP，zend studio的单步调试按钮也无效！必须将xdebug.remote_host配置为zend studio安装机器的实际地址，IP地址可以通过ipconfig查看，由于我使用的是无线路由器，所以我将xdebug.remote_host配置为192.168.1.100。
-http://www.phptogether.com/xdebugdoc/all_settings.html 参数中文帮助文档
 http://hoarn.blog.51cto.com/1642678/1184441
