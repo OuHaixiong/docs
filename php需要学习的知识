@@ -1,0 +1,101 @@
+
+linux 文本信息处理
+
+学习c语言（性能、内存控制）
+
+思考并学习高性能、高可用（包括可扩展性）、高并发系统的架构
+
+nginx和apache的区别
+
+php是否要使用fast-cgi模式
+
+php和nginx、mysql各配置项的含义
+
+redis和memcache的区别？各自的优缺点
+
+主从同步，数据一致性如何解决？读取缓存和数据库的数据一致性如果保证？
+
+操作系统原理，数据结构和算法（知其所以然）、设计模式
+
+学习文件系统GFS，NFS，XFS，NTFS，FastDFS（轻量级分布式文件系统）
+
+lvs  
+keepalived 
+drbd 
+ 
+
+Page Speed : 测试网页性能工具
+YSlow可以对网站的页面进行分析，并告诉你为了提高网站性能，如何基于某些规则而进行优化.
+zabbix监控 ,可在linux下直接部署  这个简单些，Cacti+nagios配置复杂
+
+webbench 网站压力测试工具
+webbench最多可以模拟3万个并发连接去测试网站的负载能力
+安装:
+wget http://blog.s135.com/soft/linux/webbench/webbench-1.5.tar.gz
+tar zxvf webbench-1.5.tar.gz
+cd webbench-1.5
+make && make install
+使用:
+webbench -c 500 -t 30 http://127.0.0.1/test.jpg
+　　参数说明：-c表示并发数，-t表示时间(秒)
+结果:
+web# webbench -c 500 -t 30 http://10.122.82.243:/news/index.php
+Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
+Benchmarking: GET http://10.122.82.243:/news/index.php
+500 clients, running 30 sec.
+Speed=1274 pages/min, 566020 bytes/sec.
+Requests: 637 susceed, 0 failed.
+
+
+artDialog 是个很好的js弹框，值得学习
+
+需求分析
+功能设计、数据库设计
+架构设计
+solarium
+lucene
+
+Hadoop Distributed File System (HDFS) 分布式文件系统
+Google File System(GFS)
+mfs 不建议使用
+ceph 不稳定，目前还在实验阶段，不适合于生产环境
+GlusterFS：较多用户使用
+
+Lustre： 复杂
+
+tfs    
+dfs
+
+Fabric 的强大之处在于可以用 Python 编写各种任务（函数），这些任务可以指定到任何服务器上（通过 ssh），非常适合管理大量服务器、批量处理任务。
+
+自动化运维工具之ansible:只支持python 2.x
+
+
+
+源码市场  Binpress 很好的一个想法，设计可以卖，代码也可以卖
+
+水浒英雄传游戏
+
+ruby on rails mvc框架经典
+
+Asset Pipeline 打包前端资源http://guides.ruby-china.org/asset_pipeline.html
+grunt貌似也可以打包前端
+F.I.S工具是个更复杂、功能更强，结合后端进行的部署方案
+
+MHA 用来监控mysql和对mysql数据库进行切换
+MySQL Cluster
+Mysql cluster是真正的高可用解决方案，但是必须得用NDB存储引擎。如果你用innodb，将不能发挥mysql cluster集群优势。
+
+Swoole开源框架
+
+PECL（http://pecl.php.net）有些什么？和pear（http://pear.php.net/）的区别？
+pear：是用纯粹的PHP代码写函数和类
+pecl：是用c或者c++编写外部模块加载至php中
+都为php提供函数和类
+
+Symfony2框架
+
+HHVM facebook中间件
+
+理解事件驱动：Prado框架
