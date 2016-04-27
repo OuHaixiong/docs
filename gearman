@@ -62,11 +62,17 @@ Default TCP Port         4730
 首先在192.168.17.130启动job
 gearmand -d
 [默认日记文件在：/usr/local/var/log/gearmand.log  如果目录不能写或不存在就需要创建并给权限]
-gearmand -L 10.0.0.51 -p 4730 -u root -d
+gearmand -L 10.0.0.51 -p 4730 -u root -d 
+或 /usr/local/sbin/gearmand -L 192.168.253.4 -p 4730 -d  （特别注意了，一定要监控对外的ip地址，不能为127.0.0.1）
  -d 以守护进程启动(deamon) 
- -L 表示要监听IP   
- -p 表示要监听的端口 
-可以用 netstat -tupln 查看4730端口是否存在
+ -L 表示要监听IP(listen)   
+ -p 表示要监听的端口（port） 
+ 更多参数可上网查阅
+可以用 netstat -tupln |grep 4730 查看4730端口是否存在
+或通过 ps  axu |grep gearmand 查看是否进程在
+
+退出可直接kill掉进程
+kill -9 2418 或 kill -quit 18408
 
 
 client代码如下：
@@ -99,14 +105,23 @@ while($worker->work());
 
 function title_function($job) {
     $str = $job->workload(); // 貌似只可以传一个参数
-    return strrev($str);  // 这里的处理与第一台的不一样，为的是测试（演示效果），实际运用中，我们做负载均衡是更多的是一样的代码
+     sleep(15);
+    return strrev($str) . ' - 17.130';  // 这里的处理与第一台的不一样，为的是测试（演示效果），实际运用中，我们做负载均衡是更多的是一样的代码
 }
+
 
 分别运行worker，
 sudo /usr/bin/php -c /etc/php5/apache2/php.ini[添加-c参数是为了加载php.ini配置文件]  /home/u32/www/yiitest/workers/test.php
 /usr/local/php/bin/php /home/bear/www/test.php
-然后在client访问：可以看到不同的结果：5和evniL
-worker应该做成守护进程（CLI模式）如：nohup /usr/local/php/bin/php -c /usr/local/php/lib/php.ini  /data/www/gearmanWorker.php &
+
+client代码：
+<?php
+$client = new GearmanClient();
+$client->addServer('192.168.253.4', 4730);
+print_r($client->doNormal('title', 'Linve'));
+
+然后在client访问http://192.168.17.130/gearmanClient.php：可以看到不同的结果：5和evniL
+worker应该做成守护进程（CLI模式）如：nohup /usr/local/php/bin/php -c /usr/local/php/lib/php.ini /data/www/gearmanWorker.php & (还需要加写日记文件)
 job、client、worker都可以开启多个
 
      命令行
