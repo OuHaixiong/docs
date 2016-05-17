@@ -1,0 +1,76 @@
+#MySQL数据源配置，详情请查看：http://www.coreseek.cn/products-install/mysql/
+#请先将var/test/documents.sql导入数据库，并配置好以下的MySQL用户密码数据库
+
+# 源定义
+source mysql
+{
+    type                    = mysql # 表示使用mysql数据源
+    sql_host                = 192.168.253.4 # 表示数据库服务器的链接地址
+    sql_user                = mvcUser
+    sql_pass                = 123456
+    sql_db                  = mvc # 表示数据库的名称
+    sql_port                = 3306 # 表示数据库的端口
+    sql_query_pre           = SET NAMES utf8  # 设定输出字符集为UTF-8
+    sql_query               = SELECT id, group_id, UNIX_TIMESTAMP(date_added) AS date_added, title, content FROM documents 
+                            # 从数据库之中读取数据的SQL语句设置
+                            # sql_query第一列id需为整数，且为主键[文档编号]。id：自增字段，表的主键，整数。不需要也不能在配置中设定。
+                            # 使用SetFilter()过滤，或者使用SetIDRange()过滤；SphinxSE之中，使用filter或者minid, maxid过滤
+                            # group_id：整数字段
+                            # date_added：整数字段，使用UNIX_TIMESTAMP可将datetime类型转换为整数的timestamp
+                            # title：字符串字段，被全文索引
+                            # content：作为文本字段，被全文索引
+                            # score：浮点数字段
+                            # 查询过滤：分组（group_id），时间（date_added）
+    sql_attr_uint           = group_id           # 从SQL读取到的值必须为整数
+                            # 整数属性，以上group_id、date_added都可用此设置，使用SetFilter()过滤，或者使用SetFilterRange()过滤；
+                            # SphinxSE之中，使用filter或者range过滤；
+    # sql_attr_float　　　      : 浮点数属性，以上score可用此设置，使用SetFilterFloatRange()进行范围过滤，SphinxSE之中，使用range过滤；                        
+    sql_attr_timestamp      = date_added # 从SQL读取到的值必须为整数，作为时间属性
+                            # timestamp属性，整数，以上date_added可用此设置，可用SetFilter()过滤 或者使用SetFilterRange()过滤；
+　　　　　　　　　　                         # SphinxSE之中，使用filter或者range过滤
+    # sql_attr_str2ordinal  : 字符串序列属性，以上title可用此设置，仅用于根据该字段排序；但是设置后，该属性不可用于过滤，也不会保存实际字符串内容，更不能全文检索
+　　　　　　　　　　                         # 搜索结果中，其对应的信息为整数，由系统计算出来的排序序列值
+    # 全文检索字段　　　               : 全文检索字段，以上title、content等字符串或者文本的字段都可用此设置；任何出现在SQL语句中，既不是ID属性，
+                            # 也没有使用“sql_attr_类型”设置的字段，都是全文字段；使用Query()搜索；SphinxSE之中，使用query的查询文本进行搜索
+    sql_query_info_pre      = SET NAMES utf8 # 命令行查询时，设置正确的字符集
+    sql_query_info          = SELECT * FROM documents WHERE id=$id # 命令行查询时，从数据库读取原始数据信息
+}
+
+# 索引定义
+index mysql
+{
+    source                  = mysql # 对应的source名称
+    path                    = /usr/local/coreseek/var/data/mysql # 索引数据存放的绝对路径
+    docinfo                 = extern
+    mlock                   = 0
+    morphology              = none
+    min_word_len            = 1
+    html_strip              = 0
+
+    #中文分词配置，详情请查看：http://www.coreseek.cn/products-install/coreseek_mmseg/
+    charset_dictpath        = /usr/local/mmseg3/etc/ # BSD、Linux环境下设置，/符号结尾
+    #charset_dictpath       = etc/    # Windows环境下设置，/符号结尾，最好给出绝对径路，例如：C:/usr/local/coreseek/etc/...
+    charset_type            = zh_cn.utf-8
+}
+
+# 全局索引定义
+indexer
+{
+    mem_limit               = 128M
+}
+
+# 搜索主进程服务定义
+searchd
+{
+    listen                  = 9312
+    read_timeout            = 5
+    max_children            = 30
+    max_matches             = 1000
+    seamless_rotate         = 0
+    preopen_indexes         = 0
+    unlink_old              = 1
+    pid_file = /usr/local/coreseek/var/log/searchd_mysql.pid  #请修改为实际使用的绝对路径，例如：/usr/local/coreseek/var/...
+    log = /usr/local/coreseek/var/log/searchd_mysql.log        #请修改为实际使用的绝对路径，例如：/usr/local/coreseek/var/...
+    query_log = /usr/local/coreseek/var/log/query_mysql.log #请修改为实际使用的绝对路径，例如：/usr/local/coreseek/var/...
+    binlog_path =                                #关闭binlog日志
+}

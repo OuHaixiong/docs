@@ -104,4 +104,6 @@ HHVM facebook中间件
 
 先学习shell脚本，在学习Perl，在学习python
 
+中文分词：SCWS、MMSEG、friso（php中文分词扩展robbe）、php-mmseg（php对中文分词的一个扩展库）、sfc（sphinx-for-chinese）[和php-mmseg是同一作者]、jieba-php（还有python版等）
+
 

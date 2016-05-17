@@ -27,6 +27,7 @@ configure.in:26: error: possibly undefined macro: AM_PROG_LIBTOOL
     $ export PATH=/usr/local/bin:$PATH   (可以通过echo $PATH查看环境变量的路径)
     $ export LC_ALL=zh_CN.UTF-8
     $ export LANG=zh_CN.UTF-8
+    
  如果没有安装m4、autoconf、automake、libtool就需要如下安装：
  curl -O -L http://mirrors.kernel.org/gnu/m4/m4-1.4.13.tar.gz   
  // -O ： 可以把目标的文件保存到本地（类似wget）；-L：只显示头部信息；-i显示全部信息；-v：显示get请求全过程解析；-l/--list-only：列出ftp目录下的文件名称
@@ -34,18 +35,21 @@ configure.in:26: error: possibly undefined macro: AM_PROG_LIBTOOL
  cd m4-1.4.13
  ./configure --prefix=/usr/local
  make && make install
+ 
  cd ../
  curl -O -L http://mirrors.kernel.org/gnu/autoconf/autoconf-2.65.tar.gz
  tar -zxvf autoconf-2.65.tar.gz 
  cd autoconf-2.65
  ./configure --prefix=/usr/local
  make && make install
+ 
  cd ../
  curl -O -L http://mirrors.kernel.org/gnu/automake/automake-1.11.tar.gz
  tar -zxvf automake-1.11.tar.gz
  cd automake-1.11
  ./configure --prefix=/usr/local
  make && make install
+ 
  cd ../
  wget http://mirrors.kernel.org/gnu/libtool/libtool-2.4.6.tar.gz
  （yum -y install wget ； -O ： 下载并以不同的文件名保存，如：wget -O wordpress.zip http://www.centos.bz/download.php?id=1080 ）
@@ -55,7 +59,8 @@ configure.in:26: error: possibly undefined macro: AM_PROG_LIBTOOL
  make && make install
  cd ../
 
-4, 重新编译：cd coreseek-4.1-beta/mmseg-3.2.14 && ./bootstrap
+4, 其实，如果手动安装完上面的四个包后，就不需要这步了[不需要yum安装]，但特别注意了需执行两条命令：aclocal && coreseek-4.1-beta/mmseg-3.2.14/bootstrap
+重新编译：cd coreseek-4.1-beta/mmseg-3.2.14 && ./configure --prefix=/usr/local/mmseg3
  如果出现如下错误：
  config.status: creating Makefile
  config.status: WARNING:  'Makefile.in' seems to ignore the --datarootdir setting
@@ -72,7 +77,7 @@ configure.in:26: error: possibly undefined macro: AM_PROG_LIBTOOL
  autoheader
  make clean
 
-5, ./configure --prefix=/usr/local/mmseg3 （配置成功：真他妈的郁闷，还不能用yum安装的，非得手动安装到/usr/local目录下）
+5, ./configure --prefix=/usr/local/mmseg3 （配置成功：真他妈的郁闷，还不能用yum安装的[autoconf、automake]，非得手动安装到/usr/local目录下）
 
 6, 编译并安装mmseg：make && make install
 
@@ -103,7 +108,7 @@ ERROR: index 'xml': failed to configure some of the sources, will not index.
  /etc/rc.d/init.d/iptables save
  /etc/init.d/iptables restart
   
-10, 至此安装完毕。遇到问题如下：
+10, 下面是可能遇到问题如下：
  问题：
  libsphinx.a(sphinx.o): In function `xmlUnknownEncoding':
 /data/tool/coreseek-4.1-beta/csft-4.1/src/sphinx.cpp:22292: undefined reference to `libiconv_open'
@@ -123,3 +128,34 @@ LIBS = -ldl -lm -lz -lexpat -liconv  -L/usr/local/lib -lrt  -lpthread
 请找到库文件libmysqlclient.a所在的目录，一般是/usr/local/mysql/lib，请替换为实际的
 configure参数加上：--with-mysql-includes=/usr/local/mysql/include --with-mysql-libs=/usr/local/mysql/lib，执行后，重新编译安装
 
+
+11, 下面用程序进行调用，搜索测试
+    /usr/local/coreseek/bin/indexer -c /usr/local/coreseek/etc/mvc.product.conf --all  // 建立索引，后面的参数--all：表示建立此配置中的所有索引，也可指定为某个索引，如：product_i
+         配置文件 mvc.product.conf 请参考配置备份
+         
+12, 启动搜索进程：
+    /usr/local/coreseek/bin/searchd -c /usr/local/coreseek/etc/mvc.product.conf
+    
+13， 编写程序进行测试：
+        include_once ROOT_PATH . '/../../libraries/sphinxapi.php';
+        $s = new SphinxClient();
+        $s->SetServer('192.168.253.4', 9312);
+        $s->SetConnectTimeout(3); 
+        $s->SetArrayResult(true); // 特别注意此参数，默认为false：结果($res['matches'])的key为主键id，如果设置为true：会把主键id放在value中
+        $s->setMatchMode(SPH_MATCH_ALL);
+        $res = $s->query('搜索', 'mysql'); 
+        print_r($res);
+        if ($res === false) {
+            die ('Query failed, ERROR: ' . $s->GetLastError() . " \n");
+        } else {
+            if ($res['total'] == 0) {
+                die('没有符合的记录');
+            }
+            foreach ($res['matches'] as $key=>$doc) {
+                var_dump($doc);
+            }
+        }
+
+14， 加入开机启动：[数据源mysql的数据脚本在./coreseek-4.1-beta/testpack/var/test/documents.sql]
+/usr/local/coreseek/bin/searchd -c /usr/local/coreseek/etc/csft_mysql.conf
+至此全部安装完毕

@@ -1,0 +1,49 @@
+source product_s
+{       
+        type                    = mysql     
+        sql_host                = 192.168.253.4
+        sql_user                = mvcUser
+        sql_pass                = 123456
+        sql_db                  = mvc
+        sql_port                = 3306  # optional, default is 3306
+        
+        sql_query               = SELECT id, name, categoryId, description, price, UNIX_TIMESTAMP(createdTime), UNIX_TIMESTAMP(updatedTime) FROM Product
+        
+        sql_attr_uint           = id
+        sql_attr_uint           = price
+        sql_attr_timestamp      = createdTime
+        sql_attr_timestamp      = updatedTime
+        
+        sql_query_info          = SELECT * FROM Product WHERE id=$id
+}
+
+
+index product_i
+{
+        source                  = product_s
+        path                    = /usr/local/coreseek/var/data/product
+        docinfo                 = extern
+        charset_type            = utf-8
+}
+
+indexer
+{
+        mem_limit               = 256M
+}
+
+
+searchd
+{
+        listen                  = 9312
+#       listen                  = 9306:mysql41
+        log                     = /usr/local/coreseek/var/log/product_searchd.log
+        query_log               = /usr/local/coreseek/var/log/product_query.log
+        read_timeout            = 5
+        max_children            = 30
+        pid_file                = /usr/local/coreseek/var/log/product.pid
+        max_matches             = 1000
+        seamless_rotate         = 1
+        preopen_indexes         = 1
+        unlink_old              = 1
+        workers                 = threads # for RT to work
+}
