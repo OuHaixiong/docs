@@ -20,14 +20,18 @@ xdebug.collect_return=1                           ; 是否允许Xdebug跟踪函�
 xdebug.trace_output_dir="/data/logs/php"          ; 函数调用跟踪信息输出文件目录，默认值为/tmp      
 xdebug.profiler_enable=1                          ; 打开xdebug的性能分析器，以文件形式存储，这项配置是不能以ini_set()函数配置的，默认值为0
 xdebug.profiler_output_dir="/data/logs/php"       ; 性能分析文件的存放位置，默认值为/tmp
-xdebug.remote_enable=true                         ; xdebug允许远程IDE连接
-xdebug.remote_host=127.0.0.1                      ; 允许连接的zend studio的IP地址
-xdebug.remote_port=9000                           ; 反向连接zend studio使用的端口
+xdebug.remote_enable=1                            ; xdebug允许远程IDE连接
+xdebug.remote_host=127.0.0.1                      ; 允许连接的zend studio的IP地址；特别注意这里指的是安装IDE那台电脑的ip，并不是php服务器的ip
+xdebug.remote_port=9000                           ; 反向连接zend studio使用的端口；这里也是安装IDE那台电脑监控的端口
 xdebug.remote_handler=dbgp                        ; 用于zend studio远程调试的应用层通信协议
 ;xdebug.profiler_output_name                      ; 性能分析文件的命名规则，默认值为cachegrind.out.%p
 ;xdebug.trace_output_name                         ; 函数调用跟踪信息输出文件命名规则，默认为trace.%c
-;xdebug.remote_autostart=1                        ; 开启远程调试自动启动, 默认值：0 
-;一般来说，你需要使用明确的HTTP GET/POST变量来开启远程debug。而当这个参数设置为On，xdebug将经常试图去开启一个远程debug session并试图去连接客户端，即使GET/POST/COOKIE变量不是当前的。
+xdebug.remote_connect_back=1                      ; 默认值：0；如果启用该配置， xdebug.remote_host设置将被忽略， Xdebug将尝试连接
+;至发起HTTP请求的客户端 .它会检查$_SERVER[‘REMOTE_ADDR’]变量来查找该使用哪个IP地址. 请注意不能使用no值来过滤 , 任何能够连接到web服务器的人
+;都可以启动调试会话,即使他们的地址跟 xdebug.remote_host的设置不匹配.
+xdebug.remote_autostart=1                         ; 开启远程调试自动启动, 默认值：0 
+;一般来说，你需要使用明确的HTTP GET/POST变量来开启远程debug。而当这个参数设置为On，xdebug将经常试图去开启一个远程debug session并试图去
+;连接客户端，即使GET/POST/COOKIE变量不是当前的。
 
 重起php:
 ps -ef |grep php
@@ -35,5 +39,15 @@ kill -quit 27764
 /usr/local/php/sbin/php-fpm
 用phpinfo查看，配置到此结束。
 
-这里容易忽视的一个问题是xdebug.remote_host信息的配置，如果你使用的是局域网或无线路由器，将xdebug.remote_host配置为127.0.0.1是无用的，会导致无法使用zend studio调试PHP，zend studio的单步调试按钮也无效！必须将xdebug.remote_host配置为zend studio安装机器的实际地址，IP地址可以通过ipconfig查看，由于我使用的是无线路由器，所以我将xdebug.remote_host配置为192.168.1.100。
+这里容易忽视的一个问题是xdebug.remote_host信息的配置，如果你使用的是局域网或无线路由器，将xdebug.remote_host配置为127.0.0.1是无用的，
+会导致无法使用zend studio调试PHP，zend studio的单步调试按钮也无效！必须将xdebug.remote_host配置为zend studio安装机器的实际地址，
+IP地址可以通过ipconfig查看，由于我使用的是无线路由器，所以我将xdebug.remote_host配置为192.168.1.100。
 http://hoarn.blog.51cto.com/1642678/1184441
+
+下面是在Eclipse for PHP Developers中配置xdebug调试：
+找到菜单Window->Preferences->PHP->Debug
+找到Server Settings中的PHP Server，单击默认的servers，选择Edit
+Name为xdebug，Debuger选择XDebug，BaseURL写http://mvc.com；点击确定
+然后在Debug的PHP Server中选择刚才命名的xdebug，CLI Settings中的配置都不用动，点击OK就可以了
+找到Debug下的Installed Debuggers,选择XDebug单击Configure，确保Debug Port的端口号是和php配置中的一样，默认9000，其他的配置都不需要动
+单击右下角的OK按钮就可以用eclipse调试代码了
