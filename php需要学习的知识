@@ -108,4 +108,6 @@ HHVM facebook中间件
 
 中文分词：SCWS、MMSEG、friso（php中文分词扩展robbe）、php-mmseg（php对中文分词的一个扩展库）、sfc（sphinx-for-chinese）[和php-mmseg是同一作者]、jieba-php（还有python版等）
 
+学习使用Fiddler或其他抓包工具
+
 
