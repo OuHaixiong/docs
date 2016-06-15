@@ -180,7 +180,7 @@ browseable = no
 guest ok = yes
 
 7，设置访问密码和关闭简易防火墙，重启samba服务器就能用了
-smbpasswd -a root
+smbpasswd -a root   // 添加访问samba服务器的用户和密码
 service iptables stop
 service smb reload
 
@@ -189,3 +189,20 @@ service smb reload
 /etc/rc.d/init.d/iptables save
 /etc/init.d/iptables restart
 
+特特别注意了：修改/etc/selinux/config 中的 SELINUX=disabled 然后重启电脑（修改linux非固化），否则就算配置正确了windows也是提示没有权限访问
+
+
+8，使用linux访问samba服务器
+Samba服务在linux下同样可以访问。前提是你的linux安装了samba-client软件包。安装完后就可以使用smbclient命令了。
+smbclient //IP/共享名  -U 用户名
+如：[root@localhost]# smbclient //10.0.4.67/myshare/ -U user1
+Password:
+Domain=[LOCALHOST] OS=[Unix] Server=[Samba 3.0.33-3.29.el5_6.2]
+smb: \>
+出现如上所示的界面。可以打一个”?”列出所有可以使用的命令。常用的有cd, ls, rm, pwd, tar, mkdir, chown, get, put等等，使用help + 命令可以打印该命令如何使用，其中get是下载，put是上传。
+
+另外的方式就是通过mount挂载了：
+如：
+mount -t cifs //10.0.4.67/myshare /mnt -o username=user1,password=123456
+格式就是这样，要指定-t cifs //IP/共享名本地挂载点  -o后面跟username 和 password
+挂载完后就可以像使用本地的目录一样使用共享的目录了。
