@@ -1,0 +1,88 @@
+
+下面手动安装MariaDB 10.1.14
+
+1，下载源码包mariadb-10.1.14.tar.gz
+
+2，添加用户和群组
+# groupadd -r mariadb
+# useradd -r -g mariadb -s /sbin/nologin mariadb
+
+3，创建数据库保存文件
+# mkdir -p /data/db/mariadata{1..3}   // 创建完后再目录/data/db下有三个文件夹（mariadata1、mariadata2、mariadata3）
+
+4，修改目录权限
+# chown -R mariadb:mariadb /data/db/mariadata1 /data/db/mariadata2 /data/db/mariadata3
+
+5，安装依赖组件
+# yum -y install gcc gcc-c++ make cmake ncurses libxml2 libxml2-devel openssl-devel bison bison-devel
+
+6，解压MariaDB源码包
+# tar -zxvf mariadb-10.1.14.tar.gz
+
+7，预编译
+# cd mariadb-10.1.14
+# cmake ./ -DCMAKE_INSTALL_PREFIX=/usr/local/mariadb -DMYSQL_DATADIR=/data/db/mariadata  -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_ARCHIVE_STPRAGE_ENGINE=1 -DWITH_BLACKHOLE_STORAGE_ENGINE=1 -DWIYH_READLINE=1 -DWIYH_SSL=system -DVITH_ZLIB=system -DWITH_LOBWRAP=0 -DMYSQL_UNIX_ADDR=/tmp/maria.sock -DDEFAULT_CHARSET=utf8 -DDEFAULT_COLLATION=utf8_general_ci
+
+8，编译并安装
+# make -j 4   // -j 4 表示4核处理 能快点编译
+# make install
+
+9，输出环境变量
+# vim /etc/profile.d/maria.sh 写入：
+export PATH=$PATH:/usr/local/mariadb/bin/
+# chmod +x /etc/profile.d/maria.sh
+# /etc/profile.d/maria.sh
+
+10，输出头文件库文件，man帮助文档
+# vim /etc/ld.so.conf.d/maria.conf 写入
+/usr/local/mariadb/lib
+# vim /etc/man.config 写入
+MANPATH /usr/local/mariadb/man
+# ldconfig -v     //  重新建立操作系统库缓存
+# man -M /usr/local/mariadb/man mysqld
+如果提示 -bash:man:command not found 就执行 yum install man
+
+11，修改配置文件和启动脚本
+# cp /data/tool/mariadb-10.1.14/support-files/mysql.server /etc/init.d/mariadbd
+# vim /etc/init.d/mariadbd 修改
+basedir=/usr/local/mariadb
+# chmod +x /etc/init.d/mariadbd
+# chkconfig mariadbd on
+# cp /data/tool/mariadb-10.1.14/support-files/my-medium.cnf /etc/my.cnf
+# vim /etc/my.cnf 在 [mysqld] 段新增
+user      = mariadb                           # 运行用户
+datadir   = /data/db/mariadata1               # 数据库文件存储位置
+log-error = /var/log/mariadb/maria_error.log  # 数据库错误日记文件，如果启动错误，可查看此文件详细信息
+
+12，初次安装
+# /usr/local/mariadb/scripts/mysql_install_db --basedir=/usr/local/mariadb --datadir=/data/db/mariadata1/ --user=mariadb
+
+13，启动数据库服务
+# /etc/init.d/mariadbd start 或 service mariadbd start
+可用 service mariadbd start/stop/restart 命令来启动、停止、重启MariaDB服务
+
+14，修改root用户密码
+# /usr/local/mariadb/bin/mysqladmin -u root password
+# service mariadbd restart # 重启服务，即可用mysql客户端进行连接测试：mysql -uroot -h127.0.0.1 -P3306 -p
+
+15，开启3306端口及远程连接
+# mysql -uroot -h127.0.0.1 -P3306 -p
+# MariaDB [(none)]> use mysql;
+# MariaDB [mysql]> update user set host='%' where user='root';
+ERROR 1062 (23000): Duplicate entry '%-root' for key 'PRIMARY'
+# MariaDB [mysql]> select host,user from user;
++-----------+------+
+| host      | user |
++-----------+------+
+| %         | root |       // 看到有%的就是能远程连接的
+| 127.0.0.1 | root |
+| ::1       | root |
+| centos66  |      |
+| centos66  | root |
+| localhost |      |
++-----------+------+
+6 rows in set (0.00 sec)
+# service mariadbd restart // 重启服务
+# /sbin/iptables -I INPUT -p tcp --dport 3306 -j ACCEPT
+# /etc/rc.d/init.d/iptables save
+# /etc/init.d/iptables restart
