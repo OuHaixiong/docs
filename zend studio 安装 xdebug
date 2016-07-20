@@ -33,6 +33,9 @@ xdebug.remote_autostart=1                         ; 开启远程调试自动启�
 ;一般来说，你需要使用明确的HTTP GET/POST变量来开启远程debug。而当这个参数设置为On，xdebug将经常试图去开启一个远程debug session并试图去
 ;连接客户端，即使GET/POST/COOKIE变量不是当前的。
 
+检查是否有/data/logs/php文件夹存在，如果不存在此目录，运行如下命令建立目录：
+mkdir -p /data/logs/php
+
 重起php:
 ps -ef |grep php
 kill -quit 27764
