@@ -1,0 +1,14 @@
+
+，413 Request Entity Too Large
+原因：上传的文件大小（或Post请求时Body内容Post的数据大小）超过了nginx能支持的最大大小
+解决：打开nginx主配置文件nginx.conf，找到http{}段，修改或者添加如下配置：
+vim /usr/local/webserver/nginx/conf/nginx.conf
+client_max_body_size 150m;    （默认1M）
+重启nginx：
+ps -ef |grep nginx
+kill -HUP 1460
+注意：如果后端是以php运行的话，这个client_max_body_size大小要和php.ini中的如下值的最大值差不多或者稍大，这样就不会因为提交数据大小不一致出现错误。
+post_max_size = 200M
+upload_max_filesize = 150M
+
+，
