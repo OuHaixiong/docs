@@ -19,6 +19,15 @@ server {
         #    rewrite (.*) /index.php;
         #}
     }
+    
+    # 设置过期时间，达到缓存的目的
+    location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$ {
+        expires 30d; 
+    }
+    
+    location ~ .*\.(js|css)?$ {
+        expires 24h;
+    }
 
     location ~ \.php { # location ~ .*\.php$ {
         fastcgi_pass   127.0.0.1:9000;

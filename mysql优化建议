@@ -20,6 +20,7 @@ mysql优化建议：
   sort： 排序
 
 5，表示状态的字段时，用tinyint(2)[不推荐使用enum],用正数表示正常状态，负数表示非正常状态，如：status：-1：已删除；1：正常。尽量避免使用0。
+ 如果表示true或false时，可以用0表示false，1表示true
   如性别：  1：男；2：女；3：人妖
 
 6，所有字段需要设置默认值，如果与业务有关的判断需在程序中实现，如：栏目名称字段（name）是必填项，不能为空，需在程序中进行判断，不应在数据库中设置not null，如下正确应该如：
@@ -35,7 +36,7 @@ mysql优化建议：
 
 10，绝对不允许用mysql的关键字做字段名，如 ，用order做排序字段名。下面列出部分关键字：
   select、insert、delete、update、use、limit、like、order、by、as、and、or、desc、dec、asc、call、in、on、out、add、all、alter、before、between、from、bigint、int、
-  both、char、varchar、where、with、exit、goto、tinyint、character、count等，更多关键字请看：http://www.360doc.com/content/12/0203/11/3688062_183844013.shtml
+  both、char、varchar、where、with、exit、goto、tinyint、character、count、key 等，更多关键字请看：http://www.360doc.com/content/12/0203/11/3688062_183844013.shtml
 
 11，字段如果表示是否XXX，最好用is开头，如，是否删除：isDelete。字段名的单词不建议缩写，如果单词过长，可以考虑动词[动词会比名词短点]或换个单词，
   如：描述description不建议缩写成des；位置position不建议缩写成pos

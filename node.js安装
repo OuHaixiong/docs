@@ -1,4 +1,8 @@
 
+nodejs需要Python 2.6 or 2.7 
+通过python -V可以查看Python的版本
+
+下面是通过源码安装nodeJs 0.12.3
 1，下载源码包：https://nodejs.org/download/   node-v0.12.3.tar.gz
 2，解压文件：tar -zxvf node-v0.12.3.tar.gz
 3，创建编译文件：
@@ -7,3 +11,25 @@
 4，编译并安装：make && make install
 5，测试：node --version
 6，后台运行：nohup node  /data/www/push/app.js >/data/logs/push.log 2>&1 &
+
+下面源码安装node.js v4.5.0
+1，下载源码node-v4.5.0
+
+
+
+下面通过nodejs的linux二进制包进行安装
+1，下载linux二进制包：node-v4.5.0-linux-x64.tar.xz（Linux Binarie）
+2，解压文件
+# tar -xvf node-v4.5.0-linux-x64.tar.xz
+# cd node-v4.5.0-linux-x64
+# cd bin
+3，运行如下命令
+# ./node -v
+# ./npm -v
+如果显示出版本号说明我们下载的程序包是没有问题
+4，拷贝目录到/usr/local/node中
+mv /data/tool/node-v4.5.0-linux-x64 /usr/local/node
+5，作软连接，让全局都能使用nodejs
+ln -s /usr/local/node/bin/node /usr/local/bin/node
+ln -s /usr/local/node/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
+至此，node部署完毕，现在可以在任意目录下运行node和npm了。

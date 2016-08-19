@@ -1,0 +1,8 @@
+
+下面是oc_setting表下的部分数据
+
+,`code`='config' and `key`='config_seo_url'：是否开启seo url，1：开启，0：关闭
+
+,`code`='productbundles' and `key`='productbundles_custom'：后台所有的bundles（销售组合，可在总价上减少一点的金额）
+
+
