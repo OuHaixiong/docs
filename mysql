@@ -44,6 +44,10 @@ drop table 表名;            删除表
   查询当前用户：select user();
   查询数据库版本：select version();
   查询当前使用的数据库：select database();
+ 
+mysql将查询结果导出csv文件的方法:(已验证)
+select * from oc_information into outfile "/data/db/export/information.csv" fields terminated by ",";
+
   
   1、删除student_course数据库中的students数据表：
   rm -f student_course/students.*

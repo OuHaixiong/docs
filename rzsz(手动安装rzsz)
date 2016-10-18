@@ -1,0 +1,20 @@
+
+下面手动安装rzsz：（手动安装lszrz，用于xshell上传和下载文件）
+默认安装目录在：/usr/local/bin
+
+1，通过wget下载lrzsz软件 ：
+# wget https://ohse.de/uwe/releases/lrzsz-0.12.20.tar.gz
+
+2，将下载的软件放在 /tmp目录下：
+      解压并进入目录
+# cd /tmp
+# tar -zxvf lrzsz-0.12.20.tar.gz
+# cd lrzsz-0.12.20
+
+3，使用如下命令安装
+# ./configure [--prefix=/usr/local/lrzsz] 如果不指定安装目录，将安装到/usr/local/bin目录下
+# sudo make
+# sudo make install
+# cd /usr/bin
+# ln -s /usr/local/lrzsz/bin/lrz rz
+# ln -s /usr/local/lrzsz/bin/lsz sz
