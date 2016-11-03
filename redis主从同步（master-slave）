@@ -27,7 +27,7 @@ mkdir -p /usr/local/redis/{bin,etc,var}
 cp redis.conf /usr/local/redis/etc/  
 cp /usr/local/bin/redis-* /usr/local/redis/bin/ 
 
-3，修改配置文件如下： vim /usr/local/redis/etc/redis.conf
+3，修改配置文件如下： vim /usr/local/redis/etc/redis.conf  (具体配置文件可参考“配置备份/redis_master.conf”)
 daemonize yes
 pidfile /usr/local/redis/var/redis.pid
 port 6379
@@ -76,6 +76,13 @@ client-output-buffer-limit pubsub 32mb 8mb 60
 hz 10
 aof-rewrite-incremental-fsync yes
 
+创建日志文件夹（日志目录）：mkdir -p /data/logs/redis/（如果没有的话）
+创建数据目录：mkdir -p /data/db/redis/ （如果没有的话）
+如果需要设置密码；如下：
+vim redis.conf   把
+# requirepass foobared   改成
+requirepass ouhaixiong
+
 4，命令行下进行测试：
 先创建数据文件夹：mkdir -p /data/db/redis/
 sudo /usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf （启动redis）
@@ -91,10 +98,21 @@ OK
 (nil)
 192.168.17.130:6379> quit
 
+命令行输入密码进行访问如下：
+/usr/local/redis/bin/redis-cli -h 127.0.0.1 -p 6379
+127.0.0.1:6379> keys *
+(error) NOAUTH Authentication required.  [提示没有权限]
+127.0.0.1:6379> auth ouhaixiong
+OK （这样就可以访问了）   或者在登录时就可以直接输入：/usr/local/redis/bin/redis-cli -h 127.0.0.1 -p 6379 -a ouhaixiong
+
 开启6379端口：
 /sbin/iptables -I INPUT -p tcp --dport 6379 -j ACCEPT
 /etc/rc.d/init.d/iptables save
 /etc/init.d/iptables restart
+
+可加入开机启动：
+vim /etc/rc.local
+/usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf
 
 5，关闭主节点的redis，复制/usr/local/redis/目录至从节点
 ps -ef |grep redis

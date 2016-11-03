@@ -1,0 +1,71 @@
+MongoDB安装
+1，判断之前是否有安装过mongodb（如果有需卸载掉）
+rpm -qa |grep mongodb
+
+2，通过wget获取二进制源码包（如果没有wget需要安装：yum install wget）
+wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-2.6.5.tgz -P /data/tool/
+
+3，下载完毕后，解压此压缩包
+tar -zxvf mongodb-linux-x86_64-2.6.5.tgz
+
+4，移动整个目录至/usr/local下：
+mv mongodb-linux-x86_64-2.6.5 /usr/local/mongodb
+
+5，创建数据保存目录和日志目录
+mkdir -p /data/db/mongodb
+mkdir -p /data/logs/mongodb/
+touch /data/logs/mongodb/mongodb.log
+
+6，修改配置文件
+vim /usr/local/mongodb/bin/mongodb.conf 加入如下配置：
+dbpath=/data/db/mongodb/
+logpath=/data/logs/mongodb/mongodb.log
+port=27017
+fork=true
+nohttpinterface=true
+
+7，绑定本地ip进行启动
+/usr/local/mongodb/bin/mongod --bind_ip localhost -f /usr/local/mongodb/bin/mongodb.conf
+
+8，加入开机启动
+echo "/usr/local/mongodb/bin/mongod --config /usr/local/mongodb/bin/mongodb.conf" >> /etc/rc.local
+
+9，/usr/local/mongodb/bin/mong // 进入mongodb的shell模式 
+> show dbs  // 查看数据库列表 
+admin  (empty)
+local  0.078GB
+> db.version(); // 当前db版本
+2.6.5
+> use admin // 选择admin数据库
+> quit(); // 退出命令行
+
+10，/usr/local/mongodb/bin/mongod --shutdown --config /usr/local/mongodb/bin/mongodb.conf 结束mongodb服务
+或者 ps -ef |grep mongo
+kill 3634（pid）   注意：这个地方不能使用kill -9 pid，这样会导致数据丢失，同时mongodb还可能会报错
+如果使用kill -9 pid的方式关闭mongodb，并且mongodb不能正常启动，则需删除mongod.lock文件：
+# rm -f /data/db/mongodb/mongod.lock
+
+
+ vi mongodb.conf
+port=20000 #端口
+dbpath= /data/mongodb #数据文件存放目录
+logpath=/data/logs/mongodb/mongodb.log #日志文件存放目录
+logappend=true #使用追加的方式写日志
+fork=true #以守护程序的方式启用，即在后台运行
+maxConns=5000 #最大同时连接数 默认2000
+bind_ip=127.0.0.1,172.16.20.126 #只允许通过局域网IP：172.16.20.126及本机访问
+noauth=true #不启用验证
+nohttpinterface=true
+rest=false
+
+设置防火墙，以便局域网内的其它服务器可以访问
+vi /etc/sysconfig/iptables
+
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 27017 -j ACCEPT
+
+/etc/init.d/iptables restart
+
+
+
+
+
