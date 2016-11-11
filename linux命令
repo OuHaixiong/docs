@@ -60,7 +60,15 @@ yum install -y lrzsz 安装上传和下载的rz、sz（下载）
 
 
 # 定时任务相关
+crontab -e 编辑定时任务
+00 3 * * * php /var/www/html/www.makeblock.com/daydb/index.php >/dev/null 2>&1
+00 4 * * * php /var/www/html/www.makeblock.com/daydb/packageSql.php >/dev/null 2>&1
 
+30 4 * * 1 php /var/www/html/www.makeblock.com/daydb/packageLogs.php >/dev/null 2>&1
+
+*/5 * * * * flock -xn /tmp/ordersendmail.lock -c 'php /var/www/html/www.makeblock.com/emailSend/sendByOrder.php >/dev/null 2>&1'
+
+*/5 * * * * sh /home/kun/check_db.sh >/dev/null 2>&1
 
 
 # mysql 数据库操作相关
