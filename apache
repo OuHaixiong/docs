@@ -12,4 +12,15 @@ apache2: Could not reliably determine the server's fully qualified domain name, 
  ServerName localhost
  注意httpd.conf默认是个空文件
  重启apache2就不会再报如上错误了。
- 
+
+apache 重写配置
+域名重定向：编写httpd.conf
+RewriteEngine On
+#RewriteCond %{HTTP_HOST} !^www\.yourdomain\.com // 这句可以不写。这里相当于是判断条件
+RewriteRule (.*) http://www.yourdomain.com$1 [R=301,L] // 也可以写成RewriteRule ^/(.*) http://www.yourdomain.com/$1 [R,L]
+
+
+
+
+
+

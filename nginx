@@ -70,6 +70,14 @@ server {
     #    set $root /data/javaroot/wslm; #设置变量和值
     #}
     #root $root; # 使用变量
+    # 用作判断的全局变量
+    # http://mimvp.com:88/test1/test2/test.PHP
+    # $host/$http_host：mimvp.com
+    # $server_port：88
+    # $request_uri：http://mimvp.com:88/test1/test2/test.php
+    # $document_uri：/test1/test2/test.php
+    # $document_root：/usr/local/nginx/html/
+    # $request_filename：D:\nginx/html/test1/test2/test.php
     
     root /home/bear/www/wslm;  # 站点路径
     
@@ -78,6 +86,7 @@ server {
 
     #location ^~ /themes/ {  # 设置代理
     #    proxy_pass http://wslm.csc86.com/themes/;
+         #deny all; 代表这个目录下的所有文件禁止访问
     #}
 
     #autoindex off; # 关闭自动查找首页文件
@@ -86,7 +95,11 @@ server {
     #location / { # 站点的rewrite写在这里
         #index index.php index.html;
 	    
-        #if (-f $request_filename/index.html){
+        #if (-f $request_filename/index.html){ 
+        #// -f和!-f用来判断是否存在文件
+        #// -d和!-d用来判断是否存在目录
+        #// -e和!-e用来判断是否存在文件或目录
+        #// -x和!-x用来判断文件是否可执行
         #    rewrite (.*) $1/index.html break; #$1在后面的其他地方也可以引用
         #}
         #if (-f $request_filename/index.php){
@@ -101,6 +114,13 @@ server {
         #if (!-e $request_filename) { # 重写，如果找不到此文件，则把请求转到根目录下的index.php文件
             #rewrite ^(.*)$ /index.php last; # rewrite (.*) /index.php last;
         #}
+        #文件或目录不存在的时候重定向一个域名
+        #if (!-e $request_filename) {
+        #    proxy_pass http://mvc.com
+        #}
+
+        # 更多的重写规则，请查看最后的实例
+
     #}
     
     # 下面的重写路径要高于location中的规则，即这里的会优先执行
@@ -112,6 +132,11 @@ server {
     #rewrite ^/products http://$host/product.html permanent; #直接重写
     #if ($request_uri ~* "^/product/(([0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}|[0-9]*)\.html)$") {
     #    rewrite ^/product/(.*\.html)$  http://www.csc86.com/product/$1 last; // 请求地址是uuid或普通id的链接重写到www.csc86.com/product
+    #}
+    
+    # 域名重定向
+    #if ($http_host ~* 'blog\.makeblock\.cc') { // ~*:不区分大小写匹配; !~*:不区分大小写不匹配; ~:区分大小写匹配; !~:区分大小写不匹配
+    #    rewrite ^(.*) http://blog.makeblock.com$1 permanent; // permanent:返回永久重定向的HTTP状态301; redirect:返回临时重定向的HTTP状态302; break:中止Rewirte，不在继续匹配; last:结束匹配
     #}
 
 	# 错误页的配置
@@ -136,6 +161,13 @@ server {
         expires      30d;
         access_log   off;
     }
+    
+#    location ~* \.(js|css|jpg|jpeg|gif|png|swf)$ {
+#        if (-f $request_filename) {
+#            expires 1h;
+#            break;
+#        }
+#    }
     
     location ~ .*\.(js|css)?$ { # js、css缓存
         expires      1d;
@@ -281,3 +313,26 @@ nginx参数：
 --with-openssl= 指向openssl安装目录
 --with-openssl-opt 在编译时为openssl设置附加参数
 --with-debug 启用debug日志
+
+// 下面是一些常见的重写规则示例
+1，设定nginx在用户使用ie的使用重定向到/nginx-ie目录下： 
+if ($http_user_agent ~ MSIE) {
+    rewrite ^(.*)$ /nginx-ie/$1 break;
+}
+
+2，设置nginx防盗链：
+location ~* \.(gif|jpg|png|swf|flv|swf|jpeg)$ {
+    valid_referers none blocked www.mimvp.com mimvp.com;
+    if ($invalid_referer) {
+        rewrite ^/ http://$host/logo.png;
+    }
+}
+
+3，
+4，
+5，
+6，
+7，
+8，
+9，
+10，
