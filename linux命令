@@ -68,8 +68,19 @@ crontab -e 编辑定时任务
 
 */5 * * * * flock -xn /tmp/ordersendmail.lock -c 'php /var/www/html/www.makeblock.com/emailSend/sendByOrder.php >/dev/null 2>&1'
 
-*/5 * * * * sh /home/kun/check_db.sh >/dev/null 2>&1
+*/5 * * * * flock -xn /tmp/ordersendmail.lock -c '/usr/local/php/bin/php /data/www/Makeblock/emailSend/sendByOrder.php >/dev/null 2>&1'
 
+*/5 * * * * sh /home/kun/check_db.sh >/dev/null 2>&1
+(M：分钟（0-59）
+H：小时（0-23）
+D：日期（1-31）
+m：月份（1-12）
+d：一个星期中的某天（0-6，0代表周日）)
+重启crond服务器
+killall crond 杀死crond 服务器的进程
+ps aux |grep crond 查看一下是否被杀死
+/usr/sbin/crond 启动 crond 服务器
+(貌似还是需要等1分钟才能执行，定时任务只能在脚本中无限循环来实现)
 
 # mysql 数据库操作相关
 mysql -hlocalhost -uroot -p 链接mysql数据库
@@ -112,6 +123,8 @@ lsb_release -a 查看centos版本
 sudo netstat -apn | grep 9000 查看端口是否被占用
 telnet test.wslm.csc86.com 80  查看端口是否通(yum install -y telnet.x86_64)
 cat /etc/redhat-release 查看centOS的内核版本
+uname -r 查看内核版本
+cat /etc/centos-release 查看CentOS版本
 
 
 库搜索路径设置：
