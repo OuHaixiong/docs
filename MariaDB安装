@@ -64,25 +64,38 @@ log-error = /var/log/mariadb/maria_error.log  # 数据库错误日记文件，�
 14，修改root用户密码
 # /usr/local/mariadb/bin/mysqladmin -u root password
 # service mariadbd restart # 重启服务，即可用mysql客户端进行连接测试：mysql -uroot -h127.0.0.1 -P3306 -p
+如果提示找不到mysql就执行/usr/local/mariadb/bin/mysql -uroot -h127.0.0.1 -P3306 -p
+（因为上面把/usr/local/mariadb/bin/路径已经加入了系统环境变量里面，通过echo $PATH可查看系统环境变量到值，但是需要重启服务器才能生效）
 
 15，开启3306端口及远程连接
 # mysql -uroot -h127.0.0.1 -P3306 -p
-# MariaDB [(none)]> use mysql;
-# MariaDB [mysql]> update user set host='%' where user='root';
-ERROR 1062 (23000): Duplicate entry '%-root' for key 'PRIMARY'
-# MariaDB [mysql]> select host,user from user;
-+-----------+------+
-| host      | user |
-+-----------+------+
-| %         | root |       // 看到有%的就是能远程连接的
-| 127.0.0.1 | root |
-| ::1       | root |
-| centos66  |      |
-| centos66  | root |
-| localhost |      |
-+-----------+------+
-6 rows in set (0.00 sec)
+# MariaDB [(none)]> GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' IDENTIFIED BY '123456' WITH GRANT OPTION;
+# MariaDB [(none)]> FLUSH PRIVILEGES;
+# MariaDB [(none)]> quit;
+重起MariaDB，检查创建是否成功
 # service mariadbd restart // 重启服务
+# mysql -uroot -p     （输入密码）
+# MariaDB [(none)]> use mysql;
+# MariaDB [mysql]> select host,user from user;
++-----------+-------+
+| host      | user  |
++-----------+-------+
+| %         | admin |        // 看到有%的就是能远程连接的
+| 127.0.0.1 | root  |
+| ::1       | root  |
+| c66mini   |       |
+| c66mini   | root  |
+| localhost |       |
+| localhost | root  |
++-----------+-------+
+7 rows in set (0.00 sec)
+# MariaDB [mysql]> quit;
+
+开启3306端口
 # /sbin/iptables -I INPUT -p tcp --dport 3306 -j ACCEPT
 # /etc/rc.d/init.d/iptables save
 # /etc/init.d/iptables restart
+
+16，拷贝phpMyAdmin的代码到网站根目录，用root用户即可进行登陆
+在php程序终可以用admin用户进行链接，不过需要用到ip地址
+

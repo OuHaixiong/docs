@@ -11,15 +11,35 @@ http://www.bootcss.com/p/git-guide/ git使用
 
 apt-get install libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
 
-centos 6.5 执行：yum -y install curl-devel expat-devel gettext-devel openssl-devel zlib-devel perl-devel gcc gcc-c++
+centos 6.5 执行：yum -y install curl curl-devel expat-devel gettext-devel openssl-devel openssl zlib zlib-devel perl perl-devel gcc gcc-c++ autoconf
+ //  cpio    tk
+(貌似要下33个包)
 
 $ tar -zxf git-1.7.2.2.tar.gz
 $ cd git-1.7.2.2
 $ make prefix=/usr/local all
 $ sudo make prefix=/usr/local install (如果不设这个路径,就需要做下软连接, sudo ln -s /home/bear/tool/git_1.9.0/bin/git /usr/local/bin/git )
 (apt-get install git git-core)
+（
+如果遇到如下错误：
+libgit.a(utf8.o): In function `reencode_string_iconv':
+/data/tool/git-master/utf8.c:463: undefined reference to `libiconv'
+libgit.a(utf8.o): In function `reencode_string_len':
+/data/tool/git-master/utf8.c:502: undefined reference to `libiconv_open'
+/data/tool/git-master/utf8.c:521: undefined reference to `libiconv_close'
+/data/tool/git-master/utf8.c:515: undefined reference to `libiconv_open'
+collect2: ld 返回 1
+make: *** [git-credential-store] 错误 1
 
-git --version
+如果你确定已经安装过iconv，且在/usr/local/libiconv目录下[如果没有请安装]，运行如下命令
+# make configure    // 生成configure文件
+# ./configure --prefix=/usr/local --with-iconv=/usr/local/libiconv    //配置
+# make prefix=/usr/local all    // 编译
+# make prefix=/usr/local install // 安装
+）
+
+运行：git --version 查看git版本
+git version 2.11.0
 
 获取Git配置信息，执行以下命令：git config --list
 git config --global user.email "you@example.com"
