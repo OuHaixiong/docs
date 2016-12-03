@@ -25,4 +25,4 @@ sudo make install
 
  
  
- 
+单次按caps lock按钮，可以在中文和英文直接切换输入法，如果需要切换大小写，需要长按caps lock按钮两秒左右，即可在大写和小写之间进行切换（还可以用Shift+caps lock进行大小写切换）。
