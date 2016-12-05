@@ -1,0 +1,62 @@
+下面是mac macbook苹果电脑的一些操作，包括命令行软件安装和应用软件的快捷健
+
+1，添加用户和所属组
+# sudo dscl localhost 然后输入密码即进入类似mysql的命令行，然后输入如下命令添加用户
+# cd /Local/Default/Groups/
+# append www GroupMembership www 前面的www为你想添加的组，后面的www为你的用户名
+删除命令如下：
+#delete groupname GroupMembership username
+
+2，如果没有gcc环境
+# gcc -v 会提示是否需要安装，点击是即可。
+
+sudo mkdir -p /usr/local/src  
+cd /usr/local/src  
+sudo curl -O ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.12.tar.gz  
+sudo tar xvfz pcre-8.12.tar.gz  
+cd pcre-8.12
+sudo ./configure --prefix=/usr/local --enable-utf8 
+sudo make 
+sudo make install 
+
+./configure --user=www --group=www --prefix=/usr/local/webserver/nginx --sbin-path=/usr/local/webserver/nginx/sbin/nginx  --conf-path=/usr/local/webserver/nginx/conf/nginx.conf  --with-http_stub_status_module  --with-http_ssl_module --with-pcre  --lock-path=/var/run/nginx.lock --pid-path=/var/run/nginx.pid --with-openssl=/usr/bin/openssl
+
+
+ 
+下面是mac操作系统的操作：
+1，单次按caps lock按钮，可以在中文和英文直接切换输入法，如果需要切换大小写，需要长按caps lock按钮两秒左右，即可在大写和小写之间进行切换（还可以用Shift+caps lock进行大小写切换）。
+2，command+tab 可在各个应用间进行切换
+3，command+h   可以隐藏应用，同样可以使用command+tab来显示应用 [注意：这里只是隐藏，如果你是最小化的话是无法通过快捷间来显示的]
+4，control+↑   显示桌面上的所有应用，可用鼠标点击来选择一个应用
+
+
+
+下面是ZendStudio的快捷健：
+1，fn+↑/↓                   光标滚到页首/页尾
+2，command+↑/↓              光标到行首/行尾
+3，control[^]+h             搜索字符串
+4，alt[option]+command+3    git提交代码
+5，command+w                关闭当前页或当前窗口
+
+
+
+
+下面是Safari浏览器的快捷键：
+1，command+r            刷新页面
+2，alt[option]+↑/↓      上翻/下翻一屏 [fn+↑/↓ 也是同样的功能]
+3，command+↑/↓          滚到页首/页尾 
+4，command+1,2,3...8,9  切换到第几个标签页
+5，
+6，
+7，
+8，
+9，
+10，
+11，
+
+
+
+
+
+
+
