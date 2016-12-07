@@ -32,13 +32,19 @@ sudo make install
 
 
 下面是ZendStudio的快捷健：
-1，fn+↑/↓                   光标滚到页首/页尾
-2，command+↑/↓              光标到行首/行尾
+1，fn+↑/↓                   上翻／下翻一页
+2，command+↑/↓              光标滚到页首/页尾[这个和fn+←/→是一样的]
 3，control[^]+h             搜索字符串
 4，alt[option]+command+3    git提交代码
 5，command+w                关闭当前页或当前窗口
-
-
+6，shift+enter              在当前行的下面插入一行
+7，shift+command+enter      在当前行的上面插入一行
+8，command+d                删除当前行（如果是选择来多行，也可以删除多行）
+9，fn+→/←                  光标滚到页尾/页首
+10，command+→/←            光标到行尾/行首
+11，command+shift+→/←      从当前光标处选中到行尾／行首            
+12，
+13，
 
 
 下面是Safari浏览器的快捷键：
