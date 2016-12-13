@@ -21,6 +21,7 @@ ln -s[symbolic:符号的] 源文件 目标文件 创建软连接(在目标文件
 pwd 查看所在位置的绝对路径
 wget -c http://soft.vpser.net/web/mcrypt/mcrypt-2.6.8.tar.gz 下载网络上的一个文件；如果没有安装wget，需运行：yum install wget.x86_64
 scp -rvp /usr/local/redis/ root@192.168.1.113:/usr/local/   通过ssh向远端服务器传文件或文件夹
+scp -P 22354  -rvp /data/www/oc_index_information_pre_online.sql ouhaixiong@45.79.163.XX:/data/db/ 通过ssh向远端服务器传文件或文件夹；如果是带端口的话-P一定要跟在scp后面
 scp -P 22357 kunz@45.79.XXX.XXX:/data/db/export.tar.gz export.tar.gz 同样也可以通过远程把文件传到本地
 grep '/data/wwwroot' ./*  在当前目录下的所有文件中查找字符串
 echo '' > access.log 输入一个字符串到指定的文件（这会先清除文件里的内容再存入输进的内容）
