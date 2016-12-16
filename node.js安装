@@ -33,3 +33,16 @@ mv /data/tool/node-v4.5.0-linux-x64 /usr/local/node
 ln -s /usr/local/node/bin/node /usr/local/bin/node
 ln -s /usr/local/node/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
 至此，node部署完毕，现在可以在任意目录下运行node和npm了。
+
+下面全局安装webpack包
+1，用npm安装全局webpack：npm install -g webpack
+2，做软链接，让所有的地方都能用webpack命令：ln -s /usr/local/node/bin/webpack /usr/local/bin/webpack
+3，常用的webpack命令如下：
+$ webpack --config webpack.min.js //另一份配置文件
+$ webpack --display-error-details //显示异常信息
+$ webpack --watch   //监听变动并自动打包
+$ webpack -p    //压缩混淆脚本，这个非常非常重要！
+$ webpack -d    //生成map映射文件，告知哪些模块被最终打包到哪里了
+
+
+npm -g install npm@2.9.1  更新npm版本；版本号2.9.1 可以根据已发布的版本随意升级或降级
