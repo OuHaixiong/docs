@@ -52,6 +52,9 @@ usermod -L mysql  //锁定（Lock）帐号mysql，不让登录
 usermod -U mysql  //解锁（Unlock）帐号mysql，让其登录
 cat /etc/passwd 查看用户和所属组
 cat /etc/group  查看所有的用户组
+usermod -a -G dialout `whoami` 把当前用户加入dialout组，`whoami`代表当前用户的用户名（也可以写成sudo usermod -aG dialout `whoami`）
+[ -G: --groups GROUPS 新的附加组列表 GROUPS . -a: --append GROUP 将用户追加至上边 -G 中提到的附加组中，并不从其它组中删除此用户 ]
+sudo gpasswd -d `whoami` dialout 把当前用户从组dialout中移除掉[删除掉]
 
 # 服务器相关
 sudo /etc/init.d/smbd restart 重启samba服务器

@@ -19,6 +19,11 @@ tar -jxvf archive_name.tar.bz2 -C /tmp/extract_here/ 用tar解压缩TAR.BZ2文�
 tar -xf linux-3.14.13.tar.xz 用tar解压.xz文件
 tar -zcvf htdocs.tar.gz --exclude=/opt/apache/htdocs/uploads --exclude=/opt/apache/htdocs/cache  /opt/apache/htdocs 压缩一个目录（压缩除去目录之外的文件）
 
+.tar.xz文件需要先用xz进行解压得到.tar文件，再用tar进行解压；如下
+xz -d node-v6.9.2-linux-x64.tar.xz （-d表示删除原文件，解压后得到node-v6.9.2-linux-x64.tar文件）
+tar -xvf node-v6.9.2-linux-x64.tar  (解压tar文件)
+CentOS安装xz：yum -y install xz 安装完后可执行：xz --help查看帮助；也可以访问http://tukaani.org/xz/下载xz的源码包进行安装
+创建tar.xz文件：只要先 tar cvf xxx.tar xxx/ 这样创建xxx.tar文件先，然后使用 xz -z xxx.tar 来将 xxx.tar压缩成为 xxx.tar.xz
 
 *.tar.gz(*.tgz)   tar -zxvf x.tar.gz(解压 gzip)  tar的参数z是调用gzip解压，x是解包，v是校验，f是显示结果，y是调用bzip2解压，t是列出包的文件清单
 *.gz              gzip -d或者gunzip 解压 
