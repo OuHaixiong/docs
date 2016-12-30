@@ -116,6 +116,7 @@ sudo netstat -lntpu [ | grep 21] 显示tcp和端口号所用的服务
 -s 按各个协议进行统计
 -c 每隔一个固定时间，执行该netstat命令。
 提示：LISTEN和LISTENING的状态只有用-a或者-l才能看到
+查出进程后，可用命令：kill -9 进程号ID  可以强制删除某个进程
 ps -ef |grep nginx 查看进程
 service iptables start/stop 打开或关闭防火墙
 /sbin/chkconfig --add mysql 把MySQL添加到系统启动服务中去
