@@ -10,25 +10,90 @@
 2，如果没有gcc环境
 # gcc -v 会提示是否需要安装，点击是即可。
 
-sudo mkdir -p /usr/local/src  
-cd /usr/local/src  
-sudo curl -O ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.12.tar.gz  
-sudo tar xvfz pcre-8.12.tar.gz  
-cd pcre-8.12
+3，sudo apachectl start/restart/stop
+查看Apache的版本：httpd -v
+默认配置文件的位置上在: /etc/apache2/httpd.conf
+添加Apache对php的支持：LoadModule php5_module libexec/apache2/libphp5.so
+默认apache的网站服务器根目录在：/Library/WebServer/Documents
+
+4，php相关目录
+php运行程序所在目录：/usr/bin/php
+php-config所在目录：/usr/bin/php-config
+phpize所在目录：/usr/bin/phpize
+
+5，安装pcre
+下载pcre源码包：pcre-8.39.tar.gz
+sudo tar -xvfz pcre-8.39.tar.gz  
+cd pcre-8.39
 sudo ./configure --prefix=/usr/local --enable-utf8 
 sudo make 
 sudo make install 
+(执行命令sudo make uninstall可卸载通过源码安装过的软件)
 
-./configure --user=www --group=www --prefix=/usr/local/webserver/nginx --sbin-path=/usr/local/webserver/nginx/sbin/nginx  --conf-path=/usr/local/webserver/nginx/conf/nginx.conf  --with-http_stub_status_module  --with-http_ssl_module --with-pcre  --lock-path=/var/run/nginx.lock --pid-path=/var/run/nginx.pid --with-openssl=/usr/bin/openssl
+然后可以回到ngnix文件安装ngnix
+sudo  ./configure --user=www --group=www --prefix=/usr/local/webserver/nginx --sbin-path=/usr/local/webserver/nginx/sbin/nginx  --conf-path=/usr/local/webserver/nginx/conf/nginx.conf  --with-http_stub_status_module  --with-http_ssl_module --with-pcre  --lock-path=/var/run/nginx.lock --pid-path=/var/run/nginx.pid --with-openssl=/Users/bear/Downloads/openssl-1.0.1p[这个为源码路径]
+
+提示如下错误：[无法解决该错误，最后放弃手动编译nginx]
+ld: symbol(s) not found for architecture x86_64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+make[1]: *** [objs/nginx] Error 1
+make: *** [build] Error 2
+
+6，下面用Homebrew安装nginx:
+安装Homebrew：ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+如果出现如下提示，说明安装成功：
+==> Next steps:
+- Run `brew help` to get started
+- Further documentation:
+    https://git.io/brew-docs
+搜索nginx：brew search nginx
+安装nginx：brew install nginx
+安装完后在/usr/local/Cellar中会出现三个目录：nginx、openssl@1.1、pcre
+默认根目录在：/usr/local/var/www
+默认nginx的配置在：/usr/local/etc/nginx/nginx.conf
+vhosts可以在如下目录设置：/usr/local/etc/nginx/servers/
+可以查看nginx版本：nginx -v [nginx -V 查看版本，以及配置文件地址; nginx -c xx[filename] 指定配置文件; nginx -h 帮助]
+测试配置是否有语法错误:nginx -t
+开启nginx：brew services start nginx[brew services start/stop/restart nginx开启/停止/重启nginx] (也可以直接nginx就启动了，nginx -s reload|reopen|stop|quit 重新加载配置|重启|停止|退出nginx)
+访问：http://127.0.0.1:8080
+    （更多brew操作:
+     A, 检查homebrew是否有冲突等
+     #brew doctor
+     B, 更新Brew
+     #sudo brew update
+     #sudo brew upgrade
+     C, 添加其它的源
+     #brew tap homebrew/dupes
+     #brew tap homebrew/php
+     #添加后才可以安装PHPFPM
+     D, 安装PHP示例
+     #brew install --without-apache --with-fpm --with-mysql php56
+     当brew安装成功后，就可以随意安装自己想要的软件了，例如wget，命令如下：
+     #sudo brew install wget  
+     E, 卸载的话，命令如下：
+     #sudo brew uninstall wget
+     F, 查看安装软件的话，命令如下：
+     #sudo brew search /apache*/
+     注意/apache*/是使用的正则表达式，用/分割。）
+
 
 
  
 下面是mac操作系统的操作：
 1，单次按caps lock按钮，可以在中文和英文直接切换输入法，如果需要切换大小写，需要长按caps lock按钮两秒左右，即可在大写和小写之间进行切换（还可以用Shift+caps lock进行大小写切换）。
-2，command+tab 可在各个应用间进行切换
-3，command+h   可以隐藏应用，同样可以使用command+tab来显示应用 [注意：这里只是隐藏，如果你是最小化的话是无法通过快捷间来显示的]
-4，control+↑   显示桌面上的所有应用，可用鼠标点击来选择一个应用
-
+2，command+tab              可在各个应用间进行切换
+3，command+h                可以隐藏应用，同样可以使用command+tab来显示应用 [注意：这里只是隐藏，如果你是最小化的话是无法通过快捷键来显示的]
+4，control+↑                显示桌面上的所有应用，可用鼠标点击来选择一个应用
+5，F4                       显示／隐藏各应用；或者在任意界面，通过四个手指头往里合并收缩，也可以调出各应用
+6，control+鼠标单击           相当于鼠标右键
+7，command+shift+3          全屏截取[截图]
+8，command+shift+4          部分截取[截图]
+9，                         窗口进行截取：command+shift+4，然后放开这3个按键之后点击空格键一次，这样之后，便可通过鼠标选择某一块规则区域进行截图了，该区域会重点突出，方便用户预览
+10，command+t               新开分页[窗口]
+11，command+w               关闭分页[窗口]
+12，command+q               关闭[退出]应用
+13，command+control+f       开启／关闭全屏。 开启全屏之后可以通过4个手指头在全屏应用之间进行切换
+14，fn+delete               可以删除光标处后面的字符
 
 
 下面是ZendStudio的快捷健：
@@ -52,7 +117,7 @@ sudo make install
 2，alt[option]+↑/↓      上翻/下翻一屏 [fn+↑/↓ 也是同样的功能]
 3，command+↑/↓          滚到页首/页尾 
 4，command+1,2,3...8,9  切换到第几个标签页
-5，
+5，                     在同一个主域下面，如果有浏览多个网页，且是非新开窗口跳转，可以通过两个手指头左右切换浏览过的网页
 6，
 7，
 8，
@@ -60,7 +125,11 @@ sudo make install
 10，
 11，
 
-
+下面是iTerm2[命令行工具]的快捷键：
+1，command+→/←             移动到右边／左边标签
+2，
+3，
+4，
 
 
 

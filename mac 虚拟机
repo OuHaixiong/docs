@@ -2,15 +2,17 @@
 主机明        对应的ip       已装服务和文件目录               备注
 C1                        /usr/local/php 5.6.22
                           /usr/local/webserver/nginx
+                          imagick 3.1.2
 
 
 C2                        /usr/local/php 5.6.22
                           /usr/local/webserver/nginx
-
+                          imagick 3.1.2
 
 
 C3                       /usr/local/php 5.6.22
                          /usr/local/webserver/nginx
+                         imagick 3.1.2
 
 
 localhost                    预装mysql                        CentOS 7                                    
@@ -20,9 +22,12 @@ localhost                    预装mysql                        CentOS 7
 C66mini                   /usr/local/mariadb
                           /usr/local/php 5.6.22
                           /usr/local/webserver/nginx
+                          imagick 3.1.2
 
 
-苹果实体机主nginx
+苹果实体机                  主nginx                          用做负载均衡
+
+
 三个从nginx
 一个主mysql和两个从mysql
 一个主redis和两个从redis
