@@ -206,3 +206,11 @@ smb: \>
 mount -t cifs //10.0.4.67/myshare /mnt -o username=user1,password=123456
 格式就是这样，要指定-t cifs //IP/共享名本地挂载点  -o后面跟username 和 password
 挂载完后就可以像使用本地的目录一样使用共享的目录了。
+
+9，如果想让samba服务器的软连接也可以访问，就需要修改smb.conf文件
+# sudo  vim /etc/samba/smb.conf
+在配置文件的“[global]”段的最后，加入如下三条设置：
+follow symlinks = yes
+wide links = yes
+unix extensions = no
+重启samba服务即可：# sudo /etc/init.d/samba restart
