@@ -1,6 +1,12 @@
 
 git add . && git commit -m "删除log" && git push origin master 添加索引并提交更新到线上
 
+git pull 强制覆盖本地文件，拉取代码
+git fetch --all
+git reset --hard origin/master
+git pull
+
+
 学习网址：
 http://git-scm.com/book/zh/
 http://my.oschina.net/xdev/blog/114383

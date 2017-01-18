@@ -1,31 +1,42 @@
 
-主机明        对应的ip       已装服务和文件目录               备注
-C1                        /usr/local/php 5.6.22
-                          /usr/local/webserver/nginx
-                          imagick 3.1.2
+主机明           对应的ip                 已装服务和文件目录               备注
+C1            172.16.51.130          /usr/local/php 5.6.22           C1
+                                     /usr/local/webserver/nginx      
+                                     imagick 3.1.2
+                                     redis 2.2.5
 
 
-C2                        /usr/local/php 5.6.22
-                          /usr/local/webserver/nginx
-                          imagick 3.1.2
+
+C2            172.16.51.129          /usr/local/php 5.6.22           C2
+                                     /usr/local/webserver/nginx      
+                                     imagick 3.1.2
+                                     redis 2.2.5
 
 
-C3                       /usr/local/php 5.6.22
-                         /usr/local/webserver/nginx
-                         imagick 3.1.2
+
+C3            192.168.0.105          /usr/local/php 5.6.22           C3
+                                     /usr/local/webserver/nginx      
+                                     imagick 3.1.2
+                                     redis 2.2.5
 
 
-localhost                    预装mysql                        CentOS 7                                    
+
+localhost     192.168.0.109           预装mysql                        CentOS7                                    
                           主Redis
 
 
-C66mini                   /usr/local/mariadb
-                          /usr/local/php 5.6.22
-                          /usr/local/webserver/nginx
-                          imagick 3.1.2
+
+
+C66mini       192.168.0.107          /usr/local/mariadb              CentOS_6.6_mini
+                                     /usr/local/php 5.6.22
+                                     /usr/local/webserver/nginx 1.10.1
+                                     imagick 3.1.2
+                                     redis 2.2.5
 
 
 苹果实体机                  主nginx                          用做负载均衡
+
+
 
 
 三个从nginx
