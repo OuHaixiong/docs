@@ -53,3 +53,46 @@
     3） 安全，框架帮我们做了很多安全问题封面的防范
     4） 框架实现了我们需要的大部分功能，我们只需拿来用即可，减少代码的编写，提高开放速度
     
+7，echo、print和print_r的区别
+    1） echo和print 只能打印简单类型变量，如：字符串和整形；print_r可以打印任何类型的数据，如：数组、对象
+    2） echo 可以打印多个变量；print和print_r 不能打印多个变量
+    3） echo是语法结构，没有返回值，速度快；print和print_r是函数，可以有返回值，速度相对echo慢一点
+
+8，传址和传值的区别？
+    $a = array();
+    $b = &$a;// 传送的是变量的存储地址
+    $b = $a; // 传值，相当于拷贝了一份
+    1）传址的话如果变量的值改变了，相应的所有变量的值都会变，而传值不会
+    2）传址速度比传值快
+    
+9，写一个匹配邮件格式的正则表达式（ouhaixiong@163.com）
+    $email = 'ouhaixiong@163.com';
+    $pattern = '/^[\w-]+(\.[\w-]+)*@\w+[\w-]*(\.[\w-]+)*(\.[a-zA-Z]{2,4})?\.[a-zA-Z]{2,6}$/';// 标准格式
+    $boolean = preg_match($pattern, $email);
+    也可以用php内置的函数进行验证
+    $boolean = filter_var($email, FILTER_VALIDATE_EMAIL);
+    var_dump($boolean);
+
+10，Mysql的存储引擎；MyISAM和InnoDB的区别？
+    1）MyISAM类型不支持事务处理等高级处理，而InnoDB类型支持.
+    2）MyISAM类型查询速度比InnoDB快，InnoDB类型更新速度比MyISAM快
+    3）InnoDB不支持FULLTEXT类型的索引.
+    4）InnoDB 中不保存表的具体行数，也就是说，执行select count(*) from table时，InnoDB要扫描一遍整个表来计算有多少行，但是MyISAM只要简单的读出保存好的行数即可.
+    5）对于AUTO_INCREMENT类型的字段，InnoDB中必须包含只有该字段的索引，但是在MyISAM表中，可以和其他字段一起建立联合索引。
+    6）DELETE FROM table时，InnoDB不会重新建立表，而是一行一行的删除。
+    7）LOAD TABLE FROM MASTER操作对InnoDB是不起作用的，解决方法是首先把InnoDB表改成MyISAM表，导入数据后再改成InnoDB表，但是对于使用的额外的InnoDB特性(例如外键)的表不适用.
+    8）MyISAM支持表锁，InnoDB支持行锁。
+
+11，
+12，
+13，
+14，
+
+
+
+
+
+
+
+
+    
