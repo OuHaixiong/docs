@@ -137,6 +137,8 @@ cat /etc/centos-release 查看CentOS版本
 然后可以通过 echo $LD_LIBRARY_PATH 查看
 2，vim /etc/ld.so.conf 添加一行 /usr/local/lib
 然后运行：ldconfig ( /sbin/ldconfig) 更新至缓存/etc/ld.so.cache 文件
+3，查看一个应用安装在哪个目录了
+which npm 查看npm安装在哪个目录
 
 
 # CentOS 相关
