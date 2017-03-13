@@ -1,11 +1,20 @@
 
 git add . && git commit -m "删除log" && git push origin master 添加索引并提交更新到线上
 
-git pull 强制覆盖本地文件，拉取代码
+git强制覆盖本地文件，拉取代码
 git fetch --all
 git reset --hard origin/master
 git pull
 
+常见命令行的使用
+# git remote show origin[或者用git remote -v] 查看某个远端仓库的详细信息，如：克隆的url地址
+# git branch -v 查看分支的所有版本
+# git branch -a 查看远端的所有分支【其中当前分支前面有星号：*，并用绿色标记出来了】
+# git branch 查看[列出]所有的本地分支【当前所在的分支前带有*号，并用绿色标记出来了】
+# git branch -d XXX 删除本地分支
+# git branch -r -d origin/XXX && git push origin :XXX 删除远程分支
+
+ 
 
 学习网址：
 http://git-scm.com/book/zh/
@@ -84,8 +93,7 @@ git checkout 46657577382c23d0cf2d51fb5d5ea54a32d5126c 通commit id 提取老版�
 git tag version1.6 -m 'version 1.6'  创建一个标记    
 git checkout <tag_name> 恢复到一个标记
 
-git branch 列出了所有的本地分支 当前所在的分支前带有*号
-git branch -a 远端仓库的分支
+
 
 下面是一串命令操作：建本地仓库，提交，并链接到github.com的远端仓库，提交修改到远端仓库
 touch README.md
@@ -103,9 +111,9 @@ git push -u origin master
 # <hash> in the above is optional 
 # if not specified the last commit will be used
 # If specified the corresponding commit will be used
-git branch testing
+git branch testing // 创建一个新的分支【如果需要把分支推送到远程分支：git push origin testing】
 # Switch to your new branch
-git checkout testing
+git checkout testing // 切换分支到testing
 # Some changes
 echo "Cool new feature in this branch" > test01
 git commit -a -m "new feature"
