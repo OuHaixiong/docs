@@ -13,8 +13,11 @@ git pull
 # git branch 查看[列出]所有的本地分支【当前所在的分支前带有*号，并用绿色标记出来了】
 # git branch -d XXX 删除本地分支
 # git branch -r -d origin/XXX && git push origin :XXX 删除远程分支
-
- 
+# git checkout . 本地所有修改的没有提及的，都返回到原来的状态
+# git stash 把所有没有提交的修改暂存到stash里面，可用git stash pop恢复
+# git reset --hard [HASH] 返回到某个节点，不保留修改
+# git reset --soft [HASH] 返回到某个节点，保留修改
+# git checkout -b dev origin/dev checkout远程的dev分支并在本地起名为dev分支，并且切换到本地的dev分支
 
 学习网址：
 http://git-scm.com/book/zh/
@@ -79,6 +82,9 @@ git pull ../t2 拉取（Pull）更改
 git remote add bieming bear@192.168.17.130:example.git 为本地仓库起个短名叫bieming,并用用户bear链接到192.168.17.130的example.git仓库
 git push bieming master 通过短名提交修改到远端仓库的主干上（下面会要求输入密码）
 git clone bear@192.168.17.130:example.git bb  克隆远端仓库到本地文件夹bb
+或 git clone http;//xxx.xxx.com/project/xx.git ./ 克隆xx项目到当前目录[git clone 只能clone远程库的master分支，无法clone所有分支]
+
+
 
 特别注意：使用ssh链接github.com时，需要在本机生成ssh key，然后把key贴到github.com上，具体如下：  (是的,这个是一定要做的,且需要设置提交的用户名和邮箱)
 ssh-keygen -t rsa -C "258333309@163.com"
