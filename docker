@@ -1,0 +1,33 @@
+
+mac下安装docker
+1，到官网下载stable版：https://store.docker.com/editions/community/docker-ce-desktop-mac?tab=description
+2，双击Docker.dmg文件进行安装，一路next即可，安装完后会在右上角出现小鲸鱼的图标。也可以到官方文档中查看安装步骤：https://docs.docker.com
+3，下面可以通过命令行直接操作docker了
+4，到store.docker.com或hub.docker.com可以下载镜像文件
+5，运行docker --version可查看docker的版本（docker-compose --version、docker-machine --version）
+
+
+docker常用的命令
+docker ps -a 显示所有的容器
+docker ps    显示所有正在运行的容器
+docker images 显示所有的镜像
+docker run -d -p 80:80 --name webserver nginx   通过docker image运行一个docker容器[container]
+docker pull node:6.9.2 从官方拉取一个nodejs的镜像
+docker build -t node_webserver_test . 在DockerFile所在的目录下，构建一个Image（名称为：node_webserver_test）
+docker run -d -p 1337:1337 841a 基于镜像上运行一个容器。-d：在后头运行；-p表示端口映射，841a：是镜像ID的前四位，也可以写全
+docker logs e31 打印容器日记，e31是容器[Container]ID的前三位
+docker exec -i -t e31a /bin/bash 进入容器里面，进去后就像操作普通的linux一样，如果需要退出就执行exit
+docker stop e31a 终止一个容器
+docker start/restart e31adea47be3 启动和重启一个容器
+
+
+下面是典型的Dockerfile的写法：
+FROM node:6.9.2                  # 用本地node:6.9.2的镜像作为基础镜像，进行构建
+RUN mkdir -p /Users/webserver    # 执行命令行，在镜像中创建目录
+WORKDIR /Users/webserver         # 将我们创建的目录作为工作目录
+COPY . /Users/webserver          # 拷贝本机当前目录下的所有文件到Image的/Users/webserver文件夹下
+#RUN npm install                 # 运行命令，安装本目录下的所有node依赖包
+EXPOSE 1337                      # 暴露端口号给主机，这样我们就能从外部访问镜像能的应用了
+CMD ["npm", "start"]             # 运行命令，启动应用
+
+
