@@ -14,15 +14,27 @@ docker images 显示所有的镜像
 docker run -d -p 80:80 --name webserver nginx   通过docker image运行一个docker容器[container]
 docker pull node:6.9.2 从官方拉取一个nodejs的镜像
 docker build -t node_webserver_test . 在DockerFile所在的目录下，构建一个Image（名称为：node_webserver_test）
-docker run -d -p 1337:1337 841a 基于镜像上运行一个容器。-d：在后头运行；-p表示端口映射，841a：是镜像ID的前四位，也可以写全
+docker run -d -p 1337:1337 841a 基于镜像上运行一个容器。-d：在后台运行；-p表示端口映射，841a：是镜像ID的前四位，也可以写全
 docker logs e31 打印容器日记，e31是容器[Container]ID的前三位
 docker exec -i -t e31a /bin/bash 进入容器里面，进去后就像操作普通的linux一样，如果需要退出就执行exit
-docker stop e31a 终止一个容器
+docker stop e31a 终止一个容器[docker stop $(docker ps -q):停用全部运行中的容器]
 docker start/restart e31adea47be3 启动和重启一个容器
+docker rm 841a6921f3bc 删除一个容器 【docker rm $(docker ps -aq):删除全部容器】
+docker rmi a7376d9a4848 删除一个镜像
+docker rmi $(docker images --filter dangling=true -q) 删除pull过程或者create过程产生的临时镜像，剩下的都是有用的镜像
+docker stop $(docker ps -q) & docker rm $(docker ps -aq) 停用并删除所有容器
+docker run -it -p 1337:1337 -v /Users/bear/Downloads/www/webserver_test:/data/www/webserver 2737dede0818[镜像ID] /bin/bash 把一个宿主机上的目录挂载到镜像里，并进入容器里
+docker run -d -it -p 1337:1337 -v /Users/bear/Downloads/www/test/:/data/www/mBlock/ --name mBlock_web-server web-server_node-6.9.2 /bin/bash
+
+docker login --username=XXX registry.cn-XXX.alixx.com 登录docker云服务器
+docker push registry.cn-XXX.XXX.com/makeblock/mblock-webservice-dev 把当前的镜像push到服务器
+
+
+
 
 
 下面是典型的Dockerfile的写法：
-FROM node:6.9.2                  # 用本地node:6.9.2的镜像作为基础镜像，进行构建
+FROM node:6.9.2                  # 用本地node:6.9.2的镜像作为基础镜像，进行构建（如果本地没有将到服务器上去获取）
 RUN mkdir -p /Users/webserver    # 执行命令行，在镜像中创建目录
 WORKDIR /Users/webserver         # 将我们创建的目录作为工作目录
 COPY . /Users/webserver          # 拷贝本机当前目录下的所有文件到Image的/Users/webserver文件夹下
