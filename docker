@@ -12,6 +12,13 @@ docker ps -a 显示所有的容器
 docker ps    显示所有正在运行的容器
 docker images 显示所有的镜像
 docker run -d -p 80:80 --name webserver nginx   通过docker image运行一个docker容器[container]
+# -d 让Docker容器跑在后台
+# -i 容器的标准输入保持打开
+# -t Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入
+# --name XXX 容器名
+# -v 映射目录
+# -w /XX 设置工作目录；此设置将覆盖dockfile中的WORKDIR设置
+# -p 端口映射
 docker pull node:6.9.2 从官方拉取一个nodejs的镜像
 docker build -t node_webserver_test . 在DockerFile所在的目录下，构建一个Image（名称为：node_webserver_test）
 docker run -d -p 1337:1337 841a 基于镜像上运行一个容器。-d：在后台运行；-p表示端口映射，841a：是镜像ID的前四位，也可以写全
@@ -25,6 +32,9 @@ docker rmi $(docker images --filter dangling=true -q) 删除pull过程或者crea
 docker stop $(docker ps -q) & docker rm $(docker ps -aq) 停用并删除所有容器
 docker run -it -p 1337:1337 -v /Users/bear/Downloads/www/webserver_test:/data/www/webserver 2737dede0818[镜像ID] /bin/bash 把一个宿主机上的目录挂载到镜像里，并进入容器里
 docker run -d -it -p 1337:1337 -v /Users/bear/Downloads/www/test/:/data/www/mBlock/ --name mBlock_web-server web-server_node-6.9.2 /bin/bash
+docker save -o node.io[node.tar保存路径] faaadb4aaf9b 通过docker save命令，将镜像保存为tar文件
+docker load -i /root/bear/node.tar 通过docker load命令将tar文件【镜像】加载进来
+
 
 docker login --username=XXX registry.cn-XXX.alixx.com 登录docker云服务器
 docker push registry.cn-XXX.XXX.com/makeblock/mblock-webservice-dev 把当前的镜像push到服务器
