@@ -1,0 +1,102 @@
+
+前提条件是shell的文件需要要执行的权限【chmod +x xxx.sh】
+运行可在其目录下直接./xxx.sh；或 /data/sh/xxx.sh；或 sh xxx.sh
+
+#! /bin/bash 
+# 必须的，指出shell的类型；!后面空格与否都一样。如果不指定的话，默认/bin/sh
+# 代表注释
+echo "This is a shell"
+# 输出一个信息，如果是字符串，单引号和双引号都可以，但是如果是双引号，里面的变量是可以转义的【这点和php是一样的】
+# $xx 表示一个变量，标准的写法应该是这样${xx}
+# `XX` 表示执行shell命令
+# \ 表示转义字符
+# 在命令行，通过set可以显示本地所有变量，查找变量时可以通过set |grep XXX。用env可查看所有的环境变量
+
+function sayHello()
+{
+    echo 'Enter your name:'
+    read name
+    # 读取来自键盘输入的变量
+    echo "Hello $name"
+}
+
+echo 'Programme starts here...'
+sayHello # 函数调用，后面不能带()
+echo 'Programme ends.'
+
+echo "我的当前目录是`pwd`，我的登录姓名是$LOGNAME"
+# ``倒引号内的字符串当做shell命令行解析执行，得到的结果取代整个倒引号括起来的部分。$LOGNAME是系统变量，系统变量是以$开头，全部大写的字母
+# 类似的系统变量（全局变量、环境变量）有：
+# $HOME : 当前用户的家目录，返回类似：/Users/bear
+# $PATH : 当前系统应用的查找路径[执行文件搜寻路径]，返回类似：/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+# ${SHELL} : 当前这个环境使用的shell是哪个程序，返回类似：/bin/bash
+# ${PWD} : 当前工作目录的路径
+# ${LANG} : 语系文件，返回类似：zh_CN.UTF-8
+
+name='ouhaixiong' # 也可以写成name=ouhaixiong
+# 声明本地变量（局部变量、用户变量）时，等号两边不可以有空格；有空格时一定要用引号引起来；变量名区分大小写
+echo "My name is : $name"
+basePath=`pwd`
+# 执行shell命令，把当前工作目录赋值给一个变量
+echo "The current working directory is : ${basePath}"
+# 用${XXX}引用变量，仅在变量名为一个字符时才建议使用$X
+# unset basePath 清除变量，注意变量名前没有$
+# 如果变量想设置成只读的，可通过readonly XXX设置为只读变量，变量名前没有$
+
+#下面通过命令行设置、显示、清除环境变量
+ENVIRONMENT_VARIABLE='environment value'
+export ENVIRONMENT_VARIABLE   # 需要export导出去，才能在其他脚本中使用
+env | grep ENVIR              # 查找这个环境变量是否存在
+echo ${ENVIRONMENT_VARIABLE}  # 输出环境变量的值
+unset ENVIRONMENT_VARIABLE    # 清除环境变量
+echo ${ENVIRONMENT_VARIABLE}  # 再次输出就为空了，但不会报错
+
+内部变量：linux提供的特殊类型的变量，在shell程序中是不能修改的
+部分内部变量有：
+$# 传送给shell程序的位置参数的数量
+$0 shell程序的名称，类似：./web-server-install.sh
+$* 调用shell程序时所传送的全部参数的单字符串，类似： “参数1” 参数2”... （用$@也是一样的）
+$n 第n个参数；如$1:第一个参数值
+$$ 本程序的PID
+
+# test 1 -lt 4 # 条件判断命令[test], 真返回0，假返回1
+[ 1 -gt 4 ] # 用中括号代替test，和test是一样的；注意表达式和中括号间有空格
+echo $? # $?最后命令的完成码或者在shell程序内部执行的shell程序的返回值
+# 比较运算符有：
+# -lt 小于
+# -le 小于等于
+# -gt 大于
+# -ge 大于等于
+# -eq 等于
+# -ne 不等于
+
+if test $1 -gt 0 
+then  # then一定不能和if在同一条线上
+    echo "$1 number is postive"
+else
+    echo "$1是负数或者0"
+fi 结束if时用fi
+
+下面的程序判断文件是否存在
+if [ $# -ne 1 ] # $# 传给shell脚本的参数数量
+then
+    echo "usage: $0 filePath"
+    exit 1
+fi
+
+if [ -f $1 ] # -f 判断文件存在且是普通文件
+then
+    echo "$1 file exist"
+else
+    echo "Sorry, $1 file does not exist"
+fi
+# 判断文件有：
+# -f 存在且是普通文件
+# -d 存在且是目录
+# -s 存在且字节数大于0
+# -r 存在且可读
+# -w 存在且可写
+# -x 存在且可执行
+
+
+
