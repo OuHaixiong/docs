@@ -4,3 +4,4 @@ mklink /d | /h | /j 目标路径 源路径
 
 
 win+R:打开运行，输入cmd打开windows的命令行
+sc delete MakeBlockIdeServicePlus : 卸载[删除]windows服务;其中MakeBlockIdeServicePlus是服务名，可在【控制面板->管理工具->服务】中找到
