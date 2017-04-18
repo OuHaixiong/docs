@@ -37,3 +37,7 @@ $ sudo rfcomm connect rfcomm0 00:1B:10:10:01:FD 连接一个蓝牙设备[Connect
 Connected /dev/rfcomm0 to 00:1B:10:10:01:FD on channel 1
 Press CTRL-C for hangup
 ^CDisconnected
+
+相关学习网址：
+http://lnote.blogbus.com/logs/13223547.html
+http://blog.csdn.net/baozhongchao/article/details/4486263
