@@ -1,0 +1,39 @@
+
+$ lsusb 查看usb端口的设备信息
+Bus 001 Device 002: ID 0a12:0001 Cambridge Silicon Radio, Ltd Bluetooth Dongle (HCI mode)      【蓝牙】
+Bus 001 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+
+$ hciconfig 查看蓝色设备的详细信息
+hci0:   Type: BR/EDR  Bus: USB 【hci0是设备id】
+    BD Address: 00:1A:7D:DA:71:11  ACL MTU: 310:10  SCO MTU: 64:8
+    UP RUNNING PSCAN 
+    RX bytes:1224 acl:0 sco:0 events:74 errors:0
+    TX bytes:1644 acl:0 sco:0 commands:74 errors:0
+    
+$ hcitool dev 查看蓝牙设备的硬件地址
+Devices:
+    hci0    00:1A:7D:DA:71:11
+    
+$ hcitool --help 可以查看该命令的使用帮助
+
+$ sudo hciconfig hci0 up/down 开启[激活]/关闭蓝牙
+如果蓝牙设备不存在时，运行上面的命令会报错：Can't get device info: No such device
+
+$ hcitool scan 扫描周围的蓝牙设备
+Scanning ...
+    8C:C8:F4:10:0A:F8   n/a
+    00:1B:10:10:01:FD【蓝牙物理[硬件]地址】   Makeblock【蓝牙名】
+    
+$ rfcomm --help 连接蓝牙主要用rfcomm;可以通过rfcomm --help查看用法
+
+$ sudo rfcomm bind /dev/rfcomm0[默认挂载点] 00:1B:10:10:01:FD [首先需要]绑定目的的蓝牙设备
+
+$ sudo cat >/dev/rfcomm0 [接着我们]连接它[蓝牙]
+（这时目的蓝牙主机就会弹出一个对话框要求输入pin码，随便输入一个，然后主机就会弹出一个对话框，只要输入的和刚才一致就可以通过验证。之后我们发现我的手机已经显示了成功配对的标记了。）
+
+$ sudo rfcomm release /dev/rfcomm0 [如果配对完后，我们不用了，需要]删除绑定（否则在下次使用时会提示设备正忙）
+
+$ sudo rfcomm connect rfcomm0 00:1B:10:10:01:FD 连接一个蓝牙设备[Connect device]
+Connected /dev/rfcomm0 to 00:1B:10:10:01:FD on channel 1
+Press CTRL-C for hangup
+^CDisconnected
