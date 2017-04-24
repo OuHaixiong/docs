@@ -18,6 +18,8 @@ git pull
 # git reset --hard [HASH] 返回到某个节点，不保留修改
 # git reset --soft [HASH] 返回到某个节点，保留修改
 # git checkout -b dev origin/dev checkout远程的dev分支并在本地起名为dev分支，并且切换到本地的dev分支
+# git reflog 可以查看git的所有版本记录包括提交信息，这样可以通过reset重置到某个版本[git reset --hard xxx]，也可以找回已删除的commit记录
+# git log 查看历史提交记录【进入后可按q退出】；可加参数--pretty=oneline 这样可以
 
 学习网址：
 http://git-scm.com/book/zh/
@@ -26,6 +28,7 @@ http://www.worldhello.net/gotgithub/
 https://github.com/gotgit/gotgithub
 http://book.51cto.com/art/201107/278731.htm
 http://www.bootcss.com/p/git-guide/ git使用
+https://www.oschina.net/translate/10-tips-git-next-level 有时间要好好看看
 
 apt-get install libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
 
