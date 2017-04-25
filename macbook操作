@@ -127,7 +127,7 @@ vhosts可以在如下目录设置：/usr/local/etc/nginx/servers/
 
 下面是iTerm2[命令行工具]的快捷键：
 1，command+→/←             移动到右边／左边标签
-2，
+2，command+T               新建一个标签页
 3，
 4，
 
