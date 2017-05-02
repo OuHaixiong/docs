@@ -2,8 +2,8 @@
 前提条件是shell的文件需要要执行的权限【chmod +x xxx.sh】
 运行可在其目录下直接./xxx.sh；或 /data/sh/xxx.sh；或 sh xxx.sh
 
-#! /bin/bash 
-# 必须的，指出shell的类型；!后面空格与否都一样。如果不指定的话，默认/bin/sh
+#! /bin/bash  (/bin/bash是解析器的路径)
+# 必须的，指出shell的类型；!后面空格有否都一样。如果不指定的话，默认/bin/sh 【bash shell:bourne again shell】
 # 代表注释
 echo "This is a shell"
 # 输出一个信息，如果是字符串，单引号和双引号都可以，但是如果是双引号，里面的变量是可以转义的【这点和php是一样的】
@@ -45,7 +45,7 @@ echo "The current working directory is : ${basePath}"
 
 #下面通过命令行设置、显示、清除环境变量
 ENVIRONMENT_VARIABLE='environment value'
-export ENVIRONMENT_VARIABLE   # 需要export导出去，才能在其他脚本中使用
+export ENVIRONMENT_VARIABLE   # 需要export导出去，才能在其他脚本中使用（相当于将本地数据区中的变量转移到用户环境区）
 env | grep ENVIR              # 查找这个环境变量是否存在
 echo ${ENVIRONMENT_VARIABLE}  # 输出环境变量的值
 unset ENVIRONMENT_VARIABLE    # 清除环境变量
@@ -59,7 +59,7 @@ $* 调用shell程序时所传送的全部参数的单字符串，类似： “�
 $n 第n个参数；如$1:第一个参数值
 $$ 本程序的PID
 
-# test 1 -lt 4 # 条件判断命令[test], 真返回0，假返回1
+# test 1 -lt 4 # 条件判断命令[test], 真返回0，假返回1  (貌似判断的返回值不能直接赋值用)
 [ 1 -gt 4 ] # 用中括号代替test，和test是一样的；注意表达式和中括号间有空格
 echo $? # $?最后命令的完成码或者在shell程序内部执行的shell程序的返回值
 # 比较运算符有：
@@ -97,6 +97,58 @@ fi
 # -r 存在且可读
 # -w 存在且可写
 # -x 存在且可执行
+
+逻辑运算有：
+# -a 逻辑与
+# -o 逻辑或
+# !  逻辑非
+
+$ cat shell-test-stdout.sh
+ls
+cat lldd
+$ ./shell-test-stdout.sh >/dev/null # 默认的话是不会输出任何信息，除非包错了，就输出错误信息
+cat: lldd: No such file or directory
+$ ./shell-test-stdout.sh 1&2>/dev/null # 对1和2不是很理解，有时间再查看资料
+#1 stdout标准输出
+#2 stderr标准错误
+
+./shell-test-stdout.sh >/dev/null 2>&1 # 不会输出任何信息，因为/dev/null空设备。这句话的意思是运行脚本，并屏蔽命令任何输出。2>&1表示错误重定向指向标准输出；>/dev/null又使标准输出重定向空
+# 上面的还可以这样写 command 2>/xxx/xxx >&2 或 command &>/xxx/xxx
+
+#获取系统时间 ： date +%Y%m%d
+相关时间域如下：
+% H 小时（00..23）
+% I 小时（01..12）
+% k 小时（0..23）
+% l 小时（1..12）
+% M 分（00..59）
+% p 显示出AM或PM
+% r 时间（hh：mm：ss AM或PM），12小时
+% s 从1970年1月1日00：00：00到目前经历的秒数
+% S 秒（00..59）
+% T 时间（24小时制）（hh:mm:ss）
+% X 显示时间的格式（％H:％M:％S）
+% Z 时区 日期域
+% a 星期几的简称（ Sun..Sat）
+% A 星期几的全称（ Sunday..Saturday）
+% b 月的简称（Jan..Dec）
+% B 月的全称（January..December）
+% c 日期和时间（ Mon Nov 8 14：12：46 CST 1999）
+% d 一个月的第几天（01..31）
+% D 日期（mm／dd／yy）
+% h 和%b选项相同
+% j 一年的第几天（001..366）
+% m 月（01..12）
+% w 一个星期的第几天（0代表星期天）
+% W 一年的第几个星期（00..53，星期一为第一天）
+% x 显示日期的格式（mm/dd/yy）
+% y 年的最后两个数字（ 1999则是99）
+% Y 年（例如：1970，1996等）
+注意：只有超级用户才有权限使用date命令设置时间，一般用户只能使用date命令显示时间。
+
+-n $a 判断变量$a是否有值，测试空串用-z
+[ "$a" = "$b" ] 判断$a和$b的取值是否相等
+shift 删除第一个参数，后面的参数依次变为新的第一和第二参数
 
 
 

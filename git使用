@@ -29,6 +29,8 @@ https://github.com/gotgit/gotgithub
 http://book.51cto.com/art/201107/278731.htm
 http://www.bootcss.com/p/git-guide/ git使用
 https://www.oschina.net/translate/10-tips-git-next-level 有时间要好好看看
+https://www.oschina.net/translate/a-successful-git-branching-model?lang=chs&page=1# 一个成功的git分支模型（值得思考，值得看，不一定照搬）
+http://nvie.com/posts/a-successful-git-branching-model/  {上面的中文，下面的英文源文}
 
 apt-get install libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
 
