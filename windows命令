@@ -6,5 +6,6 @@ mklink /d | /h | /j 目标路径 源路径
 win+R:打开运行，输入cmd打开windows的命令行
 sc delete MakeBlockIdeServicePlus : 卸载[删除]windows服务;其中MakeBlockIdeServicePlus是服务名，可在【控制面板->管理工具->服务】中找到
 
+netstat -ano | findstr ":445" 查看是否开启了某个端口 （本机的端口）
 
 http://inotgaoshou.iteye.com/blog/645592 dos命令大全
