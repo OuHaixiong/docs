@@ -1,11 +1,16 @@
 
-创建软链接
-mklink /d | /h | /j 目标路径 源路径
-
+http://inotgaoshou.iteye.com/blog/645592 dos命令大全
 
 win+R:打开运行，输入cmd打开windows的命令行
+
 sc delete MakeBlockIdeServicePlus : 卸载[删除]windows服务;其中MakeBlockIdeServicePlus是服务名，可在【控制面板->管理工具->服务】中找到
+
+创建软链接 mklink /d | /h | /j 目标路径 源路径
 
 netstat -ano | findstr ":445" 查看是否开启了某个端口 （本机的端口）
 
-http://inotgaoshou.iteye.com/blog/645592 dos命令大全
+dir : 查看当前目录下的所有文件和文件夹
+
+e: ： 进入e盘，进入上级目录：cd ../ ; cd XXX : 进入XXX目录【可以按Tab键补全】
+
+

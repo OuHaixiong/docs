@@ -1,3 +1,5 @@
+http://www.runoob.com/linux/linux-shell.html
+以上是学习网站
 
 前提条件是shell的文件需要要执行的权限【chmod +x xxx.sh】
 运行可在其目录下直接./xxx.sh；或 /data/sh/xxx.sh；或 sh xxx.sh
@@ -12,7 +14,7 @@ echo "This is a shell"
 # \ 表示转义字符
 # 在命令行，通过set可以显示本地所有变量，查找变量时可以通过set |grep XXX。用env可查看所有的环境变量
 
-function sayHello()
+function sayHello() # 函数只能返回字符串
 {
     echo 'Enter your name:'
     read name
@@ -36,7 +38,7 @@ echo "我的当前目录是`pwd`，我的登录姓名是$LOGNAME"
 name='ouhaixiong' # 也可以写成name=ouhaixiong
 # 声明本地变量（局部变量、用户变量）时，等号两边不可以有空格；有空格时一定要用引号引起来；变量名区分大小写
 echo "My name is : $name"
-basePath=`pwd`
+basePath=`pwd` # print name of current/working directory
 # 执行shell命令，把当前工作目录赋值给一个变量
 echo "The current working directory is : ${basePath}"
 # 用${XXX}引用变量，仅在变量名为一个字符时才建议使用$X
@@ -150,5 +152,5 @@ $ ./shell-test-stdout.sh 1&2>/dev/null # 对1和2不是很理解，有时间再�
 [ "$a" = "$b" ] 判断$a和$b的取值是否相等
 shift 删除第一个参数，后面的参数依次变为新的第一和第二参数
 
-
+# . filename # 包含一个shell文件。 也可以写成： source ./XXX/filename.sh 
 

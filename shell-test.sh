@@ -26,12 +26,13 @@ fi
 # 下面是case分支的写法
 case "$#" in
     0) echo '输入了0个参数' ;; # 每个分支必须以两个分号结尾
-    1) echo '输入了1个参数' ;;
+    1) echo '输入了1个参数' ;; # 如果多个取值需要执行一样的代码，如：1|0) XX
     *) echo '输入了多个参数' ;;
 esac
 
 # 下面是for循环的写法
-for i in `seq 1 9` # seq 会产生1-9的数字序列，比如：seq 1 4 取值如：1，2，3，4 。 也可以写成 for (i in xxx) do 
+for i in `seq 1 9` # seq 会产生1-9的数字序列，比如：seq 1 4 取值如：1，2，3，4 。 
+# 也可以写成 for (i in xxx) do；还可以这样写 for ((i=0; i<10; i++)); do ；select和for是一个意思
 do
     #echo `expr $i \* 10` # 输出100内10的倍数. 也可以用break和continue语句中断循环
     echo $(expr $i \* 10) # 上面两种写法是一样的
@@ -62,9 +63,31 @@ cat<<HELP  # 打印多行文本
    ren 'HTM$' 'html' *.HTM
 HELP
 
+# 下面是数组的写法：
+myArray=("我靠" 123 'ni ma' D);
+echo ${myArray[0]};
+echo ${myArray[2]};
+echo ${myArray[3]};
+echo "数组的元素为：${myArray[*]}"; # 也可以写成 ${myArray[@]}
+echo "数组的元素个数为：${#myArray[@]}";
 
+# 下面是函数的写法
+summation() { # 函数前面是否有function都可以
+    echo '这个函数会对输入的两个数字进行相加运算。。。'
+    echo 'Input the first num:'
+    read aNum
+    echo 'Input the second num:'
+    read bNum
+    echo "两个数字分别为 ${aNum} 和 ${bNum} ！"
+    return $((${aNum}+${bNum})); # 这里一定要两个小括号
+}
+#summation
+#echo "输入的两个数字之和为：$?"; # $? 取得（最后一次）上次shell程序的返回值
 
-
+# 下面是正确获取当前正在执行脚本的存放路径
+#basePath=$(cd `dirname $0`; pwd); # 返回：/Users/bear/Downloads/www/docs
+basePath=`pwd`; # 返回：/Users/bear/Downloads/www/docs
+echo ${basePath}
 
 
 
