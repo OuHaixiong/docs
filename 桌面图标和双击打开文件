@@ -1,0 +1,46 @@
+
+下面是ubuntu上如何设置文件关联（双击打开文件）和文件（应用程序的）图标：
+1, 设置文件的mimetype属性；在defaults.list文件中添加applications/scratch=mblock.desktop
+    vim /usr/share/applications/defaults.list 在[Default Applications]下添加如下行：
+    application/scratch=mblock.desktop
+2，在家目录添加xml文件：(也可以在全局添加：/usr/share/mime/packages)
+    mkdir -p ~/.local/share/mime/packages
+    vim ~/.local/share/mime/packages/applications-scratch.xml 内容如下：
+    <?xml version="1.0" encoding="UTF-8"?>
+    <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+        <mime-type type="application/scratch">
+            <comment>scratch 2 file</comment>
+            <icon name="application-scratch" />
+            <glob-deleteall />
+            <glob pattern="*.sb2" />
+        </mime-type>
+    </mime-info>
+3，更新mimetype数据库:
+    update-mime-database ~/.local/share/mime
+    
+文件图标和应用程序图标进行关联：
+xdg-icon-resource install --context mimetypes --size 32 /usr/share/icons/mBlock/32x32.png application-scratch
+
+    
+4，vim /etc/mime.types 添加
+applications/scratch            sb2
+
+vim ~/.local/share/applications/mimeapps.list 添加 【也可能是更新了数据库就有了】
+applications/scratch=mblock.desktop
+
+
+
+xxx.desktop 如下：
+vim /usr/share/applications/xxx.desktop
+[Desktop Entry]
+Encoding=UTF-8 //字符编码
+Comment=xx xxx // 注释
+Name=vim　　//现实的名字
+MimeType=text/plain;text/x-perl; //类型
+Exec=vim %f //运行的程序 %f表示一个参数
+Type=Application　//类型
+Icon=/xxx/xxx // 图标
+Terminal=true //是否使用终端
+NoDisplay=true //是否显示在gnome菜单里 
+Categories=Development;IDE;Application;Tool
+StartupNotify=true
