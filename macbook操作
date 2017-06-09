@@ -113,11 +113,11 @@ vhosts可以在如下目录设置：/usr/local/etc/nginx/servers/
 
 
 下面是Safari浏览器的快捷键：
-1，command+r            刷新页面
-2，alt[option]+↑/↓      上翻/下翻一屏 [fn+↑/↓ 也是同样的功能]
-3，command+↑/↓          滚到页首/页尾 
-4，command+1,2,3...8,9  切换到第几个标签页
-5，                     在同一个主域下面，如果有浏览多个网页，且是非新开窗口跳转，可以通过两个手指头左右切换浏览过的网页
+1，command+r                刷新页面
+2，alt[option]+↑/↓         上翻/下翻一屏 [fn+↑/↓ 也是同样的功能]
+3，command+↑/↓             滚到页首/页尾 
+4，command+1,2,3...8,9     切换到第几个标签页
+5，                        在同一个主域下面，如果有浏览多个网页，且是非新开窗口跳转，可以通过两个手指头左右切换浏览过的网页
 6，
 7，
 8，
@@ -128,8 +128,21 @@ vhosts可以在如下目录设置：/usr/local/etc/nginx/servers/
 下面是iTerm2[命令行工具]的快捷键：
 1，command+→/←             移动到右边／左边标签
 2，command+T               新建一个标签页
-3，
-4，
+3，command+w               关闭标签页
+4，command+1,2,...9,0      切换对应数字的标签
+5，command+Enter           切换全屏
+6，command+F               [当前屏]查找字符串
+7，command+D               垂直分屏
+8，command+shift+D         水平分屏
+9，command+alt[option]+→/←、↑/↓ 或 command+[/] 切换屏幕【如果有分屏的话】
+10，command++/-            字号加一/减一【放大、缩小字号】
+11，command+shift+h        查看剪贴板历史
+12，control+a              到行首
+13，control+e              到行尾
+14，
+
+
+
 
 
 
