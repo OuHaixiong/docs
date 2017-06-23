@@ -110,7 +110,7 @@ OK （这样就可以访问了）   或者在登录时就可以直接输入：/u
 /etc/rc.d/init.d/iptables save
 /etc/init.d/iptables restart
 
-可加入开机启动：
+可加入开机启动：（貌似在CentOS7中无效；解决：因为在CentOS 7中rc.local的文件权限被降低，执行chmod +x /etc/rc.d/rc.local即可）
 vim /etc/rc.local
 /usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf
 
