@@ -5,7 +5,7 @@
     application/scratch=mblock.desktop
 2，在家目录添加xml文件：(也可以在全局添加：/usr/share/mime/packages)
     mkdir -p ~/.local/share/mime/packages
-    vim ~/.local/share/mime/packages/applications-scratch.xml 内容如下：
+    vim ~/.local/share/mime/packages/application-scratch.xml 内容如下：
     <?xml version="1.0" encoding="UTF-8"?>
     <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
         <mime-type type="application/scratch">

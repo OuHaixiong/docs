@@ -22,6 +22,18 @@ cd libevent-2.0.21-stable
 sudo apt-get  install  build-essential 
 sudo apt-get build-dep gcc // 安装gcc
 
+如果报错：
+./configure: error: the HTTP rewrite module requires the PCRE library.
+sudo apt-get install libpcre3 libpcre3-dev // 必须安装
+
+./configure: error: SSL modules require the OpenSSL library.
+sudo apt-get install openssl libssl-dev // 必须安装
+sudo apt-get install libcurl4-openssl-dev pkg-config
+sudo apt-get install libbz2-dev
+sudo apt-get install libjpeg-turbo8-dev
+sudo apt-get install libpng-dev
+sudo apt-get install libfreetype6-dev
+
 首选,确认你已经安装了build-essential程序包:
 apt-get install build-essential
 确认你已经安装了内核头文件包:
