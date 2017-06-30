@@ -32,17 +32,19 @@ https://www.oschina.net/translate/10-tips-git-next-level 有时间要好好看�
 https://www.oschina.net/translate/a-successful-git-branching-model?lang=chs&page=1# 一个成功的git分支模型（值得思考，值得看，不一定照搬）
 http://nvie.com/posts/a-successful-git-branching-model/  {上面的中文，下面的英文源文}
 
-apt-get install libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
+sudo apt-get install libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
+sudo apt-get install git git-core
 
-centos 6.5 执行：yum -y install curl curl-devel expat-devel gettext-devel openssl-devel openssl zlib zlib-devel perl perl-devel gcc gcc-c++ autoconf
- //  cpio    tk
+下面是在CentOS 6.X下安装git客户端：
+1，centos 6.5 执行：yum -y install curl curl-devel expat-devel gettext-devel openssl openssl-devel zlib zlib-devel perl perl-devel gcc gcc-c++ autoconf
+// 貌似这几个包不安装也可以： cpio、tk
 (貌似要下33个包)
 
+2，解压并安装
 $ tar -zxf git-1.7.2.2.tar.gz
 $ cd git-1.7.2.2
 $ make prefix=/usr/local all
 $ sudo make prefix=/usr/local install (如果不设这个路径,就需要做下软连接, sudo ln -s /home/bear/tool/git_1.9.0/bin/git /usr/local/bin/git )
-(apt-get install git git-core)
 （
 如果遇到如下错误：
 libgit.a(utf8.o): In function `reencode_string_iconv':
@@ -61,6 +63,7 @@ make: *** [git-credential-store] 错误 1
 # make prefix=/usr/local install // 安装
 ）
 
+3，运行命令查看是否安装成功
 运行：git --version 查看git版本
 git version 2.11.0
 
@@ -107,11 +110,11 @@ git checkout <tag_name> 恢复到一个标记
 
 
 下面是一串命令操作：建本地仓库，提交，并链接到github.com的远端仓库，提交修改到远端仓库
-touch README.md
+touch README.md 或 echo "# nodeLibraries" >> README.md
 git init
 git add README.md
 git commit -m "first commit"
-git remote add origin git@github.com:OuHaixiong/libs.git
+git remote add origin git@github.com:OuHaixiong/libs.git[https://github.com/OuHaixiong/nodeLibraries.git]
 git push -u origin master
 
 
