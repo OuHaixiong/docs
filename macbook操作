@@ -10,10 +10,10 @@
 2，如果没有gcc环境
 # gcc -v 会提示是否需要安装，点击是即可。
 
-3，sudo apachectl start/restart/stop
+3，sudo apachectl start/restart/stop 开启/重启/停止apache
 查看Apache的版本：httpd -v
-默认配置文件的位置上在: /etc/apache2/httpd.conf
-添加Apache对php的支持：LoadModule php5_module libexec/apache2/libphp5.so
+默认配置文件的位置在: /etc/apache2/httpd.conf
+添加Apache对php的支持：LoadModule php5_module libexec/apache2/libphp5.so【在apache配置中开启php5模块】
 默认apache的网站服务器根目录在：/Library/WebServer/Documents
 
 4，php相关目录
@@ -39,7 +39,7 @@ clang: error: linker command failed with exit code 1 (use -v to see invocation)
 make[1]: *** [objs/nginx] Error 1
 make: *** [build] Error 2
 
-6，下面用Homebrew安装nginx:
+6，下面用Homebrew安装nginx: （homebrew ／homebrew cask ／ brew 两命令可以安装一些工具和环境）
 安装Homebrew：ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 如果出现如下提示，说明安装成功：
 ==> Next steps:
@@ -81,7 +81,7 @@ vhosts可以在如下目录设置：/usr/local/etc/nginx/servers/
  
 下面是mac操作系统的操作：
 1，单次按caps lock按钮，可以在中文和英文直接切换输入法，如果需要切换大小写，需要长按caps lock按钮两秒左右，即可在大写和小写之间进行切换（还可以用Shift+caps lock进行大小写切换）。
-2，command+tab              可在各个应用间进行切换
+2，command+tab              可在各个应用间进行切换【切换窗口】
 3，command+h                可以隐藏应用，同样可以使用command+tab来显示应用 [注意：这里只是隐藏，如果你是最小化的话是无法通过快捷键来显示的]
 4，control+↑                显示桌面上的所有应用，可用鼠标点击来选择一个应用
 5，F4                       显示／隐藏各应用；或者在任意界面，通过四个手指头往里合并收缩，也可以调出各应用
@@ -96,6 +96,7 @@ vhosts可以在如下目录设置：/usr/local/etc/nginx/servers/
 14，fn+delete               可以删除光标处后面的字符
 15，command+F3              显示桌面（再按会回到之前的应用程序界面）【fn+F11也是一样的效果】。用五个手指在触控板上做一个张开的动作，也可显示桌面了
 16，F3                      所有打开的应用小图标化，这样方便选择
+17，command+shift+→/←       从光标处选到行尾/行首
 
 
 下面是ZendStudio的快捷健：
