@@ -17,3 +17,4 @@ if(isset($_GET['debug']))
 
 echo nl2br($result);
 echo '</pre>';
+// 这个怎么使用
