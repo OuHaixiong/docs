@@ -182,3 +182,9 @@ build/    #忽略build目录下的所有文件;如：/electron/node_modules 忽�
 doc/*.txt #只忽略doc/下所有的txt文件,但是不忽略doc/subdir/下的txt文件;
 *.[oa]    #支持通配符：过滤所有以.o或者.a为扩展名的文件
 
+在有的时候，就算加入了.gitignore文件里也无法忽略文件或文件夹，是因为之前就加入了版本控制，现在再忽略是不起作用的
+解决：【在缓存中移除掉要忽略的文件】
+1，提交你已有的改变 : git commit -m "XXX" && git push origin master
+2，在缓存中移除你要忽略的文件或文件夹：git rm --cached XXX 并在.gitignore中添加刚才要忽略的文件或文件夹的路径
+3，添加到索引：git add .
+4，提交更改：git commit -m "fixed untracked files" && git push origin master
