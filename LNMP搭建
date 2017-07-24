@@ -82,7 +82,7 @@ useradd -g www -s /bin/falsh -M www
 #tar -zxvf nginx-1.7.3.tar.gz 
 cd nginx-1.7.3
 ./configure --user=www --group=www （指定nginx的用户和群组） --prefix=/usr/local/webserver/nginx(安装目录)  --sbin-path=/usr/local/webserver/nginx/sbin/nginx  --conf-path=/usr/local/webserver/nginx/conf/nginx.conf  --with-http_stub_status_module  --with-http_ssl_module（开启ssl模块） --with-pcre  --lock-path=/var/run/nginx.lock --pid-path=/var/run/nginx.pid 
-./configure --user=www --group=www --prefix=/usr/local/webserver/nginx --sbin-path=/usr/local/webserver/nginx/sbin/nginx  --conf-path=/usr/local/webserver/nginx/conf/nginx.conf  --with-http_stub_status_module  --with-http_ssl_module --with-pcre  --lock-path=/var/run/nginx.lock --pid-path=/var/run/nginx.pid
+./configure --user=www --group=www --prefix=/usr/local/webserver/nginx --sbin-path=/usr/local/webserver/nginx/sbin/nginx  --conf-path=/usr/local/webserver/nginx/conf/nginx.conf  --with-http_stub_status_module  --with-http_ssl_module --with-pcre --with-http_gzip_static_module --lock-path=/var/run/nginx.lock --pid-path=/var/run/nginx.pid
 编译结束后如果没出错的话，make && make install 安装。 
 第三步：更改配置
 #更改配置 
