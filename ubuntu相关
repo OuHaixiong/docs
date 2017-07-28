@@ -1,0 +1,8 @@
+
+sudo dpkg -l |grep makeb 查找已安装的deb包
+sudo dpkg -r makeblockideserviceplus 卸载包名为xxx的deb包（保留其配置信息）
+sudo dpkg -i --force-overwrite xxx.deb 强制覆盖安装xxx的deb包
+sudo dpkg -R /xx/xxx 安装一个目录下面所有的软件包
+sudo dpkg -P xxx 删除一个deb包（包括其配置信息）
+
+systemctl status |grep ide 搜索xxx的开机启动服务
