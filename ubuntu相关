@@ -1,8 +1,12 @@
 
 sudo dpkg -l |grep makeb 查找已安装的deb包
 sudo dpkg -r makeblockideserviceplus 卸载包名为xxx的deb包（保留其配置信息）
-sudo dpkg -i --force-overwrite xxx.deb 强制覆盖安装xxx的deb包
+sudo dpkg -i --force-overwrite [--instdir=xxx安装目录] xxx.deb 强制覆盖安装xxx的deb包
 sudo dpkg -R /xx/xxx 安装一个目录下面所有的软件包
 sudo dpkg -P xxx 删除一个deb包（包括其配置信息）
+sudo dpkg-deb -x xxx.deb xxx/xx/ 解压一个deb包到对应的目录
+sudo dpkg-deb -e xxx.deb xxx/xx/ 解压deb包中的control(控制信息)【DEBIAN】文件到对应目录
+sudo dpkg-deb -b xxx/ build/ 打包一个目录为deb包
+sudo dpkg -I xxx 查看deb包的详细信息，包括软件名称、版本、大小等（其中-I等价于--info）
 
 systemctl status |grep ide 搜索xxx的开机启动服务
