@@ -9,6 +9,8 @@ sc delete MakeBlockIdeServicePlus : 卸载[删除]windows服务;其中MakeBlockI
 
 netstat -ano | findstr ":445" 查看是否开启了某个端口 （本机的端口）
 
+netstat -an 查看本机开放的所有tcp和udp端口
+
 dir : 查看当前目录下的所有文件和文件夹
 
 e: ： 进入e盘，进入上级目录：cd ../ ; cd XXX : 进入XXX目录【可以按Tab键补全】

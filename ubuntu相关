@@ -10,3 +10,5 @@ sudo dpkg-deb -b xxx/ build/ 打包一个目录为deb包
 sudo dpkg -I xxx 查看deb包的详细信息，包括软件名称、版本、大小等（其中-I等价于--info）
 
 systemctl status |grep ide 搜索xxx的开机启动服务
+
+Ctrl+Alt+T 打开终端（已打开终端的情况下，Ctrl+Shift+T可以多开一个tab）
