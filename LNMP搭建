@@ -264,7 +264,7 @@ which mysql 查询运行文件所在路径（目录）
           可查看3306端口是否被监控：netstat -ntulp |grep 3306
  17，修改root用户的密码
      cd /usr/local/mysql
-     ./bin/mysqladmin -u root password
+     ./bin/mysqladmin -u root password (这里一定要启动着mysql)
      （./bin/mysqladmin -u root -h localhost.localdomain password 'new-password'）
           输入新密码即可
           重启服务：service mysqld restart
@@ -294,6 +294,13 @@ cd php-5.4.35/
 编译,安装
 ./configure --prefix=/usr/local/php  --with-mysql --with-mysqli=mysqlnd --with-pdo_mysql=mysqlnd --with-openssl --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-bz2 --with-libxml-dir=/usr --enable-xml --with-iconv=/usr/local/lib --with-curl --with-mcrypt --with-gd --enable-gd-native-ttf --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap
 #make ZEND_EXTRA_LIBS='-liconv' 如果libiconv路径设置对了，可以编译通过就不需要后面这节
+(
+如果遇到如下错误时：
+checking for specified location of the MySQL UNIX socket... no
+configure: error: Cannot find libmysqlclient under /usr.
+需要对mysqlclient的so文件做软连接
+ln -s /usr/lib64/mysql/libmysqlclient.so.16.0.0 /usr/lib/libmysqlclient.so 【注意源文件的版本信息，不同的版本可能不一样】
+)
 make
 make test
 make install

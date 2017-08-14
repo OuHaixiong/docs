@@ -246,3 +246,9 @@ sudo apt-get remove mysql-common //这个很重要
 上面的其实有一些是多余的。
 清理残留数据
 dpkg -l |grep ^rc|awk '{print $2}' |sudo xargs dpkg -P
+
+如果插入数据出现如下错误：
+Out of range value for column 'XXX' at row 1
+表示插入的数据超过了字段设置的长度
+解决方案：把字段的类型换下，换成支持更长的字段，如：int 换成BIGINT
+
