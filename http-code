@@ -16,6 +16,7 @@
 如果是php-cig进程数不够用，解决方案：
 增大配置/usr/local/php/etc/php-fpm.conf中的pm.max_children（一般一个php-cgi进程占20M内存，你可以自己计算下，适量增多。）
 当setcookie设置的值过长时，也会报502错误。解决办法是修改nginx配置：fastcgi_buffer_size 16k;fastcgi_buffers 16 16k;适当的增大这两个参数的缓存值
+http://blog.csdn.net/u013474436/article/details/48136023  很值得去认真看的一篇文章
 
 504(Gateway Time-out): 执行超时，有可能是连接数据库时，无法连接，导致php脚本超时。也可能是程序陷入了死循环。
  后证实连接redis服务器，无法连接时是抛异常，而非504错误，但是如果是session保存入redis时，无法连接也是报504 Gateway Time-out

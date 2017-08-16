@@ -43,6 +43,7 @@ update-mime-database ~/.local/share/mime 更新mimetype数据库，即添加新�
 　-r或-R或–recursive 　递归处理，将指定目录下的所有文件及子目录一并处理。 
 　-v或–verbose 　显示指令执行过程。 
 find . -type d -name ".svn"|xargs rm -rf 批量删除.svn文件夹(-iname -i: 忽略大小写)
+find . -name ".DS_Store" | xargs rm -rf 批量删除文件名为.DS_Store的文件
 
 
 # 用户相关
