@@ -228,6 +228,7 @@ sudo vim /etc/mysql/my.cnf
 2.授权法
 mysql>GRANT ALL PRIVILEGES ON *.* TO 'link'@'%' IDENTIFIED BY '123456' WITH GRANT OPTION;
 // grant select,insert,update,delete on *（数据库）.*（表） to user@"%"[localhost] Identified by "123456" with grant option; 
+   grant all privileges on `databasename`.* to "Ouxxxx3xxxx"@"%" identified by "xxx852456[#^(]xxx" with grant option; // 特别注意用户名和密码里面的特殊字符
 // 增加一个用户user密码为123456，让他可以在任何主机上登录，并对所有数据库有查询、插入、修改、删除的权限
 mysql>FLUSH PRIVILEGES
 匹配字符：可以用通配符_代表任何一个字符，％代表任何字符串;
