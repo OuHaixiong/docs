@@ -248,8 +248,25 @@ sudo apt-get remove mysql-common //这个很重要
 清理残留数据
 dpkg -l |grep ^rc|awk '{print $2}' |sudo xargs dpkg -P
 
+mysql常见错误处理：
 如果插入数据出现如下错误：
 Out of range value for column 'XXX' at row 1
 表示插入的数据超过了字段设置的长度
 解决方案：把字段的类型换下，换成支持更长的字段，如：int 换成BIGINT
+
+[Err] 1264 - Out of range value for column 'amount' at row 1
+原因是新版的MySQL对字段的严格检查。如果要插入的字段长度超过列定义的长度，那么mysql直接终止操作报出上面的错误。相反在老版本中，如果执行的是不严格的检查，则不会终止操作，而是会自动截断后面的字符继续插入操作!
+解决：
+1，找到对应的字段，对相应的字段设置适合数据长度的类型。如：`amount` float(10,3) NOT NULL;改为：`amount` float(15,3) NOT NULL;
+2，网上说的把sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES改成sql_mode=NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION的方案在mysql 5.6.25的数据库中并不能起作用。也就是说mysql 5.6.25是强制使用严格检查的；只能修改字段
+
+[Err] 1419 - You do not have the SUPER privilege and binary logging is enabled (you *might* want to use the less safe log_bin_trust_function_creators variable)
+原因：mysql导入数据提示没有SUPER Privilege权限处理。function[存储过程] / trigger[触发器] 中有dangerous statements修改数据库，错误只在启用binary logging选项进行主从复制的服务器上出现。
+解决：
+如果不需要复制，或者是从库，关闭binlog，即如果用主从同步的话，是无法使用TRIGGER的
+#log-bin=/data/db/mysql/binlog/mysql-binlog  # 开启bin-log(路径要根据自己的安装设置，确保此文件可写)
+#binlog-do-db=vragon_debug         # 要同步的数据库名，多个写多行；如果不写，默认就是同步所有的数据库
+#binlog-ignore-db=mysql            #不需要备份的数据库，多个写多行
+#binlog-ignore-db=performance_schema
+#binlog-ignore-db=information_schema
 
