@@ -270,3 +270,19 @@ Out of range value for column 'XXX' at row 1
 #binlog-ignore-db=performance_schema
 #binlog-ignore-db=information_schema
 
+[Err] 1227 - Access denied; you need (at least one of) the SUPER privilege(s) for this operation --常见于 RDS MySQL 5.6
+ERROR 1725 (HY000) at line 1936: OPERATION need to be executed set by ADMIN --常见于 RDS MySQL 5.5
+原因：在创建 存储过程、函数、触发器、事件、视图的时候出现这个错误。导入SQL语句中含有需要 Supper 权限才可以执行的语句，而当前用户的MySQL不提供 Super 权限，因此需要去除这类语句。
+解决：
+1，去除 DEFINER 子句：DEFINER=`root`@`localhost`  在 Linux 平台下，可以尝试使用下面的语句去除：
+sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/ ' your.sql > your_revised.sql
+或者用当前用户替代root，如：DEFINER=`Bear.Ou`@`%`
+2，去除 GTID_PURGED 子句:
+SET @@GLOBAL.GTID_PURGED='d0502171-3e23-11e4-9d65-d89d672af420:1-373,
+d5deee4e-3e23-11e4-9d65-d89d672a9530:1-616234';
+在 Linux 平台，可以使用下面的语句去除:
+awk '{ if (index($0,"GTID_PURGED")) { getline; while (length($0) > 0) { getline; } } else { print $0 } }' your.sql | grep -iv 'set @@' > your_revised.sql
+修改完sql文件后，可以检查是否符合要求：
+egrep -in "definer|set @@" your_revised.sql
+如果上面的语句没有输出，说明 SQL 文件符合要求。
+
