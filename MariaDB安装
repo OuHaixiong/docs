@@ -70,6 +70,7 @@ log-error = /var/log/mariadb/maria_error.log  # 数据库错误日记文件，�
 15，开启3306端口及远程连接
 # mysql -uroot -h127.0.0.1 -P3306 -p
 # MariaDB [(none)]> GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' IDENTIFIED BY '123456' WITH GRANT OPTION;
+                    grant all privileges on `dbname`.* to "username"@"%" identified by "password" with grant option;
 # MariaDB [(none)]> FLUSH PRIVILEGES;
 # MariaDB [(none)]> quit;
 重起MariaDB，检查创建是否成功

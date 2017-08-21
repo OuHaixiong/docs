@@ -259,7 +259,7 @@ Out of range value for column 'XXX' at row 1
 解决：
 1，找到对应的字段，对相应的字段设置适合数据长度的类型。如：`amount` float(10,3) NOT NULL;改为：`amount` float(15,3) NOT NULL;
 2，网上说的把sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES改成sql_mode=NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION的方案在mysql 5.6.25的数据库中并不能起作用。
-也就是说mysql 5.6.25是强制使用严格检查的；只能修改字段.(这里同样版本的mysql，同样的操作系统，表现都会不一样)
+也就是说mysql 5.6.25是强制使用严格检查的；只能修改字段.(这里同样版本的mysql，同样的操作系统，表现都会不一样。mariadb-10.1.14或低版本的mysql可以解决这个问题)
 特别注意了：后面证实改这个参数是有用的（再其他系统中没有用，估计和操作系统或mysql的版本有关）,版本：5.6.25-log - MySQL Community Server (GPL);改后需要重启mysql
 sql-mode="NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION" ： 是非严格的sql模式：如果将不正确的值插入到列，会将这些列设为“最可能的值”，而不报错
 sql-mode="STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION" ：执行严格的sql模式：在事务中放弃语句并回滚；非事务，首行报错将放弃语句，非首行将调整不良数据值，并给出警告。
