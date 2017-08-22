@@ -1,48 +1,5 @@
-sudo apt-get install memcached
 
-启动该服务：
-memcached -d -m 128 -p 11211 -u root
-这里需要说明一下memcached服务的启动参数：
--p 监听的端口
--l 连接的IP地址, 默认是本机
--d start 启动memcached服务
--d restart 重起memcached服务
--d stop|shutdown 关闭正在运行的memcached服务
--d install 安装memcached服务
--d uninstall 卸载memcached服务
--u 以的身份运行 (仅在以root运行的时候有效)
--m 最大内存使用，单位MB。默认64MB
--M 内存耗尽时返回错误，而不是删除项
--c 最大同时连接数，默认是1024
--f 块大小增长因子，默认是1.25-n 最小分配空间，key+value+flags默认是48
--h 显示帮助
-
-安装php-memcache模块
-sudo apt-get install php5-memcache
-
-安装完以后我们需要在php.ini里进行简单的配置,
-打开/etc/php5/apache2/php.ini文件在末尾添加如下内容：
-[Memcache]
-; 一个高性能的分布式的内存对象缓存系统，通过在内存里维护一个统一的巨大的hash表，
-; 它能够用来存储各种格式的数据，包括图像、视频、文件以及数据库检索的结果等。
-; 是否在遇到错误时透明地向其他服务器进行故障转移。
-memcache.allow_failover = On
-; 接受和发送数据时最多尝试多少个服务器，只在打开memcache.allow_failover时有效。
-memcache.max_failover_attempts = 20
-; 数据将按照此值设定的块大小进行转移。此值越小所需的额外网络传输越多。
-; 如果发现无法解释的速度降低，可以尝试将此值增加到32768。
-memcache.chunk_size = 8192
-; 连接到memcached服务器时使用的默认TCP端口。
-memcache.default_port = 11111
-; 控制将key映射到server的策略。默认值”standard”表示使用先前版本的老hash策略。
-; 设为”consistent”可以允许在连接池中添加/删除服务器时不必重新计算key与server之间的映射关系。
-;memcache.hash_strategy = “standard”;
-控制将key映射到server的散列函数。默认值”crc32″使用CRC32算法，而”fnv”则表示使用FNV-1a算法。
-; FNV-1a比CRC32速度稍低，但是散列效果更好。
-;memcache.hash_function = “crc32″
-保存php.ini,执行sudo /etc/init.d/apache2 restart重启Apache。
-
-
+特别注意了：对于php的扩展最好安装php-memcached这个扩展，因为php-memcached性能更好，此扩展需要安装libmemcached库。http://pecl.php.net/package/memcached
 php5-memcache扩展提供的方法
 Memcache::add — 添加一个值，如果已经存在，则返回false
 Memcache::addServer — 添加一个可供使用的服务器地址
@@ -64,26 +21,25 @@ Memcache::set — 添加一个值，如果已经存在，则覆写
 Memcache::setCompressThreshold — 对大于某一大小的数据进行压缩
 Memcache::setServerParams — 在运行时修改服务器的参数
 
+Memcache是什么？
+memcache是一个高性能的分布式的内存对象缓存系统，通过在内存里维护一个统一的巨大的hash表，
+它能够用来存储各种格式的数据，包括图像、视频、文件以及数据库检索的结果等。
 
+ubuntu下安装memcache
 
- ubuntu下安装php memcache扩展
-
-memcached 安装
+1，memcached 安装
 sudo apt-get install memcached
 
-memcached 参数说明
-memcached -d -m 50 -p 11211 -u root
+2，启动该服务：
+memcached -d -m 128 -p 11211 -u root
 -m 指定使用多少兆的缓存空间；-p 指定要监听的端口； -u 指定以哪个用户来运行
 
-安装php-memcache模块
+3，安装php-memcache模块
 sudo apt-get install php5-memcache
-sudo apt-get install php5-memcached
-
 编辑配置文件
-sudo vi /etc/php5/conf.d/memcache.ini
+sudo vi /etc/php5/conf.d/memcache.ini 或 直接在php.ini[/etc/php5/apache2/php.ini]中进行配置，添加如下内容：
 ;uncomment the next line to enable the module
 extension=memcache.so
-
 [memcache]
 memcache.dbpath="/var/lib/memcache"
 memcache.maxreclevel=0
@@ -91,18 +47,30 @@ memcache.maxfiles=0
 memcache.archivememlim=0
 memcache.maxfilesize=0
 memcache.maxratio=0
+memcache.allow_failover = On ; 是否在遇到错误时透明地向其他服务器进行故障转移。
+memcache.max_failover_attempts = 20 ; 接受和发送数据时最多尝试多少个服务器，只在打开memcache.allow_failover时有效。
+; 数据将按照此值设定的块大小进行转移。此值越小所需的额外网络传输越多。
+; 如果发现无法解释的速度降低，可以尝试将此值增加到32768。
+memcache.chunk_size = 8192
+memcache.default_port = 11111 ; 连接到memcached服务器时使用的默认TCP端口。
+; 控制将key映射到server的策略。默认值”standard”表示使用先前版本的老hash策略。
+; 设为”consistent”可以允许在连接池中添加/删除服务器时不必重新计算key与server之间的映射关系。
+;memcache.hash_strategy = “standard”;
+;memcache.hash_function = “crc32″ ;控制将key映射到server的散列函数。默认值”crc32″使用CRC32算法，而”fnv”则表示使用FNV-1a算法。 FNV-1a比CRC32速度稍低，但是散列效果更好。
+保存php.ini,执行sudo /etc/init.d/apache2 restart重启Apache。或重起你的phpfastcgi进程
 
-
-在phpinfo()查看memcache的相关配置
-
-
-测试：
-
-$mem = new Memcache;
-$mem->connect("127.0.0.1", 11211);
-$mem->set('key', 'This is a memcached test!', 0, 60);
-$val = $mem->get('key');
+4，在phpinfo()查看memcache的相关配置；正常的话你应该可以看到 memcache
+也可以通过php程序来测试：
+<?php
+$mem = new Memcache;//创建Memcache对象  
+$mem->connect('127.0.0.1', 11211); //连接Memcache服务器  
+$mem->set('key', 'This is a memcached test!', 0, 60); // 增加插入一条缓存，缓存时间为60s 
+$val = $mem->get('key'); // 获取到指定的key的缓存值  
 echo $val;
+
+5，如果想把session保存进memcache中：
+session.save_handler string ; 设置这个值来确定是否使用 memcache 用于通信对话的处理（session handler）。
+session.save_path string ; 定义各服务器链接存储于通信对话单元时的分隔符号，例如：“tcp://host1:11211, tcp://host2:11211”
 
 
 下面是手动编译安装：
@@ -138,17 +106,17 @@ memcached-1.2.6.tar.gz (http://www.danga.com/memcached/)
 2. 安装memcached
 # tar zxvf memcached-1.2.6.tar.gz
 # cd memcached-1.2.6
-# ./configure --prefix=/usr/local/servers/memcached --with-libevent=/usr/local/servers/libevent
+# ./configure --prefix=/usr/local/memcached --with-libevent=/usr/local/servers/libevent
 # make && make install
 
 3. 运行memcached
 # /usr/local/servers/memcached -d -m 128 -l localhost -p 11211 -u root
--d 以守护程序（daemon）方式运行 memcached；
--m 设置 memcached 可以使用的内存大小，单位为 M；
+-d 以守护程序（daemon）方式运行 memcached；将程序放入后台
+-m 设置memcached可以使用的内存大小，单位为 M；最大内存使用，默认64MB
 -M 内存耗尽时返回错误，而不是删除项
--l 设置监听的 IP 地址，如果是本机的话，通常可以不设置此参数；
--p 设置监听的端口，默认为 11211，所以也可以不设置此参数；
--u 指定用户;
+-l 设置监听的 IP 地址，如果是本机的话【默认是本机】，通常可以不设置此参数；如果你需要多个服务器都能够读取这台memcached的缓存数据，那么就必须设定这个ip
+-p 设置监听的tcp端口，默认为 11211，所以也可以不设置此参数；
+-u 指定用户[以什么身份运行](仅在以root运行的时候有效);
 -d start 启动memcached服务
 -d restart 重起memcached服务
 -d stop|shutdown 关闭正在运行的memcached服务
@@ -157,115 +125,12 @@ memcached-1.2.6.tar.gz (http://www.danga.com/memcached/)
 -c 最大同时连接数，默认是1024
 -f 块大小增长因子，默认是1.25-n 最小分配空间，key+value+flags默认是48
 -h 显示帮助
-
-tar xvf memcached-1.2.6.tar.gz
-
-cd memcached-1.2.6
-
-./configure --prefix=/usr/local/memcached
-
-make 
-
-make install
-
-安装好了以后，先建立memcached运行临时目录：
-
-mkdir -pv /var/run/memcached
-
-chown -R nobody:nobody /var/run/memcached
-
-然后就可以启动memcached的守护进程了：
-
-/usr/local/memcached/bin/memcached -p 11211 -l 172.16.236.150 -d -u nobody -P /var/run/memcached/memcached.pid -m 64M -c 1024
-
-几个参数的解释：
-
--p memcached监听的TCP端口
-
--l 监听的ip地址，172.16.236.150是我服务器的IP地址，如果你需要多个服务器都能够读取这台memcached的缓存数据，那么就必须设定这个ip
-
--d 以daemon方式运行，将程序放入后台
-
--u memcached的运行用户，我设定的是nobody
-
--P memcached的pid文件路径
-
--m memcached可以使用的最大内存数量
-
--c memcached同时可以接受的最大的连接数 
-
-　　如果你希望以socket方式来访问memcached，那么在启动的时候就必须去掉 -l和-p参数，并加上-s参数：
-
+-P memcached的pid文件路径；如： -P /var/run/memcached/memcached.pid
+如果你希望以socket方式来访问memcached，那么在启动的时候就必须去掉 -l和-p参数，并加上-s参数：
 -s memcached的socket文件路径 
 
-下面安装php的extension，你可以在php的pcel项目站点找到memcache的扩展：http://pecl.php.net/package/memcache，目前最新版本是3.0.3
-
-　　注意了，在pcel站点上有两个关于memcached的php扩展，一个叫memcache，一个叫memcached，看介绍，这两个扩展的功能都是一样的，但是后者似乎是今年才开始的项目，综合考虑，我还说选用了前者，毕竟开发时间长，以后找文档应该也会方便得多。
-
-下载php-memcache之后，编译安装：
-
-tar xvf memcache-3.0.3.tgz
-
-cd memcache-3.0.3
-
-/usr/local/php5/bin/phpize
-
-./configure --with-php-config=/usr/local/php5/bin/php-config --enable-memcache
-
-make
-
-make install
-
-　　按照我的环境，编译出来的memcache.so保存在 /usr/local/php5/lib/php/extensions/no-debug-non-zts-20060613/ 目录下，如果你的环境不一样，你得根据自己情况修改你的php.ini了。
-
-　　接着要做的工作就是让php加载这个扩展，编辑你的php.ini，在适当位置（通常是最后，也可以是独立的一个ini文件）加入如下行：
-
-extension=memcache.so
-
-然后重启你的phpfastcgi进程或者apache，运行一个phpinfo()来确认一下，正常的话你应该可以看到 memcached;
-
-; 是否在遇到错误时透明地向其他服务器进行故障转移。
-memcache.allow_failover = On
-
-; 接受和发送数据时最多尝试多少个服务器，只在打开memcache.allow_failover时有效。
-memcache.max_failover_attempts = 20
-
-; 数据将按照此值设定的块大小进行转移。此值越小所需的额外网络传输越多。
-; 如果发现无法解释的速度降低，可以尝试将此值增加到32768。
-memcache.chunk_size = 8192
-
-; 连接到memcached服务器时使用的默认TCP端口。
-memcache.default_port = 11111
-
-; 控制将key映射到server的策略。默认值”standard”表示使用先前版本的老hash策略。
-; 设为”consistent”可以允许在连接池中添加/删除服务器时不必重新计算key与server之间的映射关系。
-;memcache.hash_strategy = “standard”; 控制将key映射到server的散列函数。默认值”crc32″使用CRC32算法，而”fnv”则表示使用FNV-1a算法。
-; FNV-1a比CRC32速度稍低，但是散列效果更好。
-;memcache.hash_function = “crc32″
-
-session.save_handler string
-设置这个值来确定是否使用 memcache 用于通信对话的处理（session handler）。
-
-session.save_path string
-定义各服务器链接存储于通信对话单元时的分隔符号，例如：“tcp://host1:11211, tcp://host2:11211”。
-　　
-
-Memcache::add — 添加一个值，如果已经存在，则返回false
-Memcache::addServer — 添加一个可供使用的服务器地址
-Memcache::close — 关闭一个Memcache对象
-Memcache::connect — 创建一个Memcache对象
-memcache_debug — 控制调试功能
-Memcache::decrement — 对保存的某个key中的值进行减法操作
-Memcache::delete — 删除一个key值
-Memcache::flush — 清除所有缓存的数据
-Memcache::get — 获取一个key值
-Memcache::getExtendedStats — 获取进程池中所有进程的运行系统统计
-Memcache::getServerStatus — 获取运行服务器的参数
-Memcache::getStats — 返回服务器的一些运行统计信息
-Memcache::getVersion — 返回运行的Memcache的版本信息
-Memcache::increment — 对保存的某个key中的值进行加法操作
-Memcache::pconnect — 创建一个Memcache的持久连接对象
-Memcache::replace — R对一个已有的key进行覆写操作
-Memcache::set — 添加一个值，如果已经存在，则覆写
-Memcache::setCompressThreshold — 对大于某一大小的数据进行压缩
-Memcache::setServerParams — 在运行时修改服务器的参数
+安装好了以后，先建立memcached运行临时目录：
+mkdir -pv /var/run/memcached
+chown -R nobody:nobody /var/run/memcached
+然后就可以启动memcached的守护进程了：
+/usr/local/memcached/bin/memcached -p 11211 -l 172.16.236.150 -d -u nobody -P /var/run/memcached/memcached.pid -m 64M -c 1024
