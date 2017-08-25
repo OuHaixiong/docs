@@ -1,0 +1,14 @@
+no crontab for root 解决方案
+root用户下 输入 crontab -l 显示
+no crontab for root  例如：
+[root@localhost ~]# crontab -l
+no crontab for root
+这个问题非常简单，同样在 root 用户下输入 crontab -e
+按 Esc 按： wq   回车
+在输入 crontab -l 就没有问题了
+主要原因是由于这个liunx服务器 第一次使用 crontab ，还没有生成对应的文件导致的，执行了 编辑（crontab -e）后 就生成了这个文件
+
+iptables: No config file. 解决 
+这个是因为首次还没有配置任何信息造成的，可以随便配置一个进去，后重启iptables即可。如下：
+/sbin/iptables -I INPUT -p tcp --dport 80 -j ACCEPT  // 开启80端口
+/etc/rc.d/init.d/iptables save && /etc/init.d/iptables restart
