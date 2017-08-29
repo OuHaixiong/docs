@@ -9,7 +9,7 @@ mysql -h127.0.0.1 -uroot -p
 命令：show status like '%下面变量%';
 Aborted_clients 由于客户没有正确关闭连接已经死掉，已经放弃的连接数量。 
 Aborted_connects 尝试已经失败的mysql服务器的连接的次数。 
-Connections 试图连接MySQL服务器的次数。 
+Connections 试图连接MySQL服务器的次数，即连接过的总次数。 (包括你链接成功或不成功都会记载)
 Created_tmp_tables 当执行语句时，已经被创造了的隐含临时表的数量。 
 Delayed_insert_threads 正在使用的延迟插入处理器线程的数量。 
 Delayed_writes 用INSERT DELAYED写入的行数。 
@@ -35,11 +35,21 @@ Open_files 打开文件的数量。
 Open_streams 打开流的数量(主要用于日志记载） 
 Opened_tables 已经打开的表的数量。 
 Questions 发往服务器的查询的数量。 
-Slow_queries 要花超过long_query_time时间的查询数量。 
+Slow_queries 要花超过long_query_time时间的查询数量（慢查询次数）。 
 Threads_connected 当前打开的连接的数量。 
 Threads_running 不在睡眠的线程数量。 
 Uptime 服务器工作了多少秒。
 
+
+2，开启mysql的慢查询（slow log）日志：
+  1) 在配置文件my.cnf的[mysqld]段增加如下配置： vim /etc/my.cnf
+    slow_query_log=ON
+    slow_query_log_file=/data/logs/mysql/maria_slow_query.log
+    long_query_time=1 // 大于多少秒的查询将被日志记录；默认是10s
+  2) 重启mysql服务，查看慢查询是否开启：
+    MariaDB [(none)]> show variables like '%query%';
+
+       
 
             一：alter table用来创建普通索引，unique索引或primary key索引
                 普通索引：alter table t1 add index in_name(name)   --t1表中的那么字段添加索引名为in_name
@@ -269,13 +279,7 @@ Uptime 服务器工作了多少秒。
                         InnoDB_rows_inserted执行insert操作的次数
                         InnoDB_rows_deleted执行delete操作的次数
                  
-                其他：
-                sql: show status like "connections";
-                    connections 链接MySQL的数量(包括你链接成功或不成功都会记载)
-                    Uptime 服务器已经工作的秒伤
-                    Slow_queries 慢查询次数
-                    show variables like "%slow%";  查看是否开启慢查询 OFF关闭（默认慢查询文件等详细信息）
-                    show variables like "%long%";  查看默认慢查询的时间默认是10s
+                
                      
         *2:定位执行效率较低的语句(解析sql)
                 可以查出：有没有用索引啊  单表查还是多表查 还是嵌套查询啊。。。,看这几个值既能分析出来
@@ -506,16 +510,7 @@ Uptime 服务器工作了多少秒。
             配置文件中打开：log-bin=mysql-bin
          
          
-    三：slow log 慢查询日志问题
-        查看慢查询是否开启：
-            show variables like "%slow%";  --看slow_query_log 是否开启
-                                           --慢查询日志保存地址 slow_query_log_file -> E:\wamp\bin\mysql\mysql5.5.20\data\asus-PC-slow.log
-            show variables like "%long%";  --查看慢查询时间10s，long_query_time
-         
-        开启和设置慢查询时间：
-            配置文件里[mysqld]下添加就好：
-                        log_slow_queries=E:/data/slow.log
-                        long_query_time=5   大于5秒的SQL就会被记载到slow.log文件中
+
              
      
     四：socket问题
