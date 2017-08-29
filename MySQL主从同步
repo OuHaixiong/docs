@@ -87,6 +87,8 @@ mysqldump --add-drop-table -h 127.0.0.1 -u root -p vragon_debug > /data/db/back/
 （
 #仅仅备份数据库结构:
 #mysqldump -uroot -p --no-data --databases databasename1 databasename2 databasename3 > /data/db/back/structurebackupfile.sql
+# 如果需要备份数据结构和数据，以及存储过程和函数：
+# mysqldump -uroot -p -R testdb > testdb.sql 
 #备份服务器上所有数据库:
 #mysqldump -uroot -p --all-databases > /data/db/back/allbackup.sql
 #mysqldump -u用户名 数据库  表名称 > /home/temp/aaa.sql 如果是备份单表的话 

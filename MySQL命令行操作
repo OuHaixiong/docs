@@ -50,7 +50,7 @@ Uptime 服务器工作了多少秒。
     MariaDB [(none)]> show variables like '%query%';
 
 
-3.开启mysql记录所有执行过的sql
+3，开启mysql记录所有执行过的sql
   1) mysql> show variables like "%general%"; // 查看常规日记开关是否已开启
 +------------------+------------------------+
 | Variable_name    | Value                  |
@@ -64,7 +64,24 @@ Uptime 服务器工作了多少秒。
     general_log_file=/data/logs/mysql/sql_row.log  // 所有执行的sql语句存储的位置【确认mysql数据库运行的用户对该文件有写的权限】
   3) 重启mysql，然后查看日记文件是否有我们操作的sql语句
       service mysqld restart  
-    
+      
+      
+4，通过shell脚本备份数据库：
+  1) 创建可执行的shell文件：vim /home/mysql/dump_0xc.sh
+#!/bin/bash
+echo 'Dump database 0xc start...';
+nowTime=`date +%Y%m%d_%H%M%S`;
+filename="0xc_${nowTime}.sql";
+#echo ${filename};
+/usr/local/mysql/bin/mysqldump --add-drop-table -h127.0.0.1 -uroot -ppasswd -R -E --triggers 0xc > /home/xxx/${filename}
+# -R:备份存储过程和函数；-E：备份事件；--triggers：备份触发器
+echo 'Dump database 0xc finished!!!!';
+  2) 加入定时任务：crontab -e
+    30 5 * * * /home/mysql/dump_0xc.sh > /dev/null 2>&1
+  3) 重启crond:
+    killall crond
+    ps aux |grep crond // 查看是否已杀掉
+    /usr/sbin/crond
 
 
             一：alter table用来创建普通索引，unique索引或primary key索引
