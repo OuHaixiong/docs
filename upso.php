@@ -28,7 +28,7 @@ function encrypt($data, $key = null) {
     return base64_encode($encrypted);
 }
 
-function decrypt($data, $key = null) {
+function decrypt($data, $key = null ) {
     $data = base64_decode($data);
     $module = openCryptModule ();
     $key = substr ( $key === null ? md5 ( $this->getEncryptionKey () ) : $key, 0, mcrypt_enc_get_key_size ( $module ) );

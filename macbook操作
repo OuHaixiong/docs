@@ -144,6 +144,25 @@ vhosts可以在如下目录设置：/usr/local/etc/nginx/servers/
 13，control+e              到行尾
 14，
 
+下面是SecureCRT的快捷键：
+1，Alt + Enter             全屏
+2，Alt + B                 打开新的连接
+3，Alt + 1/2/3/4/5…/9      切换到第1/2/3/4/5…/9个标签
+4，Ctrl + A                光标移至行首
+5，Ctrl + B                光标前移1个字符
+6，Ctrl + D                删除光标后1个字符
+7，Ctrl + E                光标移至行末
+8，Ctrl + F                光标后移1个字符
+9，Ctrl + H                删除光标前的1个字符
+10，Ctrl + J               回车
+11，Ctrl + k               删除当前光标至行末的字符
+12，Ctrl + P               显示前一条命令
+13，Ctrl + M               回车
+14，Ctrl + N               下一条命令
+15，Ctrl + T               交换光标前最后两个字符（思科路由器可用）
+16，Ctrl + U               清除当前行和缓存的输入
+17，Ctrl + V               输入ctrl字符
+18，Ctrl + W               删除当前光标至行首的字符
 
 
 
