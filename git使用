@@ -19,7 +19,8 @@ git pull
 # git reset --soft [HASH] 返回到某个节点，保留修改
 # git checkout -b dev origin/dev checkout远程的dev分支并在本地起名为dev分支，并且切换到本地的dev分支
 # git reflog 可以查看git的所有版本记录包括提交信息，这样可以通过reset重置到某个版本[git reset --hard xxx]，也可以找回已删除的commit记录
-# git log 查看历史提交记录【进入后可按q退出】；可加参数--pretty=oneline 这样可以
+# git log 查看历史提交记录【进入后可按q退出】；可加参数--pretty=oneline 这样可以；还可以git log -n[5]：查看最近的几条提交记录
+# git remote set-url origin xxx 修改仓库的远程仓库地址
 
 学习网址：
 http://git-scm.com/book/zh/
@@ -70,6 +71,7 @@ git version 2.11.0
 获取Git配置信息，执行以下命令：git config --list
 git config --global user.email "you@example.com"
 git config --global user.name "Your Name" 设置你提交的用户名和邮箱
+git config credential.helper store 保存密码到硬盘(当git pull/push的时候输入一次用户名和密码就会被记录)
 
 git init 创建一个Git仓库
 git init --bare example.git 创建一个远端仓库
