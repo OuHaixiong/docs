@@ -52,7 +52,7 @@ basedir=/usr/local/mariadb
 # vim /etc/my.cnf 在 [mysqld] 段新增
 user      = mariadb                           # 运行用户
 datadir   = /data/db/mariadata1               # 数据库文件存储位置
-log-error = /var/log/mariadb/maria_error.log  # 数据库错误日记文件，如果启动错误，可查看此文件详细信息
+log-error = /var/log/mariadb/maria_error.log  # 数据库错误日记文件，如果启动错误，可查看此文件详细信息(如果没有此文件夹，则需要开启)
 
 12，初次安装
 # /usr/local/mariadb/scripts/mysql_install_db --basedir=/usr/local/mariadb --datadir=/data/db/mariadata1/ --user=mariadb

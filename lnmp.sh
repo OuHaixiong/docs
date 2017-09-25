@@ -32,3 +32,14 @@ cd mcrypt-2.6.8;
 make && make install
 echo 'libevent、libiconv、libmcrypt、mhash、mcrypt installation is complete!!!!';
 
+echo 'Start install nginx......';
+cd ${toolPath};
+groupadd www
+useradd -g www -s /bin/falsh -M www
+tar -zxvf nginx-1.10.1.tar.gz
+cd nginx-1.10.1
+./configure --user=www --group=www --prefix=/usr/local/webserver/nginx --sbin-path=/usr/local/webserver/nginx/sbin/nginx  --conf-path=/usr/local/webserver/nginx/conf/nginx.conf  --with-http_stub_status_module  --with-http_ssl_module --with-pcre --with-http_gzip_static_module --lock-path=/var/run/nginx.lock --pid-path=/var/run/nginx.pid
+make && make install
+echo 'nginx is complete!!!!';
+
+
