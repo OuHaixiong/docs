@@ -19,7 +19,8 @@ git pull
 # git reset --soft [HASH] 返回到某个节点，保留修改
 # git checkout -b dev origin/dev checkout远程的dev分支并在本地起名为dev分支，并且切换到本地的dev分支
 # git reflog 可以查看git的所有版本记录包括提交信息，这样可以通过reset重置到某个版本[git reset --hard xxx]，也可以找回已删除的commit记录
-# git log 查看历史提交记录【进入后可按q退出】；可加参数--pretty=oneline 这样可以；还可以git log -n[5]：查看最近的几条提交记录
+# git log 查看历史提交记录【进入后可按q退出】；可加参数--pretty=oneline 这样可以；还可以git log -n[5]：查看最近的几条提交记录;
+          git log -- filename -n：查看指定文件的提交信息；git log branchName -- ：查看指定分支的提交信息
 # git remote set-url origin xxx 修改仓库的远程仓库地址
 
 学习网址：
@@ -81,7 +82,7 @@ git log 查看提交记录
 git diff 查看更改
 git commit -a -m "These are new changes" 提交修改的文件，-a 表示只提交修改的文件，新增的文件无法提交（注意：这里的提交信息不能为空）
 git add . && git commit -m "More chaanges - typo in the commit message" 添加所有文件到索引中，并提交修改
-git commit --amend -m "More changes - now correct" 更正最后提交的信息
+git commit --amend -m "More changes - now correct" 更正【修改】最后一次提交的信息
 cd ~/test   进入本地仓库，然后：git clone --bare . ../t2 设置一个远端的Git仓库
 git push --set-upstream ../t2 master 推送更改到远端仓库 
 git remote add abcd ../t2 为仓库添加一个短名称

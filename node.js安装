@@ -56,6 +56,7 @@ DISPLAY=:1.0 NODE_ENV=production pm2 start server.js -x -i max --name server
 -x：用fork模式启动 server.js，而不是使用cluster
 -i max：根据有效cpu数目启动最大进程数目。-i 3:启动3个进程
 --name：启动一个进程并把它命名为xxx
+(如果需要启动X server：pm2 start /usr/lib/xorg/Xorg)
 
 cmd[windows]
 set NODE_ENV=development

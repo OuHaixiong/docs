@@ -1,8 +1,4 @@
 
-http://www.cnblogs.com/whseay/p/3455622.html
-
-http://blog.csdn.net/deit_aaron/article/details/9984701
-
  vi /etc/vsftpd/vsftpd.conf
  
  
@@ -188,23 +184,43 @@ Starting vsftpd for vsftpd: [OK ]
 上面是服务启动脚本的制作（没有验证过）结束。
 
 
-一、FTP的安装
+CentOS 6.6 安装配置vsftp（FTP的安装）：（已验证OK）
 
-1、检测是否安装了FTP :
-# rpm -qa | grep vsftpd
+1、检测是否安装了 VSFTP:
+# rpm -qa | grep vsftpd 或 chkconfig --list |grep vsftpd
 vsftpd-2.2.2-11.el6_4.1.x86_64 
-说明已安装，否则显示:# package vsftpd is not installed
+说明已安装，否则显示:# package vsftpd is not installed或为空
 查看ftp运行状态
 service vsftpd status
 
-2、如果没安装FTP，运行yum -y install vsftpd命令进行安装
+2、如果没安装vsftp，运行：yum -y install vsftpd 命令进行安装
 如果无法下载，需要设置好yum 如下
 cd /etc/yum.repos.d
 mv CentOS-Base.repo  CentOS-Base.repo.save
 wget http://centos.ustc.edu.cn/CentOS-Base.repo
 
-3、完成ftp安装后，将 /etc/vsftpd/user_list文件和/etc/vsftpd/ftpusers文件中的root这一行注释掉
-   # root
+3、完成ftp安装后，配置vsftp：
+首先，单独给VSFTP创建一个日志文件：
+# mkdir -p /data/logs/vsftp
+# touch /data/logs/vsftp/vsftpd.log
+其次，修改配置：
+# vim /etc/vsftpd/vsftpd.conf （取消下列字段的注释：）
+anonymous_enable=YES 改为 anonymous_enable=NO #不允许匿名用户访问，默认是允许。禁用匿名登录
+xferlog_file=/data/logs/vsftp/vsftpd.log #设定vsftpd的服务日志保存路径。取消注释，并修改日志文件名。注意，该文件默认不存在。必须要手动touch出来
+idle_session_timeout=600 #会话超时选项。默认被注释掉，取消注释即可
+async_abor_enable=YES #支持异步传输功能，默认是注释掉的，去掉注释
+ascii_upload_enable=YES #支持ASCII模式的下载功能，默认是注释掉的，去掉注释
+ascii_download_enable=YES #支持ASCII模式的上传功能，默认是注释掉的，去掉注释
+chroot_local_user=YES #禁止本地用户登出自己的FTP主目录，本身被注释掉，去掉注释。
+    #chroot_local_user=YES 只可以访问自己的属主目录；不可访问上一层目录文件（限制所有用户都在家目录）。
+然后，如果需要root用户也能登录ftp；将 /etc/vsftpd/user_list文件和/etc/vsftpd/ftpusers文件中的root这一行注释掉
+# root
+最后，设置完成后启动VSFTP服务：
+service vsftpd start (service vsftpd restart/stop 重启、停止ftp服务)
+service vsftpd status #查看ftp服务状态
+同时设置 VSFTP 服务开机启动：
+chkconfig vsftpd on #设置开机自动启动
+到这里为止就配置完了vsftp，可以用root用户进行登录ftp了。
 
 5、修改/etc/vsftpd/vsftpd.conf,在最后一行处添加local_root=/ (指定所有本地用户登陆后的目录,如果不设置此项，用户都会登陆于自己的主目录)
 6、重启ftp进程   #service vsftpd restart
@@ -215,7 +231,7 @@ wget http://centos.ustc.edu.cn/CentOS-Base.repo
  /etc/rc.d/init.d/iptables save
  /etc/init.d/iptables restart
 注：每次修改过ftp相关的配置文件，都需要重启ftp进程来生效。
-(500 OOPS:错误 有可能是你的vsftpd.con配置文件中有不能被实别的命令，还有一种可能是命令的YES 或 NO 后面有空格。)
+(500 OOPS:错误 有可能是你的vsftpd.con配置文件中有不能被识别的命令，还有一种可能是命令的YES 或 NO 后面有空格。)
 安装完成
 
 vsftpd 文件布局
@@ -227,7 +243,6 @@ vsftpd 文件布局
 /etc/vsftpd.user_list        禁止或允许使用vsftpd用户列表文件
 /var/ftp                     匿名用户主目录
 /var/ftp/pub                 匿名用户下载目录
-/etc/logrotate.d/vsftpd.log  日志文件
 
 
  #     下面是配置的选项及说明
@@ -304,8 +319,7 @@ vsftpd 文件布局
   
  #### 限制目录
   
- # 限制所有用户都在家目录
- #chroot_local_user=yes 设定登陆后.只可以访问自己的属主目录.不可访问上一层目录文件
+
   
  # 调用限制在家目录的用户名单（将指定用户设置为锁定用户主目录）
  chroot_list_enable=YES  禁止用户登出自己的FTP主目录
@@ -652,7 +666,8 @@ chown_uploads
 默认值：NO
 
 chroot_list_enable
-如果激活，你要提供一个用户列表，表内的用户将在登录后被放在其home目录，锁定在虚根下（daidong注：进入FTP后，PWD一下，可以看到当前目录是"/",这就是虚根。是FTP的根目录，并非FTP服务器系统的根目录）。如果chroot_local_user设为YES后，其含义会发生一点变化。
+如果激活，你要提供一个用户列表，表内的用户将在登录后被放在其home目录，锁定在虚根下（daidong注：进入FTP后，PWD一下，
+可以看到当前目录是"/",这就是虚根。是FTP的根目录，并非FTP服务器系统的根目录）。如果chroot_local_user设为YES后，其含义会发生一点变化。
 在这种情况下，这个列表内的用户将不被锁定在虚根下。
 默认情况下，这个列表文件是/etc/vsftpd.chroot_list, 但你也可以通过修改chroot_list_file来改变默认值。
 默认值：NO
