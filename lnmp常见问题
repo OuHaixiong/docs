@@ -29,7 +29,7 @@ proxy_busy_buffers_size 128k;
 May 01 10:50:58.044162 [WARNING] [pool www] child 4074, script '/usr/local/nginx/html/quancha/sameip/detail.php' execution timed out (15.129933 sec), terminating
 May 01 10:50:58.045725 [WARNING] [pool www] child 4074 exited on signal 15 SIGTERM after 90.227060 seconds from start
 May 01 10:50:58.046818 [NOTICE] [pool www] child 4082 started
-说一千道一万最重要的就是程序里控制好超时，gethostbyname、curl、file_get_contents等函数的都要设置超时时间。
+说一千道一万最重要的就是程序里控制好超时，gethostbyname、curl、file_get_contents等函数的都要设置超时时间。（这个特别特别重要）
 另一个就是多说，这个东西是增加了网站的交互性，但是使用的多了反应就慢了，如果你网站超时且使用了多说是，可以关闭它。
 
 Nginx 502的触发条件

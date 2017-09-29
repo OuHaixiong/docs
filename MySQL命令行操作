@@ -77,7 +77,8 @@ filename="0xc_${nowTime}.sql";
 # -R:备份存储过程和函数；-E：备份事件；--triggers：备份触发器
 echo 'Dump database 0xc finished!!!!';
   2) 加入定时任务：crontab -e
-    30 5 * * * /home/mysql/dump_0xc.sh > /dev/null 2>&1
+    30 5 * * * /home/mysql/dump_0xc.sh > /dev/null 2>&1 # 每天凌晨5点30分
+    #10 17 * * 5 /mnt/resource/backup/dump_files.sh > /dev/null 2>&1 #每星期一次
   3) 重启crond:
     killall crond
     ps aux |grep crond // 查看是否已杀掉

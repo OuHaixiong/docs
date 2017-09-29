@@ -1,10 +1,8 @@
 
- vi /etc/vsftpd/vsftpd.conf
- 
- 
- [root@Push_Web2 data]# groupadd ftp
- [root@Push_Web2 data]# useradd -g ftp -d /data -s /sbin/nologin waftp
- [root@Push_Web2 data]# passwd waftp   【wa887788ftp】
+添加ftp用户及设置密码（添加系统用户）：
+# groupadd ftp
+# useradd -g ftp -d /data -s /sbin/nologin waftp
+# passwd waftp   【wa887788ftp】
 
 手动安装：
  [ 无法安装成功 ]

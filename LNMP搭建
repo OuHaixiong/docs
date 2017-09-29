@@ -182,6 +182,18 @@ cd mhash-0.9.9.9/
 tar -zxvf mcrypt-2.6.8.tar.gz
 cd mcrypt-2.6.8/
 LD_LIBRARY_PATH=/usr/local/lib ./configure （特别注意这里）
+(
+如果报如下错误：
+*** Could not run libmcrypt test program, checking why...
+*** The test program failed to compile or link. See the file config.log for the
+*** exact error that occured. This usually means LIBMCRYPT was incorrectly installed
+*** or that you have moved LIBMCRYPT since it was installed. In the latter case, you
+*** may want to edit the libmcrypt-config script: no
+configure: error: *** libmcrypt was not found
+解决：
+ln -s /usr/local/bin/libmcrypt-config /usr/bin/libmcrypt-config
+LD_LIBRARY_PATH=/usr/local/lib ./configure
+)
 make && make install
 
 接下来安装mysql,这跟搭建lamp环境时完全一样，下面就不加以说明。
@@ -248,8 +260,11 @@ which mysql 查询运行文件所在路径（目录）
     chkconfig --list mysqld // 查看mysqld在那几个模式下开机启动
  10，复制mysql的默认配置文件到/etc目录下并改名my.cnf
     cp support-files/my-default.cnf /etc/my.cnf （这里可以用my.cnf主服务器的配置）
- 11，设置日记文件目录可写：mkdir -p /data/db/mysql/binlog/
+ 11，设置日记文件目录可写：
+     mkdir -p /data/db/mysql/binlog/
      chown mysql.mysql /data/db/mysql/binlog
+     mkdir -p /data/logs/mysql/
+     chown mysql.mysql /data/logs/mysql
  12，首次启动mysql：./bin/mysqld_safe & // 一定需要首次启动下，这里会生成/data/db/mysql/localhost.localdomain.pid文件。（貌似还有错误信息提示，写在文件/data/db/mysql/ou.err中）
  13，将mysql的man文档加入系统man
      vim /etc/man.config 添加如下一条：
@@ -400,7 +415,7 @@ mv /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf
 (PHP-FPM的默认配置文件为/usr/local/php/etc/php-fpm.conf)
 vim /usr/local/php/etc/php-fpm.conf
 修改 php-fpm.conf
-pm.max_children = 50
+pm.max_children = 50   #一般来说一台服务器正常情况下每一个php-cgi所耗费的内存在20M左右，因此我的”max_children”设置成40个，20M*40=800M
 pm.start_servers = 20
 pm.min_spare_servers = 5
 pm.max_spare_servers = 35
@@ -510,3 +525,14 @@ fastcgi_temp_file_write_size表示在写入缓存文件时使用多大的数据�
 
 fastcgi_cache表示开启FastCGI缓存并为其指定一个名称。开启缓存非常有用，可以有效降低CPU的负载，并且防止502错误的发生，但是开启缓存也会引起很多问题，要视具体情况而定。
 fastcgi_cache_valid、fastcgi用来指定应答代码的缓存时间，实例中的值表示将200和302应答缓存一个小时，将301应答缓存1天，其他应答均缓存1分钟。
+
+
+下面对nginx+FastCGI到底是谁影响超时时间？
+fastcgi_connect_timeout 70; 据说这个值不能超过75秒；nginx同FastCGI（php-fpm）服务器的连接超时时间
+
+当使用 PHP-FPM + Nginx 时，php.ini 的 max_execution_time 字段会失效，要通过配置 PHP-FPM 的 request_terminate_timeout 字段来设置超时时间。
+php-fpm.conf 中的 request_terminate_timeout 设置成0s。0s的含义是让PHP-CGI一直执行下去而没有时间限制。最好设置一个值，怕php一直执行下去，设置为900也是可以的
+如果是php-fpm超时将显示：502 Bad Gateway；而正在处理的那几个php-cgi，遇到了问题则会出现502 Bad gateway错误。
+如果是nginx中cgi配置超时则：504 Gateway Time-out；如果长时间没有得到处理的请求，就会出现504 Gateway Time-out错误
+
+

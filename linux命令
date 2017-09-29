@@ -20,6 +20,8 @@ find . -type f -cmin -20[ -ls] 查找当前目录下，20分钟内修改过的�
 find /etc -name '*srm*' 查找etc目录下所有包含srm文件名的文件 （全名：find /usr -name "libchm.so.0"）
 find . |grep config.inc. 在本目录下查找文件
 find . -type f -size +100M 查找当前目录下，所有大约100M的文件（可用于查找大文件）
+find . -user root 查找当前目录下，属于某个用户的文件
+find /var/ -not[!] -user nobody 查找指定目录下，不属于某个用户的文件
 du -sh [.|filename|dirname|*] 当前目录或文件的大小(du -sh * |sort -nr |head：显示前10个占用空间最大的文件或目录)
 locate php.ini 根据文件名进行查找文件（这个速度不错，默认从根目录开始搜索）
 ln -s[symbolic:符号的] 源文件 目标文件 创建软连接(在目标文件夹下创建一个目录可以链接到源文件夹)
