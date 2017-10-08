@@ -105,8 +105,6 @@ Memory Device
 磁盘
 
 查看硬盘和分区分布
-复制代码
-
 # lsblk
 NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
 sda      8:0    0 465.8G  0 disk 
@@ -117,15 +115,8 @@ sda      8:0    0 465.8G  0 disk
 ├─sda5   8:5    0 111.8G  0 part /home
 └─sda6   8:6    0 269.2G  0 part 
 
-复制代码
-
-显示很直观
-
- 
 
 如果要看硬盘和分区的详细信息
-复制代码
-
 # fdisk -l
 
 Disk /dev/sda: 500.1 GB, 500107862016 bytes
@@ -142,13 +133,9 @@ Disk identifier: 0x00023728
 /dev/sda4       177932286   976771071   399419393    5  Extended/dev/sda5       177932288   412305407   117186560   83  Linux
 /dev/sda6       412307456   976771071   282231808   83  Linux
 
-复制代码
 
- 
 网卡
-
 查看网卡硬件信息
-
 # lspci | grep -i 'eth'
 02:00.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL8111/8168B PCI Express Gigabit Ethernet controller (rev 06)
 
