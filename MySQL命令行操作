@@ -84,6 +84,9 @@ echo 'Dump database 0xc finished!!!!';
     ps aux |grep crond // 查看是否已杀掉
     /usr/sbin/crond
 
+5，添加和修改字段
+添加：alter table `zh-CN_posts` add  `sort` int(10) NOT NULL DEFAULT 0 COMMENT '排序' after `skipUrl`;
+
 
             一：alter table用来创建普通索引，unique索引或primary key索引
                 普通索引：alter table t1 add index in_name(name)   --t1表中的那么字段添加索引名为in_name
