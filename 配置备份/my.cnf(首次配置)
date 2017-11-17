@@ -43,6 +43,7 @@ max_connections=1000 # 最大连接数
 symbolic-links=0
 
 sql-mode="STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION" #严格模式
+# 貌似在mysql中是sql_mode，在mariadb中是sql-mode
 
 #general_log=ON # 开启常规日记
 #general_log_file=/data/logs/mysql/sql_row.log # sql执行日志保存路径

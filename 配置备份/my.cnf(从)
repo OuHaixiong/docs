@@ -41,3 +41,4 @@ slave-net-timeout=60
 # read_rnd_buffer_size = 2M 
 
 sql-mode="STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+# 貌似在mysql中是sql_mode，在mariadb中是sql-mode

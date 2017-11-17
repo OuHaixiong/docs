@@ -24,6 +24,7 @@ datadir = /data/db/mysql
 # server_id = .....
 #socket　 = /data/db/mysql/mysql.sock
 
+# 如果不需要主从同步的话，下面的这段配置可以不要
 server-id=1                       # 主机标示，整数
 #log-bin=mysql-bin
 log-bin=/data/db/mysql/binlog/mysql-binlog  # 开启bin-log(路径要根据自己的安装设置，确保此文件可写)
@@ -41,3 +42,4 @@ binlog-ignore-db=information_schema
 # read_rnd_buffer_size = 2M 
 
 sql-mode="STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+# 貌似在mysql中是sql_mode，在mariadb中是sql-mode

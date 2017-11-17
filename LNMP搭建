@@ -57,7 +57,7 @@ export CC=/usr/bin/gcc-3.4
 ./runme.pl
 
 sudo apt-get install openssl
-sudo apt-get install libxml2 libxml2-dev
+sudo apt-get install libxml2 libxml2-dev // 必须安装，因为编译php时需要用到
 sudo apt-get install libjpeg62 libjpeg62-dev
 sudo apt-get install libpng12 libpng12-dev
 sudo apt-get update
@@ -258,6 +258,10 @@ which mysql 查询运行文件所在路径（目录）
     cp support-files/mysql.server /etc/init.d/mysqld
     chkconfig --add mysqld  // 添加mysqld开机启动 或 chkconfig --level 345 mysqld on
     chkconfig --list mysqld // 查看mysqld在那几个模式下开机启动
+    (
+        在14.04.5上需要用如下命令：
+        update-rc.d mysqld defaults // 添加启动项。删除启动项： update-rc.d -f mysqld remove
+    )
  10，复制mysql的默认配置文件到/etc目录下并改名my.cnf
     cp support-files/my-default.cnf /etc/my.cnf （这里可以用my.cnf主服务器的配置）
  11，设置日记文件目录可写：
@@ -420,6 +424,8 @@ pm.start_servers = 20
 pm.min_spare_servers = 5
 pm.max_spare_servers = 35
 pm.max_requests = 500
+user = www
+group = www
 执行 /usr/local/php/sbin/php-fpm
 
 如果修改了php.ini需要重启php-fpm:

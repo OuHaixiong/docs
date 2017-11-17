@@ -87,6 +87,34 @@ echo 'Dump database 0xc finished!!!!';
 5，添加和修改字段
 添加：alter table `zh-CN_posts` add  `sort` int(10) NOT NULL DEFAULT 0 COMMENT '排序' after `skipUrl`;
 
+6，删除二进制文件
+如果mysql配置(/etc/my.cnf)了如下参数，将产生二进制文件：
+log-bin=/xxx/xx/mysql-bin
+如果不用来做主从同步，可以关闭保存二进制文件。
+下面对已有的二进制文件进行删除：
+mysql> show binary logs; // 查看产生的二进制文件
++------------------+------------+
+| Log_name         | File_size  |
++------------------+------------+
+| mysql-bin.000170 | 1073756830 |
+| mysql-bin.000171 | 1073756177 |
+| mysql-bin.000172 | 1073760163 |
+| mysql-bin.000173 |  165946287 |
+| mysql-bin.000174 |   41174728 |
++------------------+------------+
+5 rows in set (0.00 sec)
+mysql> purge binary logs to 'mysql-bin.000173'; // 删除二进制文件到mysql-bin.000173,最后连个保留着
+Query OK, 0 rows affected (0.03 sec)
+mysql> show binary logs;
++------------------+-----------+
+| Log_name         | File_size |
++------------------+-----------+
+| mysql-bin.000173 | 165946287 |
+| mysql-bin.000174 | 523795702 |
++------------------+-----------+
+2 rows in set (0.00 sec)
+
+
 
             一：alter table用来创建普通索引，unique索引或primary key索引
                 普通索引：alter table t1 add index in_name(name)   --t1表中的那么字段添加索引名为in_name
