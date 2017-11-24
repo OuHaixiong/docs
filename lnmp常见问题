@@ -11,7 +11,7 @@ source /etc/profile
 3.脚本执行时间超时
 如果脚本因为某种原因长时间等待不返回 ，导致新来的请求不能得到处理，可以适当调小如下配置。
 nginx.conf里面主要是如下
-fastcgi_connect_timeout 300;
+fastcgi_connect_timeout 75;
 fastcgi_send_timeout 300;
 fastcgi_read_timeout 300;
 php-fpm.conf里如要是如下
@@ -53,10 +53,13 @@ netstat -anpo | grep "php-cgi" | wc -l
 如果实际使用的“FastCGI进程数”接近预设的“FastCGI进程数”，那么，说明“FastCGI进程数”不够用，需要增大。
 
 2、部分PHP程序的执行时间超过了Nginx的等待时间，可以适当增加nginx.conf配置文件中FastCGI的timeout时间，例如：
-
-复制代码 代码如下:
-
- http  {  fastcgi_connect_timeout 300;  fastcgi_send_timeout 300;  fastcgi_read_timeout 300;  ......  }  ......
+ http  {  
+     fastcgi_connect_timeout 75;  
+     fastcgi_send_timeout 300;  
+     fastcgi_read_timeout 300;  
+     ......  
+ }  
+ ......
 
 php.ini中memory_limit设低了会出错，修改了php.ini的memory_limit为64M，重启nginx，发现好了，原来是PHP的内存不足了。
 
@@ -133,19 +136,12 @@ php执行超时，修改/usr/local/php/etc/php.ini 将max_execution_time 改为3
 磁盘空间不足，如mysql日志占用大量空间
 
 第六种原因：
-
 查看php-cgi进程是否在运行
-
 也有网友给出了另外的解决办法：
-
 Nginx 502 Bad Gateway的含义是请求的PHP-CGI已经执行，但是由于某种原因（一般是读取资源的问题）没有执行完毕而导致PHP-CGI进程终止，一般来说Nginx 502 Bad Gateway和php-fpm.conf的设置有关。
-
 php-fpm.conf有两个至关重要的参数，一个是max_children，另一个是request_terminate_timeout，但是这个值不是通用的，而是需要自己计算的。在安装好使用过程中出现502问题，一般是因为默认php-cgi进程是5个，可能因为phpcgi进程不够用而造成502，需要修改/usr/local/php/etc/php-fpm.conf 将其中的max_children值适当增加。
-
 计算的方式如下：
-
 如果你的服务器性能足够好，且宽带资源足够充足，PHP脚本没有系循环或BUG的话你可以直接将 request_terminate_timeout设置成0s。0s的含义是让PHP-CGI一直执行下去而没有时间限制。而如果你做不到这一点，也就 是说你的PHP-CGI可能出现某个BUG，或者你的宽带不够充足或者其他的原因导致你的PHP-CGI假死那么就建议你给 request_terminate_timeout赋一个值，这个值可以根据服务器的性能进行设定。一般来说性能越好你可以设置越高，20分钟-30分 钟都可以。而max_children这个值又是怎么计算出来的呢？这个值原则上是越大越好，php-cgi的进程多了就会处理的很快，排队的请求就会很少。 设置max_children也需要根据服务器的性能进行设定，一般来说一台服务器正常情况下每一个php-cgi所耗费的内存在20M左右。
-
 按照官方的答案，排查了相关的可能，并结合了网友的答案，得出了下面的解决办法。
 
 1、查看php fastcgi的进程数（max_children值）
@@ -159,8 +155,10 @@ php-fpm.conf有两个至关重要的参数，一个是max_children，另一个�
 代码：top观察fastcgi进程数,假如使用的进程数等于或高于5个，说明需要增加（根据你机器实际状况而定）
 
 3、调整/usr/local/php/etc/php-fpm.conf 的相关设置
-
-<value name=”max_children”>10</value><value name=”request_terminate_timeout”>60s</value>max_children最多10个进程，按照每个进程20MB内存，最多200MB。request_terminate_timeout执行的时间为60秒，也就是1分钟。
+max_children 10
+request_terminate_timeout 60s
+max_children 最多10个进程，按照每个进程20MB内存，最多200MB。
+request_terminate_timeout执行的时间为60秒，也就是1分钟。
 
 
 一、NGINX 502错误排查
@@ -173,7 +171,7 @@ Gateway错误有关的问题和排查方法列一下，先从FastCGI配置入手
 判断是否接近FastCGI进程，接近配置文件中设置的数值，表明worker进程数设置太少
 3.FastCGI执行时间过长
 根据实际情况调高以下参数值
-fastcgi_connect_timeout 300;
+fastcgi_connect_timeout 75;
 fastcgi_send_timeout 300;
 fastcgi_read_timeout 300;
 4.FastCGI Buffer不够

@@ -503,7 +503,7 @@ EOF
 /usr/local/webserver/nginx/conf/nginx.conf
 添加如下参数至HTTP层级
 fastcgi_cache_path /usr/local/nginx/fastcgi_cache levels=1:2 keys_zone=TEST:10m inactive=5m;    
-fastcgi_connect_timeout 300;    
+fastcgi_connect_timeout 75;    
 fastcgi_send_timeout 300;    
 fastcgi_read_timeout 300;    
 fastcgi_buffer_size 64k;    
@@ -517,28 +517,23 @@ fastcgi_cache_valid any 1m;
 
 下面是对上述代码的含义进行介绍。
 第一行代码是为FastCGI缓存指定一个文件路径、目录结构等级、关键字区域存储时间和非活动删除时间。
-fastcgi_connect_timeout指定连接到后端FastCGI的超时时间。
+fastcgi_connect_timeout：指定连接到后端FastCGI的超时时间。
 fastcgi_send_timeout指定向FastCGI传送请求的超时时间，这个值是已经完成两次握手后向FastCGI传送请求的超时时间。
 fastcgi_read_timeout指定接收FastCGI应答的超时时间，这个值是已经完成两次握手后接收FastCGI应答的超时时间。
-
 fastcgi_buffer_size用于指定读取FastCGI应答第一部分需要用多大的缓冲区，这个值表示将使用1个64KB的缓冲区读取应答的第一部分（应答头），可以设置为fastcgi_buffers选项指定的缓冲区大小。
-
 fastcgi_buffers指定本地需要用多少和多大的缓冲区来缓冲FastCGI的应答请求。如果一个PHP脚本所产生的页面大小为256KB，那么会为其分配4个64KB的缓冲区来缓存；如果页面大小大于256KB，那么大于256KB的部分会缓存到fastcgi_temp指定的路径中，但是这并不是好方法，因为内存中的数据处理速度要快于硬盘。一般这个值应该为站点中PHP脚本所产生的页面大小的中间值，如果站点大部分脚本所产生的页面大小为256KB，那么可以把这个值设置为“16 16k”、“4 64k”等。
-
 fastcgi_busy_buffers_size的默认值是fastcgi_buffers的两倍。
-
 fastcgi_temp_file_write_size表示在写入缓存文件时使用多大的数据块，默认值是fastcgi_buffers的两倍。
-
 fastcgi_cache表示开启FastCGI缓存并为其指定一个名称。开启缓存非常有用，可以有效降低CPU的负载，并且防止502错误的发生，但是开启缓存也会引起很多问题，要视具体情况而定。
-fastcgi_cache_valid、fastcgi用来指定应答代码的缓存时间，实例中的值表示将200和302应答缓存一个小时，将301应答缓存1天，其他应答均缓存1分钟。
+fastcgi_cache_valid : fastcgi用来指定应答代码的缓存时间，实例中的值表示将200和302应答缓存一个小时，将301应答缓存1天，其他应答均缓存1分钟。
 
 
 下面对nginx+FastCGI到底是谁影响超时时间？
 fastcgi_connect_timeout 70; 据说这个值不能超过75秒；nginx同FastCGI（php-fpm）服务器的连接超时时间
 
-当使用 PHP-FPM + Nginx 时，php.ini 的 max_execution_time 字段会失效，要通过配置 PHP-FPM 的 request_terminate_timeout 字段来设置超时时间。
+当使用 PHP-FPM + Nginx 时，php.ini 的 max_execution_time 字段会失效（已证实确实会失效），要通过配置 PHP-FPM 的 request_terminate_timeout 字段来设置超时时间。
 php-fpm.conf 中的 request_terminate_timeout 设置成0s。0s的含义是让PHP-CGI一直执行下去而没有时间限制。最好设置一个值，怕php一直执行下去，设置为900也是可以的
-如果是php-fpm超时将显示：502 Bad Gateway；而正在处理的那几个php-cgi，遇到了问题则会出现502 Bad gateway错误。
-如果是nginx中cgi配置超时则：504 Gateway Time-out；如果长时间没有得到处理的请求，就会出现504 Gateway Time-out错误
+如果是php-fpm超时或正在处理的那几个php-cgi遇到了问题则会出现502 Bad Gateway错误。如果是超时出现502的话，就设置request_terminate_timeout的时间长点
+如果是nginx中cgi配置超时（长时间没有得到处理的请求）就会出现504 Gateway Time-out错误。解决就是在http端设置 fastcgi_read_timeout 300; 设置接收后端应答超时时间长点
 
 

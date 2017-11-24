@@ -14,3 +14,4 @@ upload_max_filesize = 20M
 从字面含义看一个是上传文件最大值upload_max_filesize，一个是通过POST提交数据的最大值post_max_size ，一般在php中用的是POST方式上传。
 所以php.ini中设置 memory_limit > post_max_size > upload_max_filesize 
 当上传大文件时为了防止网速慢时超时现象，需要适当调大max_execution_time的值。
+注意：如果nginx支持大文件上传，但超出了php文件最大大小时，程序并不会报错（返回200），但上传文件会失败

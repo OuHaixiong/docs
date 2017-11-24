@@ -28,7 +28,7 @@ source /etc/profile
 
 nginx.conf里面主要是如下
 
-fastcgi_connect_timeout 300;
+fastcgi_connect_timeout 75;
 fastcgi_send_timeout 300;
 fastcgi_read_timeout 300;
 
