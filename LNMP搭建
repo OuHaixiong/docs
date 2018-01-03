@@ -107,6 +107,8 @@ http {
     keepalive_timeout  65;
     #gzip  on; （开启压缩模块，需要注意的是在配置文件中开启之后是不生效的，还需要加载gzip模块）
 	
+	underscores_in_headers on; # 开启允许自定义请求头
+	
     server {
         listen       80; (监听80端口)
         server_name  localhost; （域名或代理服务器的域名）

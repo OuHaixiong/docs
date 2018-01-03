@@ -38,6 +38,8 @@ http {
 
     #gzip  on;
 
+    underscores_in_headers on; # 开启允许自定义请求头
+
     server {
         listen       80;
         server_name  localhost;

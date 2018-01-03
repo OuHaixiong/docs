@@ -11,6 +11,10 @@ server {
     error_log /data/logs/nginx/wa_error.log;
 	#root /data/www/wa;
 
+    underscores_in_headers on; # 开启允许自定义请求头 #TODO 如果是反向代理的话，貌似还需要加：
+    #proxy_set_header X_CUSTOM_HEADER $http_host;
+    #proxy_set_header Some-Thing $http_x_custom_header;
+
 	location ~ / {
 		index index.php index.html;
 		proxy_pass http://wa.dragon-design.cn;  
@@ -21,6 +25,7 @@ server {
         #proxy_set_header HTTP_CLIENT_IP $remote_addr;
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 		proxy_set_header Host $host;
+		
 		#proxy_connect_timeout 300; # nginx跟后端服务器连接超时时间(代理连接超时)
         #proxy_send_timeout 300; # 后端服务器的回传时间，规定服务器在一定的时间内传送完
         #proxy_read_timeout 300; # 连接成功等待后端响应的时间，默认60s
