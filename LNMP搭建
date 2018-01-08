@@ -277,12 +277,14 @@ which mysql 查询运行文件所在路径（目录）
  15，输出mysql的头文件
      ln -sv /usr/local/mysql/include /usr/include/mysql (貌似有问题)
  16，安装完毕。可使用 service mysqld start|stop|restart 来启动和关闭mysql 或 /etc/init.d/mysqld restart
+     ( 如果是ubuntu系统需要重启下再来修改密码 )
           可查看3306端口是否被监控：netstat -ntulp |grep 3306
  17，修改root用户的密码
      cd /usr/local/mysql
      ./bin/mysqladmin -u root password (这里一定要启动着mysql)
      （./bin/mysqladmin -u root -h localhost.localdomain password 'new-password'）
           输入新密码即可
+          （ 如果出现如下错误：ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/tmp/mysql.sock' (2)，需要输入:-h127.0.0.1 ）
           重启服务：service mysqld restart
  18，验证登录
      /usr/local/mysql/bin/mysql -u root -p    输入密码

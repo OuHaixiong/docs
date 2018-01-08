@@ -22,7 +22,8 @@
 datadir = /data/db/mysql
 # port = 3306
 # server_id = .....
-#socket　 = /data/db/mysql/mysql.sock
+user = mysql
+socket = /data/db/mysql/mysql.sock
 
 # 如果不需要主从同步的话，下面的这段配置可以不要
 server-id=1                       # 主机标示，整数
@@ -33,13 +34,22 @@ binlog-ignore-db=mysql            #不需要备份的数据库，多个写多行
 binlog-ignore-db=performance_schema
 binlog-ignore-db=information_schema
 #read-only=0                      # 主机，读写都可以
+max_connections=1000 # 最大连接数
 
 # Remove leading # to set options mainly useful for reporting servers.
 # The server defaults are faster for transactions and fast SELECTs.
 # Adjust sizes as needed, experiment to find the optimal values.
 # join_buffer_size = 128M
 # sort_buffer_size = 2M
-# read_rnd_buffer_size = 2M 
+# read_rnd_buffer_size = 2M
+symbolic-links=0 # MySQL数据库及表(仅MyISAM)支持符号链接(symbolic link). 0:不支持符合链接; 1:开启，支持符合链接，即数据库或表可以存储在my.cnf中指定datadir之外的分区或目录
 
-sql-mode="STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+sql-mode="STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION" #严格模式
 # 貌似在mysql中是sql_mode，在mariadb中是sql-mode
+
+#general_log=ON # 开启常规日记
+#general_log_file=/data/logs/mysql/sql_row.log # sql执行日志保存路径
+
+[mysqld_safe]
+log-error=/data/logs/mysql/mysqld_error.log # mysql错误日记，包括启动日记
+pid-file=/data/db/mysql/mysql.pid #mysql的pid文件路径

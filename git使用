@@ -49,6 +49,13 @@ $ make prefix=/usr/local all
 $ sudo make prefix=/usr/local install (如果不设这个路径,就需要做下软连接, sudo ln -s /home/bear/tool/git_1.9.0/bin/git /usr/local/bin/git )
 （
 如果遇到如下错误：
+/bin/sh: 1: autoconf: not found
+Makefile:1944: recipe for target 'configure' failed
+make: *** [configure] Error 127
+解决：
+sudo apt-get install autoconf
+
+如果遇到如下错误：
 libgit.a(utf8.o): In function `reencode_string_iconv':
 /data/tool/git-master/utf8.c:463: undefined reference to `libiconv'
 libgit.a(utf8.o): In function `reencode_string_len':
@@ -57,7 +64,6 @@ libgit.a(utf8.o): In function `reencode_string_len':
 /data/tool/git-master/utf8.c:515: undefined reference to `libiconv_open'
 collect2: ld 返回 1
 make: *** [git-credential-store] 错误 1
-
 如果你确定已经安装过iconv，且在/usr/local/libiconv目录下[如果没有请安装]，运行如下命令
 # make configure    // 生成configure文件
 # ./configure --prefix=/usr/local --with-iconv=/usr/local/libiconv    //配置
@@ -97,12 +103,11 @@ git push --set-upstream ../t2 master 推送更改到远端仓库
 git remote add abcd ../t2 为仓库添加一个短名称
 git push abcd master 推送到远端仓库  git push ../remote-repository.git
 git remote 查看已经存在的远端仓库 
-mkdir t3 / cd t3 / git clone ../t2 克隆仓库
 git pull ../t2 拉取（Pull）更改
 git remote add bieming bear@192.168.17.130:example.git 为本地仓库起个短名叫bieming,并用用户bear链接到192.168.17.130的example.git仓库
 git push bieming master 通过短名提交修改到远端仓库的主干上（下面会要求输入密码）
 git clone bear@192.168.17.130:example.git bb  克隆远端仓库到本地文件夹bb
-或 git clone http;//xxx.xxx.com/project/xx.git ./ 克隆xx项目到当前目录[git clone 只能clone远程库的master分支，无法clone所有分支]
+或 git clone http://xxx.xxx.com/project/xx.git ./ 克隆xx项目到当前目录[git clone 只能clone远程库的master分支，无法clone所有分支]
 
 
 
