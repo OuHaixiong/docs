@@ -1,12 +1,15 @@
 全局变量
-$wp：
+$wp：WP对象，
 $wp_query：WP_Query对象，用来处理查询数据。get_posts()可以查询一个文章，也可以查询一个列表。->posts:文章列表；->post:当前的文章
-$wp_the_query：
+$wp_the_query ： WP_Query对象，
 $wp_locale :WP_Locale对象
-$wp_filter : 数组，里面有多达653+的元素，存放各个过滤规则
-$wpdb:wpdb对象，里面有数据库表名，如$wpdb->postmeta = wp_2_postmeta,$wpdb->last_query = 'select XXX'
+$wp_filter : 数组，里面有多达653+的元素，存放各个过滤规则; 数组的每一项是一个WP_Hook对象，
+$wpdb : wpdb对象，里面有数据库表名，如$wpdb->postmeta = wp_2_postmeta,$wpdb->last_query = 'select XXX'
 $wp_post_types：一个数组，数组里面是全站的所有文章类型，每一项是一个WP_Post_Type对象
 $menu ： 后台菜单
+$wpdb:wpdb对象，用来查询数据库的，里面有最后一次查询sql和最后一次查询结果等
+$wp_object_cache : WP_Object_Cache对象(./wp-includes/cache.php)，缓存类
+$wp_rewrite : WP_Rewrite对象
 
 文件
 ./wp-includes/meta.php 对应表postmeta，主要是文章的一些属性和属性值对应的表，比如文章的点击量
@@ -14,8 +17,12 @@ $menu ： 后台菜单
 
 函数
 wp_edit_posts_query($q=false):获取后台文章列表内容
-
-
+wp_load_alloptions() : 获取表options所有autoload="yes"的记录
+(array) get_option( 'active_plugins', array()[默认值] ); 获取单个配置信息
 
 
 http://blog.wpjam.com/ wordpress学习文档
+
+表
+options：全站配置项
+terms : 分类

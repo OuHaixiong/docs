@@ -10,7 +10,9 @@ server {
 
     rewrite ^/(.*).swf$ /flash/$1.swf last;
     rewrite ^/(.*).json$ /flash/$1.json last;
-
+    #if ($host = 'makeblock.com') {
+    #    rewrite (.*)$ http://www.makeblock.com$1 permanent;
+    #}
     location / {
         if (!-e $request_filename) {
             rewrite (.*) /index.php last;

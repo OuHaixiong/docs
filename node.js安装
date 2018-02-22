@@ -45,13 +45,14 @@ $ webpack -p    //压缩混淆脚本，这个非常非常重要！
 $ webpack -d    //生成map映射文件，告知哪些模块被最终打包到哪里了
 
 
-npm -g install npm@2.9.1  更新npm版本；版本号2.9.1 可以根据已发布的版本随意升级或降级
+npm -g install npm@2.9.1  更新npm版本；版本号2.9.1 可以根据已发布的版本随意升级或降级 
+也可以这样：npm install pm2@lastest -g #安装最新版本pm2模块（安装最新版的模块）
 
 node 环境变量的设置
 shell[linux]
 NODE_ENV=development node app.js  NODE_ENV=PRODUCTION node server.js
 最好不要用环境变量这个东西，很坑爹的货，不可见的，且对当前窗口才有用
-DISPLAY=:1.0 NODE_ENV=production pm2 start server.js -x -i max --name server
+DISPLAY=[xx.xxx.xx.xxx]:1.0 NODE_ENV=production pm2 start server.js -x -i max --name server
 通过PM2 启动一个进程，
 -x：用fork模式启动 server.js，而不是使用cluster
 -i max：根据有效cpu数目启动最大进程数目。-i 3:启动3个进程
@@ -65,6 +66,12 @@ node app.js
 pm2更多操作
 安装
 npm install -g pm2
+pm2 updatePM2 # 升级pm2
+$ pm2 --help # 查看帮助
+
+sudo X &
+DISPLAY=:0.0 NODE_ENV=production pm2 start server.js -x -i 1 --name server
+sudo /usr/lib/xorg/Xorg
 
 用法
 $ npm install pm2 -g # 命令行安装 pm2
@@ -74,12 +81,14 @@ $ pm2 start app.js -i 4 #后台运行pm2，启动4个app.js
 $ pm2 start app.js --name my-api # 命名进程
 $ pm2 list # 显示所有进程状态
 $ pm2 monit # 监视所有进程【监视每个node进程的CPU和内存的使用情况】
-$ pm2 logs # 显示所有进程日志
+$ pm2 logs # 显示所有进程日志( $ pm2 flush #Empty all log file )
 $ pm2 stop all # 停止所有进程
 $ pm2 restart all # 重启所有进程
 $ pm2 reload all # 0秒停机重载进程 (用于 NETWORKED 进程)
+$ pm2 reload 0   # 重载PM2列表中进程为0的进程
 $ pm2 stop 0 # 停止指定的进程
 $ pm2 restart 0 # 重启指定的进程
+$ pm2 show 0 或者  pm2 info 0  #查看进程详细信息，0为PM2进程id
 $ pm2 startup # 产生 init 脚本 保持进程活着
 $ pm2 web # 运行健壮的 computer API endpoint (http://localhost:9615)
 $ pm2 delete 0 # 杀死指定的进程
@@ -91,6 +100,7 @@ $ pm2 start app.js -i 3 # 启动3个进程
 $ pm2 start app.js -x #用fork模式启动 app.js 而不是使用 cluster
 $ pm2 start app.js -x -- -a 23 # 用fork模式启动 app.js 并且传递参数 (-a 23)
 $ pm2 start app.js --name serverone # 启动一个进程并把它命名为 serverone
+$ pm2 start app.js --watch   #实时监控app.js的方式启动，当app.js文件有变动时，pm2会自动reload
 $ pm2 stop serverone # 停止 serverone 进程
 $ pm2 start app.json # 启动进程, 在 app.json里设置选项
 $ pm2 start app.js -i max -- -a 23 #在--之后给 app.js 传递参数
