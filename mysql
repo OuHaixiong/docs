@@ -248,24 +248,26 @@ sudo apt-get remove mysql-common //这个很重要
 清理残留数据
 dpkg -l |grep ^rc|awk '{print $2}' |sudo xargs dpkg -P
 
+
 mysql常见错误处理：
-如果插入数据出现如下错误：
+1，问题：如果插入数据出现如下错误：
 Out of range value for column 'XXX' at row 1
 表示插入的数据超过了字段设置的长度
-解决方案：把字段的类型换下，换成支持更长的字段，如：int 换成BIGINT
+解决：
+把字段的类型换下，换成支持更长的字段，如：int 换成BIGINT
 
-[Err] 1264 - Out of range value for column 'amount' at row 1
+2，问题：[Err] 1264 - Out of range value for column 'amount' at row 1
 原因是新版的MySQL对字段的严格检查。如果要插入的字段长度超过列定义的长度，那么mysql直接终止操作报出上面的错误。相反在老版本中，如果执行的是不严格的检查，则不会终止操作，而是会自动截断后面的字符继续插入操作!
 解决：
-1，找到对应的字段，对相应的字段设置适合数据长度的类型。如：`amount` float(10,3) NOT NULL;改为：`amount` float(15,3) NOT NULL;
-2，网上说的把sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES改成sql_mode=NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION的方案在mysql 5.6.25的数据库中并不能起作用。
+ 1)，找到对应的字段，对相应的字段设置适合数据长度的类型。如：`amount` float(10,3) NOT NULL;改为：`amount` float(15,3) NOT NULL;
+ 2)，网上说的把sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES改成sql_mode=NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION的方案在mysql 5.6.25的数据库中并不能起作用。
 也就是说mysql 5.6.25是强制使用严格检查的；只能修改字段.(这里同样版本的mysql，同样的操作系统，表现都会不一样。mariadb-10.1.14或低版本的mysql可以解决这个问题)
 特别注意了：后面证实改这个参数是有用的（再其他系统中没有用，估计和操作系统或mysql的版本有关）,版本：5.6.25-log - MySQL Community Server (GPL);改后需要重启mysql
 sql-mode="NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION" ： 是非严格的sql模式：如果将不正确的值插入到列，会将这些列设为“最可能的值”，而不报错
 sql-mode="STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION" ：执行严格的sql模式：在事务中放弃语句并回滚；非事务，首行报错将放弃语句，非首行将调整不良数据值，并给出警告。
 或sql-mode="STRICT_ALL+TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION" ：这个如上一样，最严格的检查：和上面一样事务会回滚，非事务，到那出错到哪停，并报错
 
-[Err] 1419 - You do not have the SUPER privilege and binary logging is enabled (you *might* want to use the less safe log_bin_trust_function_creators variable)
+3，问题：[Err] 1419 - You do not have the SUPER privilege and binary logging is enabled (you *might* want to use the less safe log_bin_trust_function_creators variable)
 原因：mysql导入数据提示没有SUPER Privilege权限处理。function[存储过程] / trigger[触发器] 中有dangerous statements修改数据库，错误只在启用binary logging选项进行主从复制的服务器上出现。
 解决：
 如果不需要复制，或者是从库，关闭binlog，即如果用主从同步的话，是无法使用TRIGGER的
@@ -275,14 +277,14 @@ sql-mode="STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION" ：执
 #binlog-ignore-db=performance_schema
 #binlog-ignore-db=information_schema
 
-[Err] 1227 - Access denied; you need (at least one of) the SUPER privilege(s) for this operation --常见于 RDS MySQL 5.6
+4，问题：[Err] 1227 - Access denied; you need (at least one of) the SUPER privilege(s) for this operation --常见于 RDS MySQL 5.6
 ERROR 1725 (HY000) at line 1936: OPERATION need to be executed set by ADMIN --常见于 RDS MySQL 5.5
 原因：在创建 存储过程、函数、触发器、事件、视图的时候出现这个错误。导入SQL语句中含有需要 Supper 权限才可以执行的语句，而当前用户的MySQL不提供 Super 权限，因此需要去除这类语句。
 解决：
-1，去除 DEFINER 子句：DEFINER=`root`@`localhost`  在 Linux 平台下，可以尝试使用下面的语句去除：
+ 1)，去除 DEFINER 子句：DEFINER=`root`@`localhost`  在 Linux 平台下，可以尝试使用下面的语句去除：
 sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/ ' your.sql > your_revised.sql
 或者用当前用户替代root，如：DEFINER=`Bear.Ou`@`%`
-2，去除 GTID_PURGED 子句:
+ 2)，去除 GTID_PURGED 子句:
 SET @@GLOBAL.GTID_PURGED='d0502171-3e23-11e4-9d65-d89d672af420:1-373,
 d5deee4e-3e23-11e4-9d65-d89d672a9530:1-616234';
 在 Linux 平台，可以使用下面的语句去除:
@@ -291,3 +293,18 @@ awk '{ if (index($0,"GTID_PURGED")) { getline; while (length($0) > 0) { getline;
 egrep -in "definer|set @@" your_revised.sql
 如果上面的语句没有输出，说明 SQL 文件符合要求。
 
+5，问题：无法启动mysql，报如下错误：
+  ERROR! The server quit without updating PID file (/usr/local/mysql/var/mblockServerA.pid).
+    原因：可能有多种情况会出现如上提示，一种是服务器内存不够了，可以通过查看日记文件：vim /usr/local/mysql/var/mblockServerA.err
+  2018-03-07 18:36:54 91613 [ERROR] InnoDB: Cannot allocate memory for the buffer pool
+  2018-03-07 18:36:54 91613 [ERROR] Plugin 'InnoDB' init function returned error.
+  2018-03-07 18:36:54 91613 [ERROR] Plugin 'InnoDB' registration as a STORAGE ENGINE failed.
+  2018-03-07 18:36:54 91613 [ERROR] Unknown/unsupported storage engine: InnoDB
+  2018-03-07 18:36:54 91613 [ERROR] Aborting
+    解决：
+    查看那些进程把内存用完了，然后把他们杀掉
+  # free -h 查看内存使用情况
+  # ps aux 查看本机所有进程（有cpu和内存占用百分比），通过top命令也可以实时查看
+    我们看到php-fpm占用了大量的内存，通过修改php的配置，减少开启php-fpm的进程数，重启php和mysql即解决
+  
+   

@@ -20,6 +20,13 @@ wp_edit_posts_query($q=false):获取后台文章列表内容
 wp_load_alloptions() : 获取表options所有autoload="yes"的记录
 (array) get_option( 'active_plugins', array()[默认值] ); 获取单个配置信息
 
+wordpress模板文件加载路径：
+1，样式路径下的文件【STYLESHEETPATH】 》 2，主题路径下的文件【TEMPLATEPATH】 》 3，系统目录下的文件【/wp-includes/theme-compat/】；如获取头部模板：
+get_header('abc');查找循序是先查header-abc.php，再查header.php；查找路径类似：
+./wp-content/themes/Divi-child/header-abc.php
+./wp-content/themes/Divi/header-abc.php
+./wp-includes/theme-compat/header-abc.php
+
 
 http://blog.wpjam.com/ wordpress学习文档
 

@@ -76,7 +76,7 @@ make: *** [git-credential-store] 错误 1
 git version 2.11.0
 (
 如果遇到如下错误：
-git: error while loading shared libraries: libiconv.so.2: cannot open shared
+git: error while loading shared libraries: libiconv.so.2: cannot open shared object file: No such file or directory
 解决如下：
 vim /etc/ld.so.conf.d/usr_local_lib.conf 添加如下信息：
 /usr/local/lib
