@@ -424,10 +424,11 @@ vim /usr/local/php/etc/php-fpm.conf
 修改 php-fpm.conf
 user = www
 group = www
+# 下面是：静态方式下开启的php-fpm进程最大数量
 pm.max_children = 50   #一般来说一台服务器正常情况下每一个php-cgi所耗费的内存在20M左右，因此我的”max_children”设置成40个，20M*40=800M
-pm.start_servers = 20
-pm.min_spare_servers = 5
-pm.max_spare_servers = 35
+pm.start_servers = 20  # 动态方式下的起始php-fpm进程数量
+pm.min_spare_servers = 5   # 动态方式下的最小php-fpm进程数量
+pm.max_spare_servers = 35  # 动态方式下的最大php-fpm进程数量
 pm.max_requests = 500
 request_terminate_timeout = 300
 
@@ -441,7 +442,7 @@ request_terminate_timeout = 300
  /usr/local/php/sbin/php-fpm
  /usr/local/webserver/nginx/sbin/nginx
  还有平滑重启 kill -HUP 住进称号或进程号文件路径 (PHP不能平滑重启的)
- 平滑退出 kill -QUIT 主进程号
+ 平滑退出 kill -QUIT 主进程号(其实可以通过：kill -USR2 XXX ：平滑重载所有worker进程并重新载入配置和二进制模块)
  强制停止 pkill -9 nginx/php-fpm 
  
  开启80端口
