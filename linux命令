@@ -72,7 +72,7 @@ sudo /etc/init.d/ssh restart 重启ssh服务器
 /usr/local/webserver/nginx/sbin/nginx 启动nginx（nginx所在目录）
 yum install -y lrzsz 安装上传和下载的rz、sz（下载）
 
-
+  
 # 定时任务相关
 crontab -e 编辑定时任务
 00 3 * * * php /var/www/html/www.makeblock.com/daydb/index.php >/dev/null 2>&1
@@ -89,7 +89,7 @@ d：一个星期中的某天（0-6，0代表周日）)
 重启crond服务器
 killall crond 杀死crond 服务器的进程
 ps aux |grep crond 查看一下是否被杀死
-/usr/sbin/crond 启动 crond 服务器
+/usr/sbin/crond 启动 crond 服务器 (在ubuntu中：sudo apt-get install cron ； sudo service cron restart/start/stop/status)
 (貌似还是需要等1分钟才能执行，定时任务只能在脚本中无限循环来实现)
 
 # mysql 数据库操作相关
@@ -141,6 +141,7 @@ cat /etc/issue 查看系统版本信息
 getconf LONG_BIT 查看操作系统是64位还是32位
 df 查看磁盘空间【df -lh 可过滤掉不需要的磁盘信息；l：只显示要的，h：字节按g表示】
 du -sh $HOME 查看当前用户占用了多少空间（文件的大小）。 -s：表示仅显示总计
+netstat -pnt | grep :80 | wc -l 统计服务器所有url被请求的数量(查看linux服务器并发量)
 
 
 库搜索路径设置：

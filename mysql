@@ -77,6 +77,7 @@ select * from oc_information into outfile "/data/db/export/information.csv" fiel
   8、修改列的类型
   alter table table1 modify id int unsigned;//修改列id的类型为int unsigned
   alter table table1 change id sid int unsigned;//修改列id的名字为sid，而且把属性修改为int unsigned
+  ALTER TABLE `oc_index_information` CHANGE `buy_button_name` `buy_button_name` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT 'BUY NOW' COMMENT '购买按钮名称';
   
   9、创建索引
   alter table table1 add index ind_id (id);
