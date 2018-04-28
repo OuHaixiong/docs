@@ -115,6 +115,13 @@ mysql> show binary logs;
 2 rows in set (0.00 sec)
 
 
+下面是添加组合唯一索引
+ALTER TABLE `performance_personnel` ADD UNIQUE( `performanceId`, `distributionUserId`, `appraisePeriodId`);
+
+删除索引
+DROP INDEX index_name ON talbe_name
+ALTER TABLE table_name DROP INDEX index_name（可以是组合索引名）
+ALTER TABLE table_name DROP PRIMARY KEY
 
             一：alter table用来创建普通索引，unique索引或primary key索引
                 普通索引：alter table t1 add index in_name(name)   --t1表中的那么字段添加索引名为in_name
