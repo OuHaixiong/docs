@@ -251,6 +251,9 @@ which mysql 查询运行文件所在路径（目录）
  8，进入mysql目录并初始化mysql：
     cd mysql
     ./scripts/mysql_install_db --user=mysql --datadir=/data/db/mysql/
+    (如果后面带参数的话，可以这样：
+    ./scripts/mysql_install_db --user=mysql --datadir=/data/db/mysql/ --defaults-file=/usr/local/mysql/my.cnf
+    )
  9，复制mysql的服务启动脚本，并添加到chkconfig --list
     cp support-files/mysql.server /etc/init.d/mysqld
     chkconfig --add mysqld  // 添加mysqld开机启动 或 chkconfig --level 345 mysqld on
@@ -266,7 +269,7 @@ which mysql 查询运行文件所在路径（目录）
      chown mysql.mysql /data/db/mysql/binlog
      mkdir -p /data/logs/mysql/
      chown mysql.mysql /data/logs/mysql
- 12，首次启动mysql：./bin/mysqld_safe & // 一定需要首次启动下，这里会生成/data/db/mysql/localhost.localdomain.pid文件。（貌似还有错误信息提示，写在文件/data/db/mysql/ou.err中）
+ 12，首次启动mysql：./bin/mysqld_safe [--defaults-file=/usr/local/mysql/my.cnf --user=mysql] & // 一定需要首次启动下，这里会生成/data/db/mysql/localhost.localdomain.pid文件。（貌似还有错误信息提示，写在文件/data/db/mysql/ou.err中）
  13，将mysql的man文档加入系统man
      vim /etc/man.config 添加如下一条：
      MANPATH /usr/local/mysql/man
@@ -279,15 +282,17 @@ which mysql 查询运行文件所在路径（目录）
  16，安装完毕。可使用 service mysqld start|stop|restart 来启动和关闭mysql 或 /etc/init.d/mysqld restart
      ( 如果是ubuntu系统需要重启下再来修改密码 )
           可查看3306端口是否被监控：netstat -ntulp |grep 3306
+     (重启的命令也可以直接用，如：
+     sudo /usr/local/mysql/support-files/mysql.server restart --defaults-file=/usr/local/mysql/my.cnf)
  17，修改root用户的密码
      cd /usr/local/mysql
-     ./bin/mysqladmin -u root password (这里一定要启动着mysql)
+     ./bin/mysqladmin -u root [-h 127.0.0.1 -P 3307] password  (这里一定要启动着mysql)
      （./bin/mysqladmin -u root -h localhost.localdomain password 'new-password'）
           输入新密码即可
           （ 如果出现如下错误：ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/tmp/mysql.sock' (2)，需要输入:-h127.0.0.1 ）
           重启服务：service mysqld restart
  18，验证登录
-     /usr/local/mysql/bin/mysql -u root -p    输入密码
+     /usr/local/mysql/bin/mysql [-h127.0.0.1 -P3307] -uroot -p    输入密码
      show databases;
      quit;
  19，开启3306端口

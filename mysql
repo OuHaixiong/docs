@@ -308,4 +308,10 @@ egrep -in "definer|set @@" your_revised.sql
   # ps aux 查看本机所有进程（有cpu和内存占用百分比），通过top命令也可以实时查看
     我们看到php-fpm占用了大量的内存，通过修改php的配置，减少开启php-fpm的进程数，重启php和mysql即解决
   
-   
+6，问题：当执行sql创建一张表时，报如下错误
+  ERROR 1067 (42000) at line 25: Invalid default value for 'updatedTime'
+  原因：在5.5到5.6.4版本里，对于DEFAULT CURRENT_TIMESTAMP子句，只能TIMESTAMP类型列上指定。而从5.6.5开始（也包括5.7），DEFAULT CURRENT_TIMESTAMP子句可以指定到TIMESTAMP或者DATETIME类型列上
+  解决：
+  1），升级mysql数据库到5.6.5以上
+  2），在服务器上重新安装一个5.6.5以上的mysql数据库，并启用不同的端口进行服务
+  3），修改datetime的字段类型为timestamp

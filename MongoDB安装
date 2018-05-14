@@ -45,6 +45,9 @@ kill 3634（pid）   注意：这个地方不能使用kill -9 pid，这样会导
 如果使用kill -9 pid的方式关闭mongodb，并且mongodb不能正常启动，则需删除mongod.lock文件：
 # rm -f /data/db/mongodb/mongod.lock
 
+11，如果出现硬盘空间不足时，可以执行下面的命令启动mongodb：
+/usr/local/mongodb/bin/mongod --config /usr/local/mongodb/bin/mongodb.conf --smallfiles
+
 
  vi mongodb.conf
 port=20000 #端口
