@@ -30,7 +30,7 @@ nohttpinterface=true
 8，加入开机启动
 echo "/usr/local/mongodb/bin/mongod --config /usr/local/mongodb/bin/mongodb.conf" >> /etc/rc.local
 
-9，/usr/local/mongodb/bin/mong // 进入mongodb的shell模式 
+9，/usr/local/mongodb/bin/mongo // 进入mongodb的shell模式 
 > show dbs  // 查看数据库列表 
 admin  (empty)
 local  0.078GB
@@ -67,6 +67,29 @@ vi /etc/sysconfig/iptables
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 27017 -j ACCEPT
 
 /etc/init.d/iptables restart
+
+MongoDB备份与恢复
+备份mongodb
+mongodump -h dbhost --port 27017 -d databasename [--collection xxx 指定数据库的集合] -o[--out] /XXX/xxx[备份数据存放目录，需提前建立]
+恢复mongodb
+mongorestore -h host:port -d dbname [--drop 恢复时，先删除当前的数据] --dir /xxx/xxx[备份数据库的目录，到数据库名下] --authenticationDatabase admin -u username -p password
+
+添加管理员（用来管理所有的数据库）
+> use admin  // 使用admin数据库
+> db.createUser({"user":"admin", "pwd":"password", "roles":["root"]})
+新增的管理员在system.users中
+> db.getCollectionNames()
+[ "system.indexes", "system.users", "system.version" ]
+第一个用户添加完成后，重启mongo后便需要认证才能继续添加其他用户
+> db.auth("admin", "password")
+添加数据库用户（用来供程序调用用）
+> use testdb //选择数据库
+> db.createUser({"user":"testname", "pwd":"password", "roles":[{"role":"dbOwner", "db":"testdb"}]}) // 创建用户
+> db.system.users.find() // 查看用户
+基本命令
+> db.help() // 查看所有数据级别的操作
+> db.mycoll.help() // 查看集合级别的操作
+> db.listCommands() // 列举数据库命令
 
 
 下面是php的函数
