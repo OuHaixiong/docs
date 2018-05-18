@@ -120,3 +120,9 @@ $ pm2 reload all
 
 CoffeeScript:
 $ pm2 start my_app.coffee #这就是全部
+
+
+
+forever是一个能让node项目在后台运行
+npm install forever -g
+NODE_ENV=production forever start app.js
