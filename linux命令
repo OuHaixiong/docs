@@ -31,6 +31,7 @@ scp -rvp /usr/local/redis/ root@192.168.1.113:/usr/local/   通过ssh向远端�
 scp -P 22354  -rvp /data/www/oc_index_information_pre_online.sql ouhaixiong@45.79.163.XX:/data/db/ 通过ssh向远端服务器传文件或文件夹；如果是带端口的话-P一定要跟在scp后面
 scp -P 22357 kunz@45.79.XXX.XXX:/data/db/export.tar.gz export.tar.gz 同样也可以通过远程把文件传到本地
 grep '/data/wwwroot' ./*  在当前目录下的所有文件中查找字符串
+grep "Common_Image" -rn[-n -r] ./* 在当前目录下查找字符串，包括子目录和文件。-r：包括子目录下的文件；-n：显示行号
 echo '' > access.log 输入一个字符串到指定的文件（这会先清除文件里的内容再存入输进的内容）
 echo 'wokao' >> access.log 在文件的末尾追加一行
 mimetype xxx 查看一个文件的mimetype属性，即文件是用哪类应用打开（关联应用程序，双击文件可直接打开）[也可以用mimetype -a xxx查看所有的mimetype属性]
