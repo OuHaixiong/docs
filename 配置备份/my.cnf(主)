@@ -42,7 +42,8 @@ max_connections=1000 # 最大连接数
 # join_buffer_size = 128M
 # sort_buffer_size = 2M
 # read_rnd_buffer_size = 2M
-symbolic-links=0 # MySQL数据库及表(仅MyISAM)支持符号链接(symbolic link). 0:不支持符合链接; 1:开启，支持符合链接，即数据库或表可以存储在my.cnf中指定datadir之外的分区或目录
+symbolic-links=0 # MySQL数据库及表(仅MyISAM)支持符号链接(symbolic link). 0:不支持符号链接; 1:开启，支持符号链接，即数据库或表可以存储在my.cnf中指定datadir之外的分区或目录
+max_allowed_packet = 256M # 使client端到server端传递大数据时，系统能够分配更多的扩展内存来处理
 
 sql-mode="STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION" #严格模式
 # 貌似在mysql中是sql_mode，在mariadb中是sql-mode

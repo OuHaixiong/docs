@@ -18,6 +18,46 @@ rpm ivh MySQL-server-5.6.11-2.el6.i686.rpm
 安装mysql客户端：
 rpm ivh MySQL-client-5.6.11-2.el6.i686.rpm
 
+
+
+mysqldump：逻辑备份工具
+InnoDB引擎热备，MyISM温备，Aria温备
+备份和恢复的过程比较慢，很难实现差异或增量备份
+恢复时，如果目标库不存在，需要事先手动创建
+常用选项：
+--all-databases：备份所有库
+--databases db1 db2...：备份指定的多个库
+注意：备份前要加锁：
+--lock-all-tables：请求锁定所有表之后在备份。
+--lock-tables：锁定指定的表。
+--single-transaction：能够对InnoDB存储引擎实现热备。
+备份代码：
+--events：备份事件调度器代码
+--routines：备份存储过程和存储函数
+--triggers：备份触发器
+备份时滚动日志：
+--flush-logs：备份前，请求到锁之后滚动日志。
+复制时的同步位置标记
+--master-data=【0|1|2】
+0表示不记录
+1表示记录change master语句
+2记录为注释的change master语句
+使用mysqldump备份：
+请求锁：--lock-all-tables或使用--singe-transaction进行innoDB热备
+滚动日志：--flush-logs
+选定要备份的库：--databases
+记录二进制日志文件及位置：--master-data=0|1|2
+
+备份数据库：# mysqldump -uroot -p [--lock-all-tables --flush-logs] --databases benet > /tmp/benet.sql
+# mysql> unlock tables;解锁
+# mysql> drop database benet;删除库
+主要是针对innoDB引擎备份，实现热备:
+mysqldump --databases benet --single-transactions --flush-logs > /tmp/benet.3.sql
+mysqldump --all-databases > /tmp/all.sql
+
+
+
+
 1、安装
 #rpm -ivh MySQL-server-5.6.11-2.el6.i686.rpm
 #rpm -ivh MySQL-client-5.6.11-2.el6.i686.rpm

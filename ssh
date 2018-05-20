@@ -1,62 +1,40 @@
 
+CentOS下设置ssh连接断开时间设置
+1，修改/etc/ssh/sshd_config文件
+将ClientAliveInterval 0和ClientAliveCountMax 3的注释符号去掉,将ClientAliveInterval对应的0改成60,ClientAliveInterval指定了服务器端向客户端请求消息的时间间隔, 默认是0, 不发送.而ClientAliveInterval 60表示每分钟发送一次, 然后客户端响应, 这样就保持长连接了.ClientAliveCountMax, 使用默认值3即可.ClientAliveCountMax表示服务器发出请求后客户端没有响应的次数达到一定值, 就自动断开. 正常情况下, 客户端不会不响应
+2，重启sshd服务即可
+/etc/init.d/sshd restart   或者：/etc/rc.d/init.d/sshd restart 
 
-简单的说 OpenSSH 是一组安全远程的连接工具，主要包括了几个部份：ssh、sshd、scp、sftp、ssh-keygen、ssh-agent、ssh-add。OpenSSH 安装配置比较复杂，难点在配置，特别是在 VPS 中，配置不当就完全无法链接 VPS 了。
+
+
 一、关于 OpenSSH
-
-OpenSSH 是一组用于安全地访问远程计算机的连接工具。它可以作为 rlogin、 rsh rcp 以及 telnet 的直接替代品使用。更进一步， 其他任何 TCP/IP 连接都可以通过 SSH 安全地进行隧道/转发。 OpenSSH 对所有的传输进行加密， 从而有效地阻止了窃听、 连接劫持，以及其他网络级的攻击。
-
+简单的说 OpenSSH 是一组安全远程的连接工具，主要包括了几个部份：ssh、sshd、scp、sftp、ssh-keygen、ssh-agent、ssh-add。OpenSSH 安装配置比较复杂，难点在配置，特别是在 VPS 中，配置不当就完全无法链接 VPS 了。
 ssh（SSH 客户端，用于登录建立连接，是 rlogin 与 Telnet的安全替代方案）
 sshd （SSH 服务端，典型的独立守护进程）
 scp、sftp （文件安全传输工具，rcp、ftp 安全的替代方案）
 ssh-keygen （用于产生 RSA 或 DSA 密钥）
 ssh-agent、ssh-add（帮助用户不需要每次都要输入金钥密码的工具）
+OpenSSH 是一组用于安全地访问远程计算机的连接工具。它可以作为 rlogin、 rsh rcp 以及 telnet 的直接替代品使用。更进一步， 其他任何 TCP/IP 连接都可以通过 SSH 安全地进行隧道/转发。 OpenSSH 对所有的传输进行加密， 从而有效地阻止了窃听、 连接劫持，以及其他网络级的攻击。
+
 二、编译前的准备工作
 2.1、查看 OpenSSH 版本
-
 部分 Linux 系统已默认安装了 OpenSSH，像 Ubuntu Server 10.10 就已安装了 OpenSSH_5.5p1
-
-1
-
-	
-
-ssh -v
+# ssh -v
+OpenSSH_7.4p1, LibreSSL 2.5.0
 
 2.2、安装 OpenSSL 及编译环境
-
 必须先安装依赖 OpenSSL，具体见《Linux 从源码编译安装 OpenSSL》 http://www.linuxidc.com/Linux/2011-10/45738.htm
 2.3、备份 OpenSSH 旧配置文件
-
-1
-2
-3
-
-	
-
 cp /etc/init.d/ssh /etc/init.d/ssh.old
 cp -r /etc/ssh /etc/ssh.old
 cp ~/.ssh/authorized_keys ~/.ssh/authorized_keys.old
 
 2.4、卸载旧版 OpenSSH
-
-1
-
-	
-
 apt-get purge openssh-client openssh-server
 
 三、编译安装 OpenSSH
 3.1、关于特权分离
-
 所谓特权分离(Privilege Separation)实际上是一种 OpenSSH 的安全机制，该特性默认开启，可通过配置文件中的 UsePrivilegeSeparation 指令开启或关闭。
-
-1
-2
-3
-4
-5
-
-	
-
 mkdir -p  /var/empty #设置一个空目录
 chown 0:0 /var/empty #所有者和组，0代表"root"
 chmod 000 /var/empty #目录权限设置为"000"
@@ -64,25 +42,13 @@ groupadd sshd #建立sshd组
 useradd -g sshd -c 'sshd privsep' -d /var/empty -s /bin/false sshd #用于特权分离的非特权用户"sshd"
 
 3.2、编译安装 OpenSSH
-
 详细编译选项见《OpenSSH-4.7p1 安装指南》
-
 下载在 http://www.linuxidc.com/Linux/2011-10/45740.htm
-
-1
-2
-3
-4
-5
-
-	
-
 wget http://ftp.aso.ee/pub/OpenBSD/OpenSSH/portable/openssh-5.6p1.tar.gz
 tar -zxf openssh-5.6p1.tar.gz
 cd openssh-5.6p1/
 ./configure --prefix=/usr/local --sysconfdir=/usr/local/ssh --with-ssl-dir=/usr/local/ssl --with-privsep-path=/var/empty --with-privsep-user=sshd  --with-zlib=/usr/local/lib --with-ssl-engine --with-md5-passwords --disable-etc-default-login
 make && make install
-
 --prefix 安装目录
 --sysconfdir 配置文件目录
 --with-ssl-dir 指定 OpenSSL 的安装目录
@@ -91,25 +57,11 @@ make && make install
 --with-zlib 指定zlib库的安装目录
 --with-md5-passwords 支持读取经过MD5加密的口令
 --with-ssl-engine 启用OpenSSL的ENGINE支持
+
 3.3、开机自启动 sshd
-
-1
-2
-3
-
-	
-
 mv /etc/init.d/ssh.old /etc/init.d/sshd #使用原来的启动脚本
 vim /etc/init.d/sshd #编辑，然后替换路径。
 update-rc.d mysql defaults
-
-1
-2
-3
-4
-
-	
-
 #将原路径"/usr/sbin替换为"/usr/local/sibn"
 :%s/usr\/sbin/usr\/local\/sbin/g
 #将原路径"/etc/ssh替换为"/usr/local/ssh"
@@ -117,13 +69,7 @@ update-rc.d mysql defaults
 
 四、 OpenSSH 安全配置
 4.1、查看 OpenSSH 配置文件
-
-1
-
-	
-
 cd /usr/local/ssh
-
 moduli #ssh服务器的Diffie-Hellman密钥文件
 ssh_config #ssh客户端配置文件
 sshd_config #ssh服务器配置文件
@@ -132,32 +78,18 @@ ssh_host_dsa_key.pub #ssh服务器dsa算法公钥
 ssh_host_rsa_key #ssh服务器rsa算法私钥
 ssh_host_rsa_key.pub #ssh服务器rsa算法公钥
 4.2、生成服务器密钥对
-
 默认 OpenSSH 安装完毕后就自动生成了，如果丢失可通过下面命令重新生成。
-
-1
-2
-3
-4
-5
-6
-
-	
-
 ssh-keygen -t rsa1 -f /etc/ssh/ssh_host_key -N '' #适用于ssh-1版
 ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''
 ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key -N ''
- 
 chmod 600 /etc/ssh/ssh_host_*
 chmod 644 /etc/ssh/ssh_host_*.pub
 
 特别注意：
-
 1、系统密钥对是不能设置密码的， -N 后面 是两个 单引号 ！表示密码串为空。
 2、注意公钥和私钥的权限是不同的。
 
 4.4、编辑 sshd_config 配置文件
-
 事实上该配置文件不需要修改也能正常启动 sshd ，下面是该配置文件的简要中文解释。详细解释见《sshd_config 中文手册》 下载见 http://www.linuxidc.com/Linux/2011-10/45740.htm
 
     Port 22 #默认端口
@@ -235,49 +167,23 @@ chmod 644 /etc/ssh/ssh_host_*.pub
 
 五、基于密钥的认证
 5.1、在本地生成密钥对
-
 ssh-keygen 默认使用rsa算法生成密钥，如果要使用dsa算法，则需要使用-t 指定比如($ ssh-keygen -t dsa)
-
-1
-2
-
-	
-
 cd ~/.ssh/ #进入.ssh目录
 ssh-keygen -N '' #生成无密码的密钥对，然后会提示输入密钥名称
 
 5.2、上传公钥至服务器
-
 通过scp将公钥传复制到远程服务器.ssh目录下，并改名为authorized_keys
-
-1
-
-	
-
 scp wangyan.pub wangyan@wangyan.org:.ssh/authorized_keys
 
 5.3、建立安全连接
-
 如果本地.ssh目录下的私钥改名，那么链接失败或改为密码认证。
 如果putty作为客户端，那么这个id_rsa需要经过PUTTYGEN.EXE转换一次以后才能使用
-
-1
-2
-3
-4
-
-	
-
 ssh wangyan@wangyan.org
 sftp wangyan@wangyan.org
 scp wangyan@wangyan.org
 ......
 
 六、SSH 帐号管理
-
-
-	
-
 passwd #修改当前用户密码
 groupadd SSH #添加组
 useradd -g SSH -s /bin/'bash' -d /home/user1 user1 #添加用户
@@ -286,12 +192,6 @@ userdel user1 #删除用户user1
 groupdel SSH #删除组SSH
 停用帐号，VIM编辑密码文件，在用户名后添加 ":*" 。
  vim /etc/shadow
-
-1
-2
-
-	
-
 service sshd restart # 重启sshd
 ps aux | grep sshd #查看是否运行成功
 

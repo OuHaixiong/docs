@@ -20,7 +20,9 @@ find . -type f -cmin -20[ -ls] 查找当前目录下，20分钟内修改过的�
 find /etc -name '*srm*' 查找etc目录下所有包含srm文件名的文件 （全名：find /usr -name "libchm.so.0"）
 find . |grep config.inc. 在本目录下查找文件
 find . -type f -size +100M 查找当前目录下，所有大约100M的文件（可用于查找大文件）
+find . -name "*" -type f -size 0c 查找文件大小为0的文件 （find . -name "*" -type f -size 0c | xargs -n 1 rm -f：查找文件大小为0的文件并删除之）。 如果 -size 1k：表示占用空间1k，不是文件大小1k的
 find . -user root 查找当前目录下，属于某个用户的文件
+find -type d -empty 查询出所有的空文件夹
 find /var/ -not[!] -user nobody 查找指定目录下，不属于某个用户的文件
 du -sh [.|filename|dirname|*] 当前目录或文件的大小(du -sh * |sort -nr |head：显示前10个占用空间最大的文件或目录)
 locate php.ini 根据文件名进行查找文件（这个速度不错，默认从根目录开始搜索）
@@ -36,6 +38,7 @@ echo '' > access.log 输入一个字符串到指定的文件（这会先清除�
 echo 'wokao' >> access.log 在文件的末尾追加一行
 mimetype xxx 查看一个文件的mimetype属性，即文件是用哪类应用打开（关联应用程序，双击文件可直接打开）[也可以用mimetype -a xxx查看所有的mimetype属性]
 update-mime-database ~/.local/share/mime 更新mimetype数据库，即添加新的mimetype入操作系统
+split –b 50 原始文件 拆分后文件名前缀  以大小拆分文件（split -l 50 xxx xx 以行数拆分文件）
 
 
 删除目录、文件 rm(remove)
