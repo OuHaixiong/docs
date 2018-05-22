@@ -18,9 +18,22 @@ apache 重写配置
 RewriteEngine On
 #RewriteCond %{HTTP_HOST} !^www\.yourdomain\.com // 这句可以不写。这里相当于是判断条件
 RewriteRule (.*) http://www.yourdomain.com$1 [R=301,L] // 也可以写成RewriteRule ^/(.*) http://www.yourdomain.com/$1 [R,L]
+RewriteCond %{HTTP_HOST} ^mvc.com [NC]
+RewriteRule ^(.*)$ http://www.mvc.com/$1 [L,R=301]  // 对非www开头的域名永久重定向到www域名下
 
+RewriteEngine On
+RewriteCond %{REQUEST_URI} xmlrpc.php [NC, OR]  // 匹配规则1
+RewriteCond %{HTTP_REFERER} ^http://.*free\-traffic\.xyz/ [NC,OR] // 匹配规则2
+RewriteCond %{HTTP_REFERER} ^http://.*free\-social\-buttons\.xyz/ [NC] // 匹配规则3
+RewriteRule ^(.*)$ – [F,L] // 所有的请求均不处理
 
+RewriteRule ^system/download/(.*) /index.php?route=error/not_found [L] // 重写规则
+RewriteRule ^api/(.*)/(.*)$ index.php?route=api/$1/$2 [L,NC] // 匹配到的url转给对应的php文件进行处理，L：代表最后一条规则，不会再往下匹配了
+RewriteRule ^abc$ https://www.xx.com/xx/xx-ducational [L,R=301] // url永久重定向
+RewriteRule ^efg/xyz /page/ok_dialog.html [QSA,PT,L] 
 
-
-
-
+RewriteBase /    // 所有的请求
+RewriteCond %{REQUEST_FILENAME} !-f  // 如果文件不存在 （不写OR，默认就是and条件）
+RewriteCond %{REQUEST_FILENAME} !-d  // 如果目录不存在
+RewriteCond %{REQUEST_URI} !.*\.(ico|gif|jpg|jpeg|png|js|css)  // 并且请求的url中不包含.jpg、.js、.css ...
+RewriteRule ^([^?]*) index.php?_route_=$1 [L,QSA]  // 把所有的请求转发给index.php进行处理（也是最后一条规则）
