@@ -1,8 +1,12 @@
+# 自定义访问成功日记格式
+log_format access '$http_x_forwarded_for $remote_addr [$time_local] "$scheme://$http_host:$server_port" "$request"'
+                  ' $status $body_bytes_sent "$http_referer" "$http_user_agent" "$remote_user"';
+
 server {
     listen 80;
     server_name wa.dragon-design.cn wwawo.com www.wwawo.com;
 
-    #access_log  logs/host.access.log  main;
+    #access_log  /data/www/mvc_access.log  access;
     error_log /data/logs/nginx/wa_error.log;
 
     root /data/www/wa;
@@ -17,6 +21,7 @@ server {
         if (!-e $request_filename) {
             rewrite (.*) /index.php last;
         }
+        #try_files $uri $uri/ /index.php$is_args$args;
         #if (!-f $request_filename){
         #    rewrite (.*) /index.php;
         #}
@@ -36,5 +41,9 @@ server {
         fastcgi_index  index.php;
         fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
         include        /usr/local/webserver/nginx/conf/fastcgi_params;
+        #try_files $uri =404;
+    }
+    location ~* /\. { # 拒绝访问; 不让进入
+        deny all;
     }
 }
