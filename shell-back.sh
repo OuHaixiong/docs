@@ -1,3 +1,4 @@
+makeblock部分shell脚本备份（mb脚本）
 #!/bin/bash
 DATETIME=`date +%Y%m%d%H%M%S`
 DATEY=`date +%Y`
@@ -74,7 +75,7 @@ fi
 
 
 
-
+autorestart.sh
 #!/bin/bash
 MY_URL="http://openlab.makeblock.com"
 RESULT=`curl -I $MY_URL | grep "HTTP/1.1 500"`

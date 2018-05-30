@@ -1,6 +1,28 @@
 
 nginx 代理：
 
+需求：将查询的旧域名代理到新的域名
+旧：http://www.old.com/query/lub
+新：http://mvc.com/search?q=lub
+方案一：
+    location ^~ /query/ { // 区分大小写匹配，匹配/query/开头的所有请求（算是非正则匹配）
+        proxy_pass http://mvc.com/search?q=; // /query/后面的所有参数会自动代理过来
+    }
+方案二：
+    location ~* ^/query/(.+) {
+        set $q $1;
+        rewrite .* /search?q=$q break; // rewrite中不能直接使用location中的匹配变量
+        proxy_pass http://mvc.com;
+    } // 这个方案有个缺陷是编码有问题，location中的字符串是urldecode的；最终解决方案如下：
+    location /query/ {
+        if ($request_uri ~* "^/query/([^?]+)") { // 这里^可以不要，因为location中已经匹配上了（貌似）
+            set $q $1;
+            rewrite .* /search?q=$q break;
+        }
+        proxy_pass http://mvc.com;
+    }
+特别注意：location只能匹配url的uri部分，不能匹配参数部分
+
 server {
     listen 80;
     server_name yiitest yiitest.com;

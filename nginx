@@ -126,6 +126,8 @@ server {
         
         #if (!-e $request_filename) { # 重写，如果找不到此文件，则把请求转到根目录下的index.php文件
             #rewrite ^(.*)$ /index.php last; # rewrite (.*) /index.php last;
+            # last:这是最后一条匹配规则，不会再往下进行匹配了，到这来就结束了
+            # rewrite:只是把请求交给了后面的文件进行处理，并不会改变$request_uri（浏览器的完整url）的值
         #}
         #文件或目录不存在的时候重定向一个域名
         #if (!-e $request_filename) {
@@ -148,9 +150,21 @@ server {
     #}
     
     # 域名重定向
-    #if ($http_host ~* 'blog\.makeblock\.cc') { // ~*:不区分大小写匹配; !~*:不区分大小写不匹配; ~:区分大小写匹配; !~:区分大小写不匹配
-    #    rewrite ^(.*) http://blog.makeblock.com$1 permanent; // permanent:返回永久重定向的HTTP状态301; redirect:返回临时重定向的HTTP状态302; break:中止Rewirte，不在继续匹配; last:结束匹配
+    #if ($http_host ~* 'blog\.makeblock\.cc') { 
+    # ~*  : 不区分大小写正则匹配; 
+    # !~* : 不区分大小写不匹配的正则; 
+    # ~   : 区分大小写正则匹配; 
+    # !~  : 区分大小写不匹配的正则
+    # ^~  : URI以某个常规字符串开头，理解为url路径是以xxx开头的。nginx不对url做编码，因此请求为/static/20%/aa，可以被规则^~ /static/ /aa匹配到（注意是空格）
+    # =   : 精确匹配
+    # /   : 通用匹配，任何请求都会匹配到
+    #    rewrite ^(.*) http://blog.makeblock.com$1 permanent; 
+    # permanent  : 返回永久重定向的HTTP状态301; 
+    # redirect   : 返回临时重定向的HTTP状态302; 
+    # break      : 中止rewrite，不在继续匹配; 
+    # last       : 结束匹配(最后一条匹配规则不再往下查找)
     #}
+    # 匹配顺序：=,^~,其次是按文件中的顺序正则匹配，最后是/
 
 	# 错误页的配置
     #error_page  404              /404.html;
@@ -174,18 +188,27 @@ server {
         expires      30d;
         access_log   off;
     }
-    
-#    location ~* \.(js|css|jpg|jpeg|gif|png|swf)$ {
-#        if (-f $request_filename) {
-#            expires 1h;
-#            break;
+
+# 排除图片、样式、flash和js在重写规则里，不存在直接返回404
+#    location ~* \.(js|css|jpg|jpeg|gif|png|swf|ico)$ { # ~* 为不区分大小写正则匹配；~ 为区分大小写正则匹配
+#        if (!-f $request_filename) {
+#            return 404;
 #        }
+#         // root /webroot/res/;
+#         expires 1h;
+#         break;
 #    }
-    
+
     location ~ .*\.(js|css)?$ { # js、css缓存
         expires      1d;
         access_log   off;
     }
+
+    location ~* \.(txt|doc)$ { # 禁止访问某个目录 /docs$
+        # root /data/www/XXX
+        deny all;
+    }
+
 }
 
 fcgi.conf文件一定要放在和nginx的nginx.conf一起，内容如下：
@@ -295,7 +318,12 @@ server {
     /usr/local/webserver/nginx/sbin/nginx -s reload
 
 
-
+location = /map_baidu.html {
+        proxy_pass http://13.75.110.96/baidu.html;
+    }
+    location = /map_google.html {
+        proxy_pass http://13.75.110.96/google.html;
+    }
 
 
 
