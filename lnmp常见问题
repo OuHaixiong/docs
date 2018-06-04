@@ -68,30 +68,17 @@ php.ini中memory_limit设低了会出错，修改了php.ini的memory_limit为64M
 一、max-children和max-requests
 
 　　一台服务器上运行着nginx php(fpm) xcache，访问量日均 300W pv左右。
-
 　　最近经常会出现这样的情况：php页面打开很慢，cpu使用率突然降至很低，系统负载突然升至很高，查看网卡的流量，也会发现突然降到了很低。这种情况只持续数秒钟就恢复了。
-
 　　检查php-fpm的日志文件发现了一些线索。
-
-复制代码 代码如下:
-
-Sep 30 08:32:23.289973 [NOTICE] fpm_unix_init_main(), line 271: getrlimit(nofile): max:51200, cur:51200  Sep 30 08:32:23.290212 [NOTICE] fpm_sockets_init_main(), line 371: using inherited socket fd=10, “127.0.0.1:9000″  Sep 30 08:32:23.290342 [NOTICE] fpm_event_init_main(), line 109: libevent: using epoll  Sep 30 08:32:23.296426 [NOTICE] fpm_init(), line 47: fpm is running, pid 30587　
-
-在这几句的前面，是1000多行的关闭children和开启children的日志。
-
+    Sep 30 08:32:23.289973 [NOTICE] fpm_unix_init_main(), line 271: getrlimit(nofile): max:51200, cur:51200  Sep 30 08:32:23.290212 [NOTICE] fpm_sockets_init_main(), line 371: using inherited socket fd=10, “127.0.0.1:9000″  Sep 30 08:32:23.290342 [NOTICE] fpm_event_init_main(), line 109: libevent: using epoll  Sep 30 08:32:23.296426 [NOTICE] fpm_init(), line 47: fpm is running, pid 30587　
+    在这几句的前面，是1000多行的关闭children和开启children的日志。
 　　原来，php-fpm有一个参数 max_requests，该参数指明了，每个children最多处理多少个请求后便会被关闭，默认的设置是500。因为php是把请求轮询给每个 children，在大流量下，每个childre到达max_requests所用的时间都差不多，这样就造成所有的children基本上在同一时间 被关闭。
-
 　　在这期间，nginx无法将php文件转交给php-fpm处理，所以cpu会降至很低(不用处理php，更不用执行sql)，而负载会升至很高(关闭和开启children、nginx等待php-fpm)，网卡流量也降至很低(nginx无法生成数据传输给客户端)
-
 　　解决问题很简单，增加children的数量，并且将 max_requests 设置未 0 或者一个比较大的值：
-
 　　打开 /usr/local/php/etc/php-fpm.conf调大以下两个参数(根据服务器实际情况，过大也不行）
-
-复制代码 代码如下:
-
-<value>5120</value><value>600</value>　　
-
-然后重启php-fpm。
+    max-children = 5120;
+    max_requests = 600;
+    然后重启php-fpm。
 
 二、增加缓冲区容量大小
 
@@ -201,9 +188,7 @@ proxy_pass http://subversion_hosts;
 现在基本上没有碰到502。
 
 7.php脚本执行时间过长
-将php-fpm.conf的<value
-name="request_terminate_timeout">0s</value>的0s改成一个时间
-
+将php-fpm.conf的request_terminate_timeout 0s的0s改成一个时间
 502错误是因为php的错误日志权限问题，没有办法写入，然后直接抛给了cgi，所以nginx就502了
 
 

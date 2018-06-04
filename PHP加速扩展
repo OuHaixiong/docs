@@ -1,0 +1,42 @@
+
+四款php加速扩展：APC、eAccelerator、XCache、Zend OPcache
+
+PHP加速器是一个为了提高PHP执行效率，从而缓存起PHP的操作码，这样PHP后面执行就不用解析转换了，可以直接调用PHP操作码，这样速度上就提高了不少。
+
+APC全称是Alternative PHP Cache,它是PHP PECL中的一个扩展。（感觉有点老，下载过最新版和稳定版均没有安装成功）
+
+eAccelerator（貌似也只支持到5.4）
+
+XCache：
+    # tar -zxf xcache-3.2.0.tar.gz
+    # cd xcache-3.2.0 && /usr/local/php/bin/phpize
+    # ./configure --enable-xcache --enable-xcache-coverager -er-with-php-config=/usr/local/php/bin/php-config
+    # make && make install
+    在xcache目录下有一个文件xcache.ini，复制里面的内容到php的配置文件php.ini中；记得修改如下配置：
+        extension = /usr/local/php/lib/php/extensions/no-debug-non-zts-20131226/xcache.so
+        xcache.admin.user = "bear"     
+        xcache.admin.pass = "f447b20a7fcbf53a5d5be013ea0b15af"  （密码生成规则需要md5加密：echo '123456' |md5sum）
+        xcache.mmap_path =    "/data/logs/php/xcache" ; 缓存目录需要777的权限
+        在xcache目录下有一个htdocs的文件夹，把它cp到你的网站目录下，访问密码和用户在上面提到的配置中设置
+    # kill -quit 18895 && /usr/local/php/sbin/php-fpm
+    xcache提供一些简单的api，xcache_set('name', 'bear');var_dump(xcache_get('name'));
+    XCache 的 INI 配置说明：http://xcache.lighttpd.net/wiki/XcacheIni
+    XCache APIs（php的api调用接口）：http://xcache.lighttpd.net/wiki/XcacheApi
+
+optimizing PHP intermediate code
+
+php 7 的速度提升很多是不是就不需要加速器了呢？或php 7就已经实现了加速器的功能？
+
+
+
+
+
+
+
+
+http://blog.51cto.com/hao360/1651698
+http://www.vpser.net/opt/apc-eaccelerator-xcache.html
+
+
+
+
