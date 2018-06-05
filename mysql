@@ -355,3 +355,13 @@ egrep -in "definer|set @@" your_revised.sql
   1），升级mysql数据库到5.6.5以上
   2），在服务器上重新安装一个5.6.5以上的mysql数据库，并启用不同的端口进行服务
   3），修改datetime的字段类型为timestamp
+
+7，问题：当硬盘空间不足后，无法打开mysqli句柄报PHP Warning:  mysqli_init(): Property access is not allowed yet in /xxx/XXX，然后停用了服务，硬盘空出空间来，重启发现无法启动，查看错误日记报错如下：
+  [ERROR] InnoDB: Redo log crypto: getting mysqld crypto key from key version failed err = 4294967295. Reason could be that requested key_version 36191552 is not found or required encryption  key management is not found.
+  2018-06-05 11:48:05 140086408349664 [ERROR] Plugin 'InnoDB' init function returned error.
+  2018-06-05 11:48:05 140086408349664 [ERROR] Plugin 'InnoDB' registration as a STORAGE ENGINE failed.
+  2018-06-05 11:48:05 140086408349664 [Note] Plugin 'FEEDBACK' is disabled.
+  2018-06-05 11:48:05 140086408349664 [ERROR] Unknown/unsupported storage engine: InnoDB
+  原因：貌似logfile文件损坏，导致重新加载时出错
+  解决：
+  进到数据目录，执行：rm -rf ib_logfile*；然后重新启动mysql即可：service mariadbd start
