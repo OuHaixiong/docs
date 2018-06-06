@@ -5,12 +5,14 @@ PHP加速器是一个为了提高PHP执行效率，从而缓存起PHP的操作�
 
 APC全称是Alternative PHP Cache,它是PHP PECL中的一个扩展。（感觉有点老，下载过最新版和稳定版均没有安装成功）
 
-eAccelerator（貌似也只支持到5.4）
+eAccelerator（貌似也只支持到5.4）.
+eAccelerator 同样还支持PHP代码的编译和解释执行，你可以通过encoder.php脚本来对php代码进行编译达到保护代码的目的，经过编译后的代码必须运行在安 装了eAccelerator的环境下。
+eAccelerator编译后的代码不能被反编译，它不象其他一些编译工具那样可以进行反编译，这将使得代码更 加安全和高效。
 
-XCache：
+XCache：是一个开源的 opcode 缓存器/优化器
     # tar -zxf xcache-3.2.0.tar.gz
     # cd xcache-3.2.0 && /usr/local/php/bin/phpize
-    # ./configure --enable-xcache --enable-xcache-coverager -er-with-php-config=/usr/local/php/bin/php-config
+    # ./configure --enable-xcache --enable-xcache-coverager --with-php-config=/usr/local/php/bin/php-config
     # make && make install
     在xcache目录下有一个文件xcache.ini，复制里面的内容到php的配置文件php.ini中；记得修改如下配置：
         extension = /usr/local/php/lib/php/extensions/no-debug-non-zts-20131226/xcache.so
@@ -23,24 +25,26 @@ XCache：
     XCache 的 INI 配置说明：http://xcache.lighttpd.net/wiki/XcacheIni
     XCache APIs（php的api调用接口）：http://xcache.lighttpd.net/wiki/XcacheApi
 
-Zend OPCache：新一代PHP加速器，由Zend公司研发，其实现原理与Xcache类似，都是把PHP执行后的数据缓冲到内存中从而避免重复的编译过程，能够直接使用缓冲区已编译的代码从而提高速度，降低服务器负载，但性能却比Xcache更加优越。
-zendopcache-7.0.5貌似也只支持到php 5.5.0。在php 5.5以后的版本中自带了Zend OPCache扩展，如果需要开启的话，直接开启就可以（如果不行就需要单独编译安装）
+Zend OPCache：新一代PHP加速器，由Zend公司研发，其实现原理与Xcache类似，都是把PHP执行后的数据缓冲到内存中从而避免重复的编译过程，
+能够直接使用缓冲区已编译的代码从而提高速度，降低服务器负载，但性能却比Xcache更加优越。
+通过将 PHP 脚本预编译的字节码存储到共享内存中来提升 PHP 的性能。 存储预编译字节码的好处就是 省去了每次加载和解析 PHP 脚本的开销。
+zendopcache-7.0.5只支持到php 5.5.0。在php 5.5以后的版本中自带了Zend OPCache扩展，如果需要开启的话，直接开启就可以（如果不行就需要单独编译安装）
 php.ini中默认有opcache的配置，打开即可（配置说明：http://php.net/manual/zh/opcache.configuration.php）
 [opcache]
 zend_extension=/usr/local/php/lib/php/extensions/no-debug-non-zts-20131226/opcache.so
-opcache.enable=1
-opcache.enable_cli=1
-opcache.memory_consumption=64
-opcache.interned_strings_buffer=4
-opcache.max_accelerated_files=2000
+opcache.enable=1 // 是否打开opcache
+opcache.enable_cli=1 // 是否允许缓存CLI下的PHP程序
+opcache.memory_consumption=64 // 可用内存，酌情而定(即能够存储多少预编译的PHP代码)，单位MB
+opcache.interned_strings_buffer=4 // Zend Optimizer + 暂存池中字符串的占内存总量.(单位:MB)
+opcache.max_accelerated_files=2000 // 允许缓存的文件最大数量, 命中率不到 100% 的话, 可以试着提高这个值
 ;opcache.max_wasted_percentage=5
 ;opcache.use_cwd=1
 ;opcache.validate_timestamps=1
-opcache.revalidate_freq=2
+opcache.revalidate_freq=2 // opcache 会在一定时间内去检查文件的修改时间, 这里设置检查的时间周期, 默认为 2, (单位:秒)
 ;opcache.revalidate_path=0
 ;opcache.save_comments=1 // 默认1：开启保存注释；0：不保存注释，性能会提升（如果注释有用的话，需要设为1）
 ;opcache.load_comments=1
-opcache.fast_shutdown=1
+opcache.fast_shutdown=1 // 是否开启快速关闭队列功能,1：为开启； 打开这个在PHP Request Shutdown的时候回收内存的速度会提高
 ;opcache.enable_file_override=0
 ;opcache.optimization_level=0xffffffff
 ;opcache.blacklist_filename=/xx/xxx/opcache*.blacklist // 不需要进行OPcache的黑名单列表，如：opcache-mvc.blacklist的内容为：/data/www/mvc/*
@@ -52,6 +56,9 @@ opcache_reset();                      # 清空缓存
 opcache_get_status();                 # 获取缓存的状态信息
 opcache_get_configuration();          # 获取缓存的配置信息
 Zend OPCache也有图像化的管理工具：https://github.com/amnuts/opcache-gui；https://github.com/PeeHaa/OpCacheGUI；https://github.com/rlerdorf/opcache-status
+有个监控（Opcache控制面板）程序，是ocp.php
+
+总结，尽量用zend公司研发的Zend OPCache；XCache的性能也不错；两者可用重点研究下。
 
 php 7 的速度提升很多是不是就不需要加速器了呢？或php 7就已经实现了加速器的功能？
 

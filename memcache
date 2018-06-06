@@ -22,7 +22,8 @@ Memcache::setCompressThreshold — 对大于某一大小的数据进行压缩
 Memcache::setServerParams — 在运行时修改服务器的参数
 
 Memcache是什么？
-memcache是一个高性能的分布式的内存对象缓存系统，通过在内存里维护一个统一的巨大的hash表，
+memcache是一个高性能的分布式的内存对象缓存系统，用于动态Web应用以减轻数据库负载；它通过在内存中缓存数据和对象来减少读取数据库的次数，从而提供动态、数据库驱动网站的速度。
+通过在内存里维护一个统一的巨大的hash表
 它能够用来存储各种格式的数据，包括图像、视频、文件以及数据库检索的结果等。
 
 ubuntu下安装memcache

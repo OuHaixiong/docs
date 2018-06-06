@@ -6,7 +6,7 @@ extension = /usr/local/php/lib/php/extensions/no-debug-non-zts-20131226/xcache.s
 ; extension = php_xcache.dll
 
 [xcache.admin]
-xcache.admin.enable_auth = On
+xcache.admin.enable_auth = On ; 后台开启验证
 
 ; use http://xcache.lighttpd.net/demo/cacher/mkpassword.php to generate your encrypted password
 xcache.admin.user = "bear"
@@ -16,27 +16,27 @@ xcache.admin.pass = "f447b20a7fcbf53a5d5be013ea0b15af"
 ; ini only settings, all the values here is default unless explained
 
 ; select low level shm implemenation
-xcache.shm_scheme =        "mmap"
+xcache.shm_scheme =        "mmap" ; 选择底层内存共享实现方案
 ; to disable: xcache.size=0
 ; to enable : xcache.size=64M etc (any size > 0) and your system mmap allows
-xcache.size  =               60M
+xcache.size  =               60M ; 0 禁止, 非 0 则启用缓存器。 请注意您系统所允许的 mmap 最大值.    
 ; set to cpu count (cat /proc/cpuinfo |grep -c processor)
-xcache.count =                 1
+xcache.count =                 1 ; 指定将 cache 切分成多少块
 ; just a hash hints, you can always store count(items) > slots
-xcache.slots =                8K
+xcache.slots =                8K ; 只是作为 hash 槽个数的参考值, 您可以放心地缓冲超过这个个数的项目.
 ; ttl of the cache item, 0=forever
-xcache.ttl   =                 0
+xcache.ttl   =                 0 ; 缓存时间，单位秒；如果0为永不过期。 Ttl (Time To Live)
 ; interval of gc scanning expired items, 0=no scan, other values is in seconds
-xcache.gc_interval =           0
+xcache.gc_interval =           0 ; 检查过期的缓存，垃圾回收（回收内存空间）的时间间隔，单位秒
 
-; same as aboves but for variable cache
-xcache.var_size  =            4M
+; same as aboves but for variable cache 同上，针对变量（数据）缓存设置
+xcache.var_size  =            4M 
 xcache.var_count =             1
 xcache.var_slots =            8K
 ; default value for $ttl parameter of xcache_*() functions
-xcache.var_ttl   =             0
+xcache.var_ttl   =             0 ; 数据缓存时间，即是在php中调用函数 xcache_(get|set|inc|dec) 时，保存数据的过期时间，单位：秒 
 ; hard limit ttl that cannot be exceed by xcache_*() functions. 0=unlimited
-xcache.var_maxttl   =          0
+xcache.var_maxttl   =          0 ; 变量最大缓存时间，单位：秒；即程序无法指定超过这个最大值的 ttl. 
 xcache.var_gc_interval =     300
 
 ; mode:0, const string specified by xcache.var_namespace
@@ -46,15 +46,16 @@ xcache.var_namespace_mode =    0
 xcache.var_namespace =        ""
 
 ; N/A for /dev/zero
-xcache.readonly_protection = Off
+xcache.readonly_protection = Off ; 如果启用了 ReadonlyProtection, 将会略微降低性能, 但是会提高一定的安全系数. 这个选项对于 xcache.mmap_path = /dev/zero 无效. 
 ; for *nix, xcache.mmap_path is a file path, not directory. (auto create/overwrite)
 ; Use something like "/tmp/xcache" instead of "/dev/*" if you want to turn on ReadonlyProtection
-; different process group of php won't share the same /tmp/xcache
-; for win32, xcache.mmap_path=anonymous map name, not file path
-xcache.mmap_path =    "/data/logs/php/xcache"
+; different process group of php won't share the same /tmp/xcache 如果您要启用 ReadonlyProtection 请用类似 “/tmp/xcache” 的路径. 2 组 php 不该共用同一个路径 (/dev/zero 除外).
+; for win32, xcache.mmap_path=anonymous map name, not file path 对于Win32, xcache.mmap_path 只是匿名的 map 名, 不是实际的文件路径. 
+xcache.mmap_path =    "/data/logs/php/xcache" ; 是一个文件路径，非目录，这个文件会自动创建并覆盖写入
 
 
 ; Useful when XCache crash. leave it blank(disabled) or "/tmp/phpcore/" (writable by php)
+; 设 置在 crash (SIGSEGV/SIGABRT) 时保存 core dump 文件的路径. 留空则禁止, 或者设置为类似 “/tmp/phpcore/” 的目录. 确保这个路径可以被 php 写入文件. (与 open_basedir 无关). 
 xcache.coredump_directory =   ""
 ; Windows only. leave it as 0 (default) until you're told by XCache dev
 xcache.coredump_type =         0
@@ -66,9 +67,9 @@ xcache.disable_on_crash =    Off
 xcache.experimental =        Off
 
 ; per request settings. can ini_set, .htaccess etc
-xcache.cacher =               On
+xcache.cacher =               On ; 是否启用opcode 缓存器；xcache.size=0时无效
 xcache.stat   =               On
-xcache.optimizer =           Off
+xcache.optimizer =           Off ; 启用优化器 (目前无效)
 
 [xcache.coverager]
 ; enabling this feature will impact performance
