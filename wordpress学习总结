@@ -33,3 +33,39 @@ http://blog.wpjam.com/ wordpress学习文档
 表
 options：全站配置项
 terms : 分类
+
+
+
+wordpress性能优化总结：
+1，移除多余的插件和保持插件为最新版本
+2，优化和修复你的数据库。在phpMyAdmin中选中这些表，然后进行”Optimize table”和”Repair table”即可。(如果要慎重起见，你最好还是同时备份一下你的数据库）
+3，优化你的图像，使用第三方工具进行图像的压缩。[通过 ImageOptim(Mac 版)] 无损压缩图片）在线压缩图片：https://tinypng.com/
+4，安装WordPress Super Cache插件或W3 Total Cache 插件（貌似后者更高效）
+5，WP CSS
+6，DB Cache
+7，Better WordPress Minify插件，完成css、js合并，几十个请求化为一个
+8，通过nginx设置Cache-Control 的缓存时间
+location ~* \.(?:ico|css|js|gif|jpe?g|png|swf|woff)$ {
+    expires 30d;
+    add_header Pragma public;
+    add_header Cache-Control "public";
+}
+9，通过 Nginx 设置 html、Css、JS Gzip 压缩级别等
+gzip on;
+gzip_disable "msie6";
+ 
+gzip_vary on;
+gzip_proxied any;
+gzip_comp_level 6;
+gzip_buffers 16 8k;
+gzip_min_length 256;
+gzip_http_version 1.1;
+ 
+gzip_types text/plain text/css text/x-component text/html application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript image/x-icon image/svg+xml image/jpeg image/gif image/png font/opentype;
+
+
+后端服务器优化：
+1，适当提升服务器的配置，如：cup、内存、带宽；机械硬盘换成固态硬盘
+2，启用数据库查询缓存
+3，增加索引以提高查询效率
+

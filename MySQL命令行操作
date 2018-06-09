@@ -41,7 +41,7 @@ Threads_running 不在睡眠的线程数量。
 Uptime 服务器工作了多少秒。
 
 
-2，开启mysql的慢查询（slow log）日志：
+2，开启mysql的慢查询（slow log）日志： （注意mysql对文件夹的权限，同样导出文件也会遇到同样的问题）
   1) 在配置文件my.cnf的[mysqld]段增加如下配置： vim /etc/my.cnf
     slow_query_log=ON
     slow_query_log_file=/data/logs/mysql/maria_slow_query.log
