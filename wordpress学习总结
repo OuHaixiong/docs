@@ -36,36 +36,46 @@ terms : 分类
 
 
 
-wordpress性能优化总结：
-1，移除多余的插件和保持插件为最新版本
-2，优化和修复你的数据库。在phpMyAdmin中选中这些表，然后进行”Optimize table”和”Repair table”即可。(如果要慎重起见，你最好还是同时备份一下你的数据库）
-3，优化你的图像，使用第三方工具进行图像的压缩。[通过 ImageOptim(Mac 版)] 无损压缩图片）在线压缩图片：https://tinypng.com/
-4，安装WordPress Super Cache插件或W3 Total Cache 插件（貌似后者更高效）
-5，WP CSS
-6，DB Cache
-7，Better WordPress Minify插件，完成css、js合并，几十个请求化为一个
-8，通过nginx设置Cache-Control 的缓存时间
-location ~* \.(?:ico|css|js|gif|jpe?g|png|swf|woff)$ {
-    expires 30d;
-    add_header Pragma public;
-    add_header Cache-Control "public";
-}
-9，通过 Nginx 设置 html、Css、JS Gzip 压缩级别等
-gzip on;
-gzip_disable "msie6";
- 
-gzip_vary on;
-gzip_proxied any;
-gzip_comp_level 6;
-gzip_buffers 16 8k;
-gzip_min_length 256;
-gzip_http_version 1.1;
- 
-gzip_types text/plain text/css text/x-component text/html application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript image/x-icon image/svg+xml image/jpeg image/gif image/png font/opentype;
-
+wordpress性能优化建议总结：
+1，移除多余的插件和保持插件为最新版本。因为加载的东西越多，你的网站性能越差。及时的更新自己所用的WordPress主题和插件，不仅能提高自己的Wordpress网站的安全性，而且有些更新是针对性能的，这样就会在性能上有所提升的。
+2，优化你上传的图像，使用第三方工具进行图像的压缩。[通过 ImageOptim(Mac 版) 无损压缩图片。] 在线压缩图片：https://tinypng.com/ 或 https://www.jpegmini.com/main/shrink_photo
+3，安装WordPress Super Cache或W3 Total Cache 缓存插件（貌似后者更高效）,个人更喜欢W3 Total Cache，因为它支持：页面缓存、HTML压缩、对象缓存、数据库缓存、客户端浏览器缓存、以及CDN。
+4，Better WordPress Minify插件，完成css、js合并，几十个请求化为一个。
+5，通过nginx设置Cache-Control 的缓存时间
+    location ~* \.(?:ico|css|js|gif|jpe?g|png|swf|woff)$ {
+        expires 30d;
+        add_header Pragma public;
+        add_header Cache-Control "public";
+    }
+6，通过 Nginx 设置 html、Css、JS 的Gzip压缩级别等
+    gzip on;
+    gzip_disable "msie6";
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_buffers 4 8k;
+    gzip_min_length 1k;
+    gzip_http_version 1.1;
+    gzip_types text/plain text/css application/x-javascript application/xml text/javascript application/javascript;
+7，使用cdn加速你的图片，js，css等。使用又拍云、七牛、Free-CDN等。
+8，WP-SmushIt可以为你网站上所有的图片做一次性压缩。
+9，为你的图片添加延时加载。安装jQuery Image Lazy Load 插件。
 
 后端服务器优化：
-1，适当提升服务器的配置，如：cup、内存、带宽；机械硬盘换成固态硬盘
-2，启用数据库查询缓存
-3，增加索引以提高查询效率
+10，适当提升服务器的配置，如：cup、内存、带宽；机械硬盘换成固态硬盘
+11，启用数据库查询缓存，需编辑 MySQL 配置文件（通常是在 /etc/my.cnf 路径下），在其中添加如下代码：
+query_cache_type = 1  
+query_cache_limit = 1M  
+query_cache_size = 16M  
+重启 MySQL 服务器后，就会创建大小为 16MB 的查询缓存。
+检查 MySQL 运行是否正常，可运行以下查询：SHOW STATUS LIKE 'Qcache%';
+12，增加索引以提高查询效率
+13，安装php缓存加速扩展：如：xCache、Zend OPcache
+14，开启慢查询日记，根据具体的业务优化慢查询
+15，优化和修复你的数据库。在phpMyAdmin中选中这些表，然后进行”Optimize table”和”Repair table”即可。(如果要慎重起见，你最好还是同时备份一下你的数据库）你可以使用 WP-Optimize 或者 WP-DBManager 之类的插件来优化自己的数据库，这些插件能够删除那些未经审核的垃圾评论，那些回收站中的文章，那些自动保存的草稿或者文章的回滚版本等
 
+目前http://www.mblock.cc/、https://www.makeblock.com/、http://education.makeblock.com/已进行了以上3，5，6，8，11，13几项优化。
+针对第2点，需要运营人员配合，不要上传太大的图片，上传图片前对图片进行压缩。
+针对第7点，education.makeblock.com已使用七牛云存储。
+针对14点，已开启mysql的慢查询日记，需要根据日记优化sql或修改代码
+针对15点，运营人员发布完文章后尽可能的删除掉草稿，以及回收站的文章
