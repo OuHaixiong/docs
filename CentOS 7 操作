@@ -61,3 +61,7 @@ firewall-cmd --reload
 # firewall-cmd --zone=work --remove-service=smtp
  
 12，还有端口转发功能、自定义复杂规则功能、lockdown等，自己研究去
+
+13，重启网络服务和查看ip地址
+# sudo service network restart 
+# ip addr

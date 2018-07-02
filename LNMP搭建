@@ -315,7 +315,7 @@ cd ../
 tar -jxvf php-5.4.35.tar.bz2
 cd php-5.4.35/
 编译,安装
-./configure --prefix=/usr/local/php  --with-mysql --with-mysqli=mysqlnd --with-pdo_mysql=mysqlnd --with-openssl --enable-opcache --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-bz2 --with-libxml-dir=/usr --enable-xml --with-iconv=/usr/local/lib --with-curl --with-mcrypt --with-gd --enable-gd-native-ttf --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap
+./configure --prefix=/usr/local/php  --with-mysql --with-mysqli=mysqlnd --with-pdo_mysql=mysqlnd --with-pgsql --with-pdo_pgsql --with-openssl --enable-opcache --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-bz2 --with-libxml-dir=/usr --enable-xml --with-iconv=/usr/local/lib --with-curl --with-mcrypt --with-gd --enable-gd-native-ttf --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap
 #make ZEND_EXTRA_LIBS='-liconv' 如果libiconv路径设置对了，可以编译通过就不需要后面这节
 (
 如果遇到如下错误时：
@@ -332,6 +332,12 @@ Note that the MySQL client library is not bundled anymore!
 configure: error: Cannot find OpenSSL's libraries 或 configure: error: Cannot find OpenSSL's <evp.h>
 如果你确定已经安了openssl，：
 sudo apt-get install openssl libssl-dev libcurl4-openssl-dev
+如果出现如下错误时：
+configure: error: Cannot find libpq-fe.h. Please specify correct PostgreSQL installation path
+yum -y install postgresql-devel
+如果出现如下错误：
+unrecognized options: –with-mcrypt, –enable-gd-native-ttf
+在phh7.1时，官方就开始建议用openssl_*系列函数代替Mcrypt_*系列的函数。
 )
 make
 make test
@@ -366,7 +372,7 @@ You may want to add: /usr/local/php/lib/php to your php.ini include_path
 ln -s -f /usr/local/php/bin/phar.phar /usr/local/php/bin/phar
 Installing PDO headers:          /usr/local/php/include/php/ext/pdo/
 
-拷贝配置文件（/usr/local/php/lib/php.ini ）：
+拷贝配置文件（/usr/local/php/lib/php.ini ）：【这里可以直接使用php.ini(首次配置)】
 cp /data/tool/php-5.4.35/php.ini-development /usr/local/php/lib/php.ini
 vim /usr/local/php/lib/php.ini
 修改php.ini配置
