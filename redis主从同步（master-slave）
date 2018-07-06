@@ -193,7 +193,7 @@ redis-cli shutdown // 关闭redis
 
 到此，配置OK
 
-7，配置phpredis扩展 （针对php 7 的redis需要单独的分支）
+7，配置phpredis扩展 （针对php 7 的redis需要单独的分支；后面https://github.com/OuHaixiong/phpredis下载了一个develop版也能支持php7）
 下载phpredis
 wget https://codeload.github.com/nicolasff/phpredis/zip/master
 unzip phpredis-master.zip

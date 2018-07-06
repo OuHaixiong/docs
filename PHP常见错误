@@ -1,0 +1,22 @@
+
+1， php 7.2中默认不安装mcrypt 扩展，因为mcrypt系列的函数已废除，如果php 7.2没有安装mcrypt扩展就会报如下错误：
+   call to undefined function mcrypt_module_open()
+   解决：
+   升级 php 7.2 后，使用微信提供的加解密代码时，提示 call to undefined function mcrypt_module_open() ；得出结论：php 7.2的扩展有变动；查阅相关资料知晓，mcrypt 扩展从 php 7.1.0 开始废弃；自 php 7.2.0 起，会移到 pecl。
+环境：centos 7
+yum 安装依赖包：
+yum install libmcrypt libmcrypt-devel mcrypt mhash (如果没有安装的话)
+
+在 php 官网下载 mcrypt 包，php 扩展官网
+
+  # wget  http://pecl.php.net/get/mcrypt-1.0.1.tgz
+  # tar xf mcrypt-1.0.1.tgz
+  # cd mcrypt-1.0.1
+编译安装 mcrypt
+  # /usr/local/php/bin/phpize
+  # ./configure --with-php-config=/usr/local/php/bin/php-config  && make && make install
+在php.ini加上扩展即可，vim /usr/local/php/lib/php.ini 加上：
+extension=/usr/local/php/lib/php/extensions/no-debug-non-zts-20170718/mcrypt.so
+
+重启 php-fpm
+ps -ef |grep php-fpm -> kill -quit xxx -> /usr/local/php/sbin/php-fpm

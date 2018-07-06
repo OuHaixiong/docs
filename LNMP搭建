@@ -168,7 +168,7 @@ sudo vim stdio.h 找到如下句，直接注释掉
 // _GL_WARN_ON_USE (gets, "gets is a security hole - use fgets instead");
 ）
 
-安装libmcrypt、mhash、mcrypt
+安装libmcrypt、mhash、mcrypt ( php 7.2 中可能会有问题，特别需要注意：php 的 mcrypt 可能安装不上；--with-mcrypt=/usr/bin/libmcrypt-config )
 yum list installed|grep mcrypt 查看是否有安装mcrypt库
 tar -zxvf libmcrypt-2.5.8.tar.gz
 cd libmcrypt-2.5.8/
