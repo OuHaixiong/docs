@@ -323,21 +323,26 @@ checking for specified location of the MySQL UNIX socket... no
 configure: error: Cannot find libmysqlclient under /usr.
 需要对mysqlclient的so文件做软连接
 ln -s /usr/lib64/mysql/libmysqlclient.so.16.0.0 /usr/lib/libmysqlclient.so 【注意源文件的版本信息，不同的版本可能不一样】
+
 如果遇到如下错误：
 configure: error: Cannot find MySQL header files under yes.
 Note that the MySQL client library is not bundled anymore!
 需要对mysql指定路径：
 ./configure --prefix=/usr/local/php  --with-mysql=/usr/local/mariadb --with-mysqli=/usr/local/mariadb/bin/mysql_config --with-pdo_mysql=/usr/local/mariadb/bin/mysql_config --with-openssl --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-bz2 --with-libxml-dir=/usr --enable-xml --with-iconv=/usr/local/lib --with-curl --with-mcrypt --with-gd --enable-gd-native-ttf --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap
+
 如果遇到如下错误时：
 configure: error: Cannot find OpenSSL's libraries 或 configure: error: Cannot find OpenSSL's <evp.h>
 如果你确定已经安了openssl，：
 sudo apt-get install openssl libssl-dev libcurl4-openssl-dev
+
 如果出现如下错误时：
 configure: error: Cannot find libpq-fe.h. Please specify correct PostgreSQL installation path
 yum -y install postgresql-devel
+
 如果出现如下错误：
 unrecognized options: –with-mcrypt, –enable-gd-native-ttf
 在phh7.1时，官方就开始建议用openssl_*系列函数代替Mcrypt_*系列的函数。
+如果需要用到mcrypt函数，需要手动安装mcrypt扩展[mcrypt-1.0.1-for-php.tgz]
 )
 make
 make test
