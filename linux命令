@@ -1,6 +1,8 @@
 # 文件相关（不包括解压缩文件，解压缩请看“解压缩相关”文件）
 cd ~ 进入家目录，也可以直接cd就回到的当前用户的家目录了
 tail -f logs/log  查看文件（会把文件里最尾部的内容[默认最后10行]显示在屏幕上,并且不断刷新,使你看到最新的文件内容）
+tail -n 10 /XX/xx 查看文件的最后X行内容
+head -n 20 ./132_back.sql 查看文件的头X行内容
 cat /etc/hosts 查看文件内容
 cat access.log |grep 304 | wc -l 查看文件中此字符出现的总次数
 mkdir [-p:递归创建文件夹] newdir 创建一个目录
@@ -91,7 +93,7 @@ D：日期（1-31）
 m：月份（1-12）
 d：一个星期中的某天（0-6，0代表周日）)
 重启crond服务器
-killall crond 杀死crond 服务器的进程
+killall crond 杀死crond 服务器的进程 (在CentOS 7中命令：/bin/systemctl stop/start/restart  crond.service)
 ps aux |grep crond 查看一下是否被杀死
 /usr/sbin/crond 启动 crond 服务器 (在ubuntu中：sudo apt-get install cron ； sudo service cron restart/start/stop/status)
 (貌似还是需要等1分钟才能执行，定时任务只能在脚本中无限循环来实现)

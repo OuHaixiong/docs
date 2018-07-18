@@ -55,6 +55,8 @@ InnoDB引擎热备，MyISM温备，Aria温备
 mysqldump --databases benet --single-transactions --flush-logs > /tmp/benet.3.sql
 mysqldump --all-databases > /tmp/all.sql
 
+恢复全量数据：/usr/local/mysql/bin/mysql -uroot -p -P 3306 < ./132_back.sql 
+
 
 
 

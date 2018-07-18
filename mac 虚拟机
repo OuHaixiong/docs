@@ -22,8 +22,21 @@ C3            192.168.0.105          /usr/local/php 5.6.22           C3
 
 
 
-localhost     172.16.51.133          预装mysql                        CentOS7                                    
+localhost     172.16.51.135          mysql 5.6.25 (从)                CentOS7         (我日ip地址又变了)                           
                                      主Redis
+                                     
+                                     
+                                     
+                                     从mysql，从172.16.51.132（CentOS_6.9）异步同步数据
+                                     GRANT SELECT on *.* to "read"@"%" Identified by "123456" with grant option; // 这个不行，只因为空格和下面的不一样，我靠
+                                     GRANT SELECT ON *.* TO "read"@"%" IDENTIFIED BY "123456" WITH GRANT OPTION;
+                                     172.16.51.135
+                                     255.255.255.0
+                                     172.16.51.255
+                                     202.96.134.133
+                                     202.96.128.68
+                                     
+                                     
 
 
 
@@ -34,6 +47,13 @@ C66mini       172.16.51.131          /usr/local/mariadb               CentOS_6.6
                                      imagick 3.1.2
                                      redis 2.2.5
                                      从redis
+                                     
+                                     
+CentOS_6.9    172.16.51.132          /usr/local/mysql  mysql-5.6.25    CentOS release 6.9 (Final)@C69
+                                     /usr/local/php    php-5.3.29
+
+                                     主mysql
+                                     GRANT ALL PRIVILEGES ON *.* TO 'synchronous130'@'%' IDENTIFIED BY '123456' WITH GRANT OPTION;
 
 
 苹果实体机       主nginx                          用做负载均衡

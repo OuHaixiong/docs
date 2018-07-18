@@ -65,3 +65,26 @@ firewall-cmd --reload
 13，重启网络服务和查看ip地址
 # sudo service network restart 
 # ip addr
+
+
+centos7系统静态IP地址配置
+1，打开网卡配置文件
+vim /etc/sysconfig/network-scripts/ifcfg-eno16777736
+修改和加入以下配置：
+BOOTPROTO=static     # 修改
+ONBOOT=yes           # 修改
+IPADDR=172.16.51.135
+NETMASK=255.255.255.0
+GATEWAY=172.16.51.255
+DNS1=202.96.134.133
+DNS2=202.96.128.68
+保存并退出
+
+2，重启网络服务，即可
+systemctl restart network.service
+
+
+
+
+
+
