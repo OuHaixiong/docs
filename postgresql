@@ -6,7 +6,8 @@
 1, 删除表：drop table if exists admin_user;
 2, 增加一列 ：alter table table_name add column_name datatype;
 3, 删除一列：alter table table_name drop column_name;
-4, 更改列的数据类型: ALTER TABLE table_name ALTER  column_name TYPE datatype;
+4, 更改列的数据类型: ALTER TABLE table_name ALTER  column_name TYPE datatype; 如果有数据或数据类型不匹配时，基本是修改不成功的
+                    ALTER TABLE product ALTER  descimgs TYPE jsonb USING descimgs::jsonb[]; 
 5, 表重命名：ALTER TABLE table_name RENAME TO new_name;
 6, 更改列的名字：ALTER TABLE table_name RENAME column_name to new_column_name;
 7, 字段的not null设置：ALTER TABLE table_name ALTER column_name {SET|DROP} NOT NULL;
