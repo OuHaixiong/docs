@@ -4,7 +4,7 @@
 
 命令行：
 1, 删除表：drop table if exists admin_user;
-2, 增加一列 ：alter table table_name add column_name datatype;
+2, 增加一列 ：alter table table_name add column_name datatype;alter table feedback add column type smallint default 1;
 3, 删除一列：alter table table_name drop column_name;
 4, 更改列的数据类型: ALTER TABLE table_name ALTER  column_name TYPE datatype; 如果有数据或数据类型不匹配时，基本是修改不成功的
                     ALTER TABLE product ALTER  descimgs TYPE jsonb USING descimgs::jsonb[]; 

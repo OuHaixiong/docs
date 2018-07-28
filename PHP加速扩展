@@ -61,9 +61,7 @@ Zend OPCache也有图像化的管理工具：https://github.com/amnuts/opcache-g
 总结，尽量用zend公司研发的Zend OPCache；XCache的性能也不错；两者可用重点研究下。
 
 php 7 的速度提升很多是不是就不需要加速器了呢？或php 7就已经实现了加速器的功能？
-
-
-
+答：是需要的，最好启用Zend Opcache。php7性能比php5提高很多，但这和启用opcache并不矛盾，php并未实现加速器功能
 
 
 
