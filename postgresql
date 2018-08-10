@@ -12,8 +12,8 @@
 6, 更改列的名字：ALTER TABLE table_name RENAME column_name to new_column_name;
 7, 字段的not null设置：ALTER TABLE table_name ALTER column_name {SET|DROP} NOT NULL;
 8, 给列添加default：ALTER TABLE table_name ALTER column_name SET DEFAULT expression;
-9,
-10,
+9, 修改主键id的自增值从某个值开始:alter sequence business_id_seq restart with 600002;
+10, 查询：select * from product where title='小米8' 特别注意这里，如果是字符型字段，不能用双引号(")，只能用单引号(')
 11,
 12,
 13,
