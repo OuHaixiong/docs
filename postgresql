@@ -1,4 +1,126 @@
+CentOS 7 默认系统安装Postgresql： (最好不要系统自带的，版本太低，有些功能不支持)
+1，yum install -y postgresql-server postgresql postgresql-contrib
+2，初始化：postgresql-setup initdb
+3，重启：systemctl restart[start/stop] postgresql.service
+4，登录后进行修改密码，postgres的默认密码为空   （貌似修改了密码没有什么用）
+# sudo su - postgres 切换postgres用户
+-bash-4.2$ psql 切换成执行sql控制体 【psql (9.2.23)】
+postgres=# alter user postgres password '123456';
+\q :退出
+exit ：退出用户
+5，重启后，可查看端口：netstat -tunlp |grep 5432
+6，使用上面的步骤登录后，创建用户：postgres=# create user ybapi with password '123456';
+7，创建数据库，并指定拥有者：postgres=# create database ybapi owner ybapi;
+8，给数据库赋权：postgres=# grant all privileges on database ybapi to ybapi;
+9，退出postgres用户，并用ybapi用户进行登录：
+    postgres=# \q
+	-bash-4.2$ psql -U ybapi -d ybapi -h 127.0.0.1 -p 5432 -W  （登入其他用户时一定要退出postgres用户后再来登录）
+	如果输入密码后，仍然无法登录且提示：
+	psql: FATAL:  Ident authentication failed for user "ybapi"
+	需要修改配置：vim /var/lib/pgsql/data/pg_hba.conf，
+	把：   host    all             all             127.0.0.1/32           ident
+	改为： host    all             all             127.0.0.1/32            md5
+	然后重启postgresql
+10，登录成功后会显示：ybapi=>   这样就可以执行sql语句了	
 
+
+配置文件在：vim /var/lib/pgsql/data/pg_hba.conf 如果需要所有的ip都能访问的话，加入如下一行：
+host all all 0.0.0.0/0 md5 （CONNECTIONTYPE DATABASE USER ADDRESS METHDO md5即用密码认证身份登录）
+还需要修改：/var/lib/pgsql/data/postgresql.conf
+listen_addresses = '*' 监听地址 （默认只能本机访问： listen_addresses = 'localhost'）
+postgresql.conf文件中涉及诸如：最大连接数、监听地址，监听端口、日志、内存、硬盘等等各种设置
+
+安装目录/var/lib/pgsql及目录下文件或文件夹的可读、可写、可操作统统只开放给用户postgres
+
+在终端输入psql命令时，常常会遇到下面这个错。这个错有两个解决方式：
+1）    重启postgresql服务。
+2）    删掉/usr/local/var/postgres/postmaster.pid文件。
+       psql: could not connect to server: No such file or directory
+       Is the server running locally and accepting
+       connections on Unix domain socket "/tmp/.s.PGSQL.5432"?
+
+下面在centos7 安装postgresql10
+1，更新源，访问https://yum.postgresql.org/repopackages.php找到Available Repository RPMs -> PostgreSQL 10 -> CentOS 7 - x86_64 右键复制链接地址
+2，执行 yum install https://download.postgresql.org/pub/repos/yum/10/redhat/rhel-7-x86_64/pgdg-centos10-10-2.noarch.rpm -y
+3，先查看postgresql源：yum list |grep postgresql 找到要安装的源
+4，执行：yum install -y postgresql10.x86_64 postgresql10-devel.x86_64 postgresql10-server.x86_64 postgresql10-contrib.x86_64
+5，初始化：/usr/pgsql-10/bin/postgresql-10-setup initdb
+6，启动数据库并设置开机启动
+    sudo systemctl start postgresql-10
+    sudo systemctl enable postgresql-10.service
+7，登录postgresql并设置密码:
+    # su - postgres
+    -bash-4.2$ psql
+    postgres=# ALTER USER postgres WITH PASSWORD '123456';
+    退出：\q
+8，默认情况下postgresql是不用密码不支持远程登录的。我们要用密码登录，需要修改配置文件：vim /var/lib/pgsql/10/data/pg_hba.conf
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# "local" is for Unix domain socket connections only
+local   all             all                                     peer
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            ident
+# IPv6 local connections:
+host    all             all             ::1/128                 ident
+# Allow replication connections from localhost, by a user with the
+# replication privilege.
+local   replication     all                                     peer
+host    replication     all             127.0.0.1/32            ident
+host    replication     all             ::1/128                 ident
+改成：
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# "local" is for Unix domain socket connections only
+local   all             all                                     md5
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            md5
+# IPv6 local connections:
+host    all             all             ::1/128                 md5
+# Allow replication connections from localhost, by a user with the
+# replication privilege.
+#local   replication     all                                     peer
+#host    replication     all             127.0.0.1/32            ident
+#host    replication     all             ::1/128                 ident
+host      all            all             0.0.0.0/0               md5
+    修改远程访问：vim /var/lib/pgsql/10/data/postgresql.conf
+    #listen_addresses = 'localhost'
+    #port = 5432
+    改成：
+    listen_addresses = '*'
+    port = 5432
+9，修改配置后需要重启：systemctl restart postgresql-10
+10，可以使用刚才更改过密码的账号登录了
+    # su - postgres
+    -bash-4.2$ psql -U postgres -h 127.0.0.1 -p 5432 -W    成功后显示： psql (9.2.23, server 10.5)  ->   postgres=#
+11，  创建用户：create user ybapi with password '123456';
+12， 创建数据库，并指定拥有者：postgres=# create database ybapi owner ybapi;
+13， 给数据库赋权：postgres=# grant all privileges on database ybapi to ybapi;
+14， 退出postgres用户，并用ybapi用户进行登录：
+    postgres=# \q
+    -bash-4.2$ psql -U ybapi -d ybapi -h 127.0.0.1 -p 5432 -W
+15，执行sql语句：
+    drop table if exists uploadfile;
+    create table uploadfile (
+      id bigserial,
+      rid varchar(64) not null,
+      appid varchar(32) not null,
+      hash varchar(64) not null,
+      size int4 default 0,
+      path varchar(256) not null,
+      width int4 default 0,
+      height int4 default 0,
+      duration int4 default 0,
+      extinfo jsonb,
+      create_time int4 default 0,
+      update_time int4 default 0,
+      primary key(id)
+    );
+
+    
+
+
+安装目录：/usr/pgsql-10
+数据目录：/var/lib/pgsql/10/data
 
 
 
@@ -14,10 +136,10 @@
 8, 给列添加default：ALTER TABLE table_name ALTER column_name SET DEFAULT expression;
 9, 修改主键id的自增值从某个值开始:alter sequence business_id_seq restart with 600002;
 10, 查询：select * from product where title='小米8' 特别注意这里，如果是字符型字段，不能用双引号(")，只能用单引号(')
-11,
-12,
-13,
-14,
+11, \q ：退出
+12, \l : 列出所有库
+13, \du: 列出所有用户
+14, \d : 列出库下所有表
 15,
 16,
 17,

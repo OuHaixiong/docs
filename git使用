@@ -38,13 +38,13 @@ sudo apt-get install libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-d
 sudo apt-get install git git-core
 
 下面是在CentOS 6.X下安装git客户端：
-1，centos 6.5 执行：yum -y install curl curl-devel expat-devel gettext-devel openssl openssl-devel zlib zlib-devel perl perl-devel gcc gcc-c++ autoconf
+1，centos 6.5 执行：yum -y install curl curl-devel expat-devel gettext-devel openssl openssl-devel zlib zlib-devel perl perl-devel gcc gcc-c++ autoconf (在CentOS 7中执行就已经默认安装了git)
 // 貌似这几个包不安装也可以： cpio、tk
 (貌似要下33个包)
 
 2，解压并安装
-$ tar -zxf git-1.7.2.2.tar.gz
-$ cd git-1.7.2.2
+$ tar -zxf git-2.13.1.tar.gz
+$ cd git-2.13.1
 $ make prefix=/usr/local all
 $ sudo make prefix=/usr/local install (如果不设这个路径,就需要做下软连接, sudo ln -s /home/bear/tool/git_1.9.0/bin/git /usr/local/bin/git )
 （

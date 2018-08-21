@@ -1364,7 +1364,7 @@ session.save_handler = files
 ;
 ; The path can be defined as:
 ;
-;     session.save_path = "N;/path"
+session.save_path = "/tmp/php_session"
 ;
 ; where N is an integer.  Instead of storing all the session files in
 ; /path, what this will do is use subdirectories N-levels deep, and
@@ -1603,7 +1603,7 @@ mssql.min_error_severity = 10
 mssql.min_message_severity = 10
 
 ; Compatibility mode with old versions of PHP 3.0.
-mssql.compatability_mode = Off
+mssql.compatibility_mode = Off
 
 ; Connect timeout
 ;mssql.connect_timeout = 5

@@ -168,7 +168,7 @@ sudo vim stdio.h 找到如下句，直接注释掉
 // _GL_WARN_ON_USE (gets, "gets is a security hole - use fgets instead");
 ）
 
-安装libmcrypt、mhash、mcrypt ( php 7.2 中可能会有问题，特别需要注意：php 的 mcrypt 可能安装不上；--with-mcrypt=/usr/bin/libmcrypt-config )
+安装libmcrypt、mhash、mcrypt ( php 7.2 中可能会有问题，特别需要注意：php 的 mcrypt 可能安装不上；需要手动安装 )
 yum list installed|grep mcrypt 查看是否有安装mcrypt库
 tar -zxvf libmcrypt-2.5.8.tar.gz
 cd libmcrypt-2.5.8/
@@ -315,7 +315,7 @@ cd ../
 tar -jxvf php-5.4.35.tar.bz2
 cd php-5.4.35/
 编译,安装
-./configure --prefix=/usr/local/php  --with-mysql --with-mysqli=mysqlnd --with-pdo_mysql=mysqlnd --with-pgsql --with-pdo_pgsql --with-openssl --enable-opcache --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-bz2 --with-libxml-dir=/usr --enable-xml --with-iconv=/usr/local/lib --with-curl --with-mcrypt --with-gd --enable-gd-native-ttf --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap
+./configure --prefix=/usr/local/php --with-mysqli=mysqlnd --with-pdo_mysql=mysqlnd --with-pgsql --with-pdo_pgsql --with-openssl --enable-opcache --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-bz2 --with-libxml-dir=/usr --enable-xml --with-iconv=/usr/local/lib --with-curl --with-gd --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap
 #make ZEND_EXTRA_LIBS='-liconv' 如果libiconv路径设置对了，可以编译通过就不需要后面这节
 (
 如果遇到如下错误时：
@@ -328,7 +328,7 @@ ln -s /usr/lib64/mysql/libmysqlclient.so.16.0.0 /usr/lib/libmysqlclient.so 【�
 configure: error: Cannot find MySQL header files under yes.
 Note that the MySQL client library is not bundled anymore!
 需要对mysql指定路径：
-./configure --prefix=/usr/local/php  --with-mysql=/usr/local/mariadb --with-mysqli=/usr/local/mariadb/bin/mysql_config --with-pdo_mysql=/usr/local/mariadb/bin/mysql_config --with-openssl --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-bz2 --with-libxml-dir=/usr --enable-xml --with-iconv=/usr/local/lib --with-curl --with-mcrypt --with-gd --enable-gd-native-ttf --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap
+./configure --prefix=/usr/local/php  --with-mysql=/usr/local/mariadb --with-mysqli=/usr/local/mariadb/bin/mysql_config --with-pdo_mysql=/usr/local/mariadb/bin/mysql_config --with-openssl --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-bz2 --with-libxml-dir=/usr --enable-xml --with-iconv=/usr/local/lib --with-curl --with-gd --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap
 
 如果遇到如下错误时：
 configure: error: Cannot find OpenSSL's libraries 或 configure: error: Cannot find OpenSSL's <evp.h>
@@ -340,11 +340,38 @@ configure: error: Cannot find libpq-fe.h. Please specify correct PostgreSQL inst
 yum -y install postgresql-devel
 
 如果出现如下错误：
-unrecognized options: –with-mcrypt, –enable-gd-native-ttf
-在phh7.1时，官方就开始建议用openssl_*系列函数代替Mcrypt_*系列的函数。
+configure: WARNING: unrecognized options: --with-mcrypt, --enable-gd-native-ttf
+在phh7.1时，官方就开始建议用openssl_*系列函数代替Mcrypt_*系列的函数。(加密和解密数据)
 如果需要用到mcrypt函数，需要手动安装mcrypt扩展[mcrypt-1.0.1-for-php.tgz]
+所以需要将上面两个编译选项删除
 )
 make
+（如果在编译过程中遇到错误：
+virtual memory exhausted: Cannot allocate memory make: *** [ext/fileinfo/lib 提示系统的虚拟内存不足，需要增加虚拟内存
+[root@hongkong-test ~]# free -m
+              total        used        free      shared  buff/cache   available
+Mem:            974          79         733          13         160         729
+Swap:             0           0           0
+[root@hongkong-test ~]# mkdir /opt/images/
+[root@hongkong-test ~]# dd if=/dev/zero of=/opt/images/swap bs=1024 count=2048000
+2048000+0 records in
+2048000+0 records out
+2097152000 bytes (2.1 GB) copied, 35.7033 s, 58.7 MB/s
+[root@hongkong-test ~]# mkswap /opt/images/swap
+Setting up swapspace version 1, size = 2047996 KiB
+no label, UUID=52d6f324-7aaa-41ef-b499-130febe1767e
+[root@hongkong-test ~]# free -m
+              total        used        free      shared  buff/cache   available
+Mem:            974          79          69          13         825         719
+Swap:             0           0           0
+[root@hongkong-test ~]# swapon /opt/images/swap
+swapon: /opt/images/swap: insecure permissions 0644, 0600 suggested.
+[root@hongkong-test ~]# free -m
+              total        used        free      shared  buff/cache   available
+Mem:            974          81          67          13         825         717
+Swap:          1999           0        1999
+使用完毕后可以关掉swap：swapoff swap;rm -f /opt/images/swap [当然swap文件也可以不删除，留着以后使用，关键是你的虚拟机硬盘够用。]
+）
 make test
 make install
 
@@ -388,7 +415,9 @@ upload_max_filesize = 150M
 session.gc_maxlifetime = 86400
 error_reporting = E_ALL
 display_errors = On 
-(# 在php文件中可以ini_set('display_errors', 1);error_reporting(E_ALL);来打开报错信息)
+(
+在php文件中可以ini_set('display_errors', 1);error_reporting(E_ALL);来打开报错信息
+)
 
 路径：
 /usr/local/php                安装目录：
@@ -437,6 +466,10 @@ nginx的根目录和其父级目录需要755权限 chmod 0755 /data && chmod 075
 设置nginx支持php
 mv /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf
 (PHP-FPM的默认配置文件为/usr/local/php/etc/php-fpm.conf)
+(
+注意：php 7 的fpm放在了/usr/local/php/etc/php-fpm.d/目录下，所以只用执行mv /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf后
+到/usr/local/php/etc/php-fpm.d/目录下修改文件www.conf.default即可
+)
 vim /usr/local/php/etc/php-fpm.conf
 修改 php-fpm.conf
 user = www
@@ -450,6 +483,12 @@ pm.max_requests = 500
 request_terminate_timeout = 300
 
 执行 /usr/local/php/sbin/php-fpm
+（
+如果启动php-fpm出现错误：PHP message: PHP Deprecated:  Directive 'track_errors' is deprecated in Unknown on line 0
+修改php.ini把track_errors=On改成track_errors=Off。因为track_errors在php7.2+已经被废弃【不赞成】了
+When the track_errors ini setting is enabled, a $php_errormsg variable is created in the local scope when a non-fatal error occurs.
+ Given that the preferred way of retrieving such error information is by using error_get_last(), this feature has been deprecated.
+）
 
 如果修改了php.ini需要重启php-fpm:
  ps -ef |grep php-fpm  找到php-fpm的主（master）进程

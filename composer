@@ -1,0 +1,21 @@
+composer：通过composer可以快速安装php类库，类似node.js的npm 
+composer是 PHP 用来管理依赖（dependency）关系的工具。你可以在自己的项目中声明所依赖的外部工具库（libraries），Composer 会帮你安装这些依赖的库文件。
+
+安装：
+通过命令行安装：
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+php -r "if (hash_file('SHA384', 'composer-setup.php') === '544e09ee996cdf60ece3804abc52599c22b1f40f4323403c44d44fdfdd586475ca9813a858088ffbc1f233e9b180f061') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+php composer-setup.php
+php -r "unlink('composer-setup.php');"
+操作执行结束，会在当前目录下生成composer.phar文件。
+执行：mv composer.phar /usr/local/bin/composer 后 就可以直接使用composer install安装包了
+
+
+composer install 在本项目中安装依赖（如果本目录中配置了composer.json文件）
+composer require monolog/monolog 安装指定的包（这里是安装日志库）
+
+为了安全起见，composer不允许使用超级管理员或root账号进行操作（Do not run Composer as root/super user! See https://getcomposer.org/root for details）
+我们可以为composer单独添加一个账号，使用时进行账号的切换
+groupadd data-www
+useradd data-www -g data-www
+su data-www
