@@ -1,0 +1,75 @@
+CentOS命令行使用shadowsocks代理的方法
+
+其实shadowsocks安装时是不分客户端还是服务器端的，只不过安装后有两个脚本一个是sslocal代表以客户端模式工作，一个是ssserver代表以服务器端模式工作。
+
+下面利用客户端（命令行）进行翻墙：
+1，安装shadowsocks
+    wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks.sh
+    chmod +x shadowsocks.sh
+    ./shadowsocks.sh 2>&1 | tee shadowsocks.log
+    加密方式选：aes-256-cfb，其他的默认，因为等下是可以修改的
+    安装完成后会自动启动server服务；ps -ef |grep shadowsocks
+    我们这里暂时不需要服务器端，直接停掉：/etc/init.d/shadowsocks stop
+2，使用sslocal命令启动shadowsocks客户端模式：
+    nohup sslocal -s try02.jiasudu.xx -p 27146 -l 1080 -k Xxxxx -t 600 -m aes-256-cfb > /dev/null 2>&1 &
+  
+3，安装Privoxy
+    安好了shadowsocks，但它是socks5代理，我门在shell里执行的命令，发起的网络请求现在还不支持socks5代理，只支持http／https代理。为了我门需要安装privoxy代理，它能把电脑上所有http请求转发给shadowsocks。
+    官网https://www.privoxy.org在国内很难打开，可以在如下地址下载源码：
+    https://ayera.dl.sourceforge.net/project/ijbswa/Sources/3.0.26%20%28stable%29/privoxy-3.0.26-stable-src.tar.gz 或 https://nchc.dl.sourceforge.net/project/ijbswa/Sources/3.0.26%20%28stable%29/privoxy-3.0.26-stable-src.tar.gz
+    tar -zxvf privoxy-3.0.26-stable-src.tar.gz
+    cd privoxy-3.0.26-stable
+    （安装之前需要执行：yum -y install autoconf && useradd privoxy）
+    autoheader && autoconf
+    ./configure
+    make && make install  安装完成后，配置文件在：/usr/local/etc/privoxy/config
+4，配置privoxy并启动
+    找到：listen-address  127.0.0.1:8118 保证不被注释掉，8118就是将来http代理要输入的端口
+    找到：# forward-socks5t / 127.0.0.1:9050 .  改为：forward-socks5t / 127.0.0.1:1080 .     把注释去掉，特别注意后面的点（.）不能少
+    启动：privoxy --user privoxy /usr/local/etc/privoxy/config
+5，配置/etc/profile
+    vim /etc/profile    添加如下三句：
+    export http_proxy=http://127.0.0.1:8118
+    export https_proxy=http://127.0.0.1:8118
+    export ftp_proxy=http://127.0.0.1:8118      ftp的代理根据需要，不需要的话可以不添加
+    source /etc/profile
+6，测试，至此命令行的客户端配置完毕。
+    curl www.google.com   （注意:此处不要用ping命令来检测）
+    如果不能访问，请重启机器，依次打开shadowsocks和privoxy再测试.
+7，收尾工作，把shadowsocks的配置放入配置文件，并将sslocal和privoxy加入开机启动
+    vim /etc/shadowsocks_client.json   加入：
+    {
+        "server":"try02.jiasudu.xx",    # shadowsocks服务器IP
+        "server_port":"27146",          # shadowsocks服务器端口
+        "local_address":"127.0.0.1",    # 本地ip
+        "local_port":1080,              # 本地端口
+        "password":"Xxxxxxx",           # shadowsocks服务器密码
+        "timeout":300,                  # 等待超时秒数
+        "method":"aes-256-cfb",         # 加密方式
+        "fast_open":false,              # true 或 false。如果你的服务器 Linux 内核在3.7+，可以开启 fast_open 以降低延迟。开启方法： echo 3 > /proc/sys/net/ipv4/tcp_fastopen 开启之后，将 fast_open 的配置设置为 true 即可
+        "workers":1                     # 工作线程数
+    }
+    vim /etc/rc.local
+    nohup /bin/python /usr/bin/sslocal -c /etc/shadowsocks_client.json /dev/null 2>&1 &
+    privoxy --user privoxy /usr/local/etc/privoxy/config
+    
+备注：如果不需要用代理了，记得把bash里的配置注释上，免得把流量跑完了。
+
+
+下面进行服务器端的安装和配置：
+1，安装shadowsocks （这里和前面的Client一样）
+    wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks.sh
+    chmod +x shadowsocks.sh
+    ./shadowsocks.sh 2>&1 | tee shadowsocks.log     输入你想要的密码、端口等
+2，安装完成后就直接启动了，且配置文件在：
+{
+    "server":"0.0.0.0",
+    "server_port":27188,
+    "local_address":"127.0.0.1",
+    "local_port":1080,
+    "password":"Bear.Ou",
+    "timeout":300,
+    "method":"aes-256-cfb",
+    "fast_open":false
+}
+
