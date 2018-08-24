@@ -1,0 +1,333 @@
+Supervisor 是一个工具，可以时刻监控 web 应用的运行情况，管理该进程，保证程序崩溃后（程序异常、报错等），重新把程序启动起来继续提供服务。
+Supervisor 是一个用 Python 写的进程管理工具，可以很方便的用来在 UNIX-like 系统（不支持 Windows）下启动、重启（自动重启程序）、关闭进程
+（不仅仅是 Python 进程；特别适合go应用和node应用）
+Supervisor 是一个 C/S 模型的程序，supervisord 是 server 端，supervisorctl 是 client 端。
+Supervisor支持Python2.4以及之后的版本，但不支持Python3
+Supervisor 只能管理在前台运行的程序，所以如果应用程序有后台运行的选项，需要关闭。
+
+CentOS 7 下安装Supervisor：（ Ubuntu可以直接apt-get install supervisor进行安装）
+1，安装python工具：yum -y install python-setuptools
+2，安装： easy_install supervisor
+3，查看配置：echo_supervisord_conf 默认配置一般我们不需要进行修改，直接重定向到/etc目录下：echo_supervisord_conf > /etc/supervisord.conf
+4，修改配置文件：supervisord.pid 以及 supervisor.sock 是放在 /tmp 目录下，但是 /tmp 目录是存放临时文件，里面的文件是会被 Linux 系统删除的，一旦这些文件丢失，就无法再通过 supervisorctl 来执行 restart 和 stop 命令了，将只会得到 unix:///tmp/supervisor.sock 不存在的错误 。
+vim /etc/supervisord.conf 修改
+file=/tmp/supervisor.sock 改为 file=/var/run/supervisor.sock  // UNIX socket文件的保存目录（避免被系统删除）
+logfile=/tmp/supervisord.log 改为 logfile=/data/logs/supervisord/supervisord.log // 日志保存路径
+pidfile=/tmp/supervisord.pid 改为 pidfile=/var/run/supervisord.pid // supervisord的pidfile文件保存路径
+;设置启动supervisord的用户，一般情况下不要轻易用root用户来启动，除非你真的确定要这么做
+serverurl=unix:///tmp/supervisor.sock 改为 serverurl=unix:///var/run/supervisor.sock  // 通过 UNIX socket 连接 supervisord(必须和'unix_http_server'里面的设定匹配)
+include 修改成
+[include]
+files = /etc/supervisor/*.conf ; 可以是 *.conf 或 *.ini
+5，启动服务：supervisord -c /etc/supervisord.conf （可以通过ps aux | grep supervisord查看是否已运行）
+6，配置项目配置文件及运行
+   我们可以把所有的配置都写在/etc/supervisord.conf中，但是并不推荐这样做，我们更推荐的做法是把不同的程序（组）写到不同的配置文件中，然后通过include的方式引入进来
+   我们现在在/etc/supervisor/目录下创建我们自己的项目配置：
+   cd /etc/supervisor
+   vim testBeegoStudy.conf 加入如下内容：
+[program:testBeegoStudy] ; 项目名称（服务名）
+directory=/data/www/go/src/beegoStudy/ ; 程序的启动目录( 执行 command 之前，先切换到工作目录)
+command=/data/www/go/src/beegoStudy/main ; 启动命令，和手动启动命令是一样的（注意如果有用到环境变量等，需要在配置文件中配，见下面）
+; 这里的命令如果是用php、node、python执行程序的话，可以这样写：python /XXX/xx/x.py --port=9000
+autostart=true ; 在 supervisord 启动的时候也自动启动；默认：true
+startsecs=8 ; 启动 8 秒后没有异常退出，就当作已经正常启动了
+autorestart=true ; 在程序出现异常退出后自动重启
+startretries=3 ; 启动失败自动重试次数，默认是 3
+user=root ; 用哪个用户启动该进程
+;redirect_stderr=true ; true:把 stderr 重定向到 stdout；默认：false
+stdout_logfile_maxbytes=50MB ; stdout 日志文件大小，默认 50MB。这里如果不设置会继承/etc/supervisord.conf中的
+stdout_logfile_backups=20 ; stdout日志文件备份数。这里如果不设置会继承/etc/supervisord.conf中的
+; stdout 日志文件，需要注意当指定目录不存在时无法正常启动，所以需要手动创建目录（supervisord 会自动创建日志文件）
+stdout_logfile=/data/logs/supervisord/testBeegoStudy.log ; stdout[正常输出]日志保存路径（对go来说，如果是服务的有监听端口号之类的，请求时执行程序，控制台打印的东东会到这来）
+stderr_logfile=/data/logs/supervisord/testBeegoStudy_err.log ; stderr[错误]日志保存路径(对go来讲首次初始化运行，控制台打印的东西都会到此文件中；启动失败日记会到此)
+loglevel=info ; 记录日记类型[级别]，默认：info; 取值：info,debug,warn,trace
+7，配置完毕后，需要重启supervisord
+    ps -ef |grep supervisord
+	kill -quit 12313
+    supervisord -c /etc/supervisord.conf
+	加入开机启动：vim /etc/rc.local
+	/usr/bin/python /usr/bin/supervisord -c /etc/supervisord.conf
+8，supervisord起来后，可以通过：supervisorctl 命令查看项目运行的情况 （不进里面也可以直接查看：supervisorctl status）
+    supervisor> status 查看程序运行状态
+    supervisor> stop/start/restart testBeegoStudy 停止/启动/重启xxx项目（程序）
+	supervisor> reread 读取有更新（增加）的配置文件，不会启动新添加的程序
+	supervisor> update 重启配置文件修改过的程序，启动新配置或有改动的进程，配置没有改动的进程不会受影响而重启（如果有新增配置，相当于增加了一个服务）
+	supervisor> remove xxx 从监控列表中删除
+	supervisor> add xxx 添加xxx程序（项目）到监控列表
+	supervisor> tail -f xxx 查看该进程（程序）的日志
+	同样也可以直接在bash终端运行：
+	# supervisorctl restart xxx 重启xxx程序
+	# supervisorctl stop/start all 关闭/开启所有进程（项目/服务/程序）
+	# supervisorctl shutdown 关闭所有程序
+	# supervisorctl help 帮助
+	# supervisorctl status　xxx[服务名] 查看单个服务状态
+	# supervisorctl reload 修改完配置文件后重新启动supervisor。和update有点区别
+	注：start、restart、stop都不会载入最新的配置文件。
+	
+如果你在配置文件中打开了如下配置：
+[inet_http_server]         ; inet (TCP) server disabled by default
+port=127.0.0.1:9001        ; (ip_address:port specifier, *:port for all iface)
+username=shimeng              ; (default is no username (open server))
+password=123
+你就可以通过浏览器输入：http://172.17.10.253:9001/ 可以看到各项目的运行状态，并进行管理
+
+下面是部分配置说明：（配置文件后面都有英文解释）
+[group:组名]：设置一个服务分组，programs后面跟组内所有服务的名字，以逗号（,）分隔（如果变成组以后，名称也会有所变化：groupname:programname）
+[program:x] 实际上是表示一组相同特征或同类的进程组(详情可查阅百度)
+  如果托管的程序还有子进程，如果只杀死主进程，子进程就可能变成孤儿进程。通过这两项配置来确保所有子进程都能正确停止：
+stopasgroup=true
+killasgroup=true
+  
+
+
+特特别需要注意的是：supervisor启动时，并不是通过shell启动的，也就是说shell中的环境变量在program启动后是读取不到的，需要解决如下：
+可以通过修改配置environment来实现，environment=KEY1=value1,KEY2=value2;如：
+environment=PATH="$PATH:/usr/local/lib",NODE_ENV=production ; 通过 environment 来添加需要的环境变量
+environment 可以放在总配置/etc/supervisord.conf中，也可以放在进程（program）中
+
+
+如果加入开启启动脚本如下：
+vim /etc/init.d/supervisord 添加如下脚本：
+#! /bin/sh 
+### BEGIN INIT INFO 
+# Provides: supervisord 
+# Required-Start: $remote_fs 
+# Required-Stop: $remote_fs 
+# Default-Start: 2 3 4 5 
+# Default-Stop: 0 1 6 
+# Short-Description: Example initscript 
+# Description: This file should be used to construct scripts to be 
+# placed in /etc/init.d. 
+### END INIT INFO 
+
+# Author: Dan MacKinlay <danielm@phm.gov.au> 
+# Based on instructions by Bertrand Mathieu 
+# http://zebert.blogspot.com/2009/05/installing-django-solr-varnish-and.html 
+
+# Do NOT "set -e" 
+
+# PATH should only include /usr/* if it runs after the mountnfs.sh script 
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/usr/sbin:/bin:/usr/bin 
+DESC="Description of the service" 
+NAME=supervisord 
+DAEMON=/usr/local/bin/supervisord 
+DAEMON_ARGS=" -c /etc/supervisord.conf" 
+#PIDFILE=/var/run/$NAME.pid 
+PIDFILE=/tmp/$NAME.pid 
+SCRIPTNAME=/etc/init.d/$NAME 
+
+# Exit if the package is not installed 
+[ -x "$DAEMON" ] || exit 0 
+
+# Read configuration variable file if it is present 
+[ -r /etc/default/$NAME ] && . /etc/default/$NAME 
+
+# Load the VERBOSE setting and other rcS variables 
+. /lib/init/vars.sh 
+
+# Define LSB log_* functions. 
+# Depend on lsb-base (>= 3.0-6) to ensure that this file is present. 
+. /lib/lsb/init-functions 
+
+# 
+# Function that starts the daemon/service 
+# 
+do_start() 
+{ 
+    # Return 
+	# 0 if daemon has been started 
+	# 1 if daemon was already running 
+	# 2 if daemon could not be started 
+	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON --test > /dev/null || return 1 
+	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_ARGS || return 2 
+	# Add code here, if necessary, that waits for the process to be ready 
+	# to handle requests from services started subsequently which depend 
+	# on this one. As a last resort, sleep for some time. 
+} 
+
+# 
+# Function that stops the daemon/service 
+# 
+do_stop() 
+{ 
+    # Return 
+	# 0 if daemon has been stopped 
+	# 1 if daemon was already stopped 
+	# 2 if daemon could not be stopped 
+	# other if a failure occurred 
+	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE --name $NAME 
+	RETVAL="$?" 
+	[ "$RETVAL" = 2 ] && return 2 
+	# Wait for children to finish too if this is a daemon that forks 
+	# and if the daemon is only ever run from this initscript. 
+	# If the above conditions are not satisfied then add some other code 
+	# that waits for the process to drop all resources that could be 
+	# needed by services started subsequently. A last resort is to 
+	# sleep for some time. 
+	start-stop-daemon --stop --quiet --oknodo --retry=0/30/KILL/5 --exec $DAEMON 
+	[ "$?" = 2 ] && return 2 
+	# Many daemons don't delete their pidfiles when they exit. 
+	rm -f $PIDFILE 
+	return "$RETVAL" 
+} 
+
+# 
+# Function that sends a SIGHUP to the daemon/service 
+# 
+do_reload() { 
+    # 
+	# If the daemon can reload its configuration without 
+	# restarting (for example, when it is sent a SIGHUP), 
+	# then implement that here. 
+	# 
+	start-stop-daemon --stop --signal 1 --quiet --pidfile $PIDFILE --name $NAME 
+	return 0 
+} 
+
+case "$1" in 
+    start) 
+	    [ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME" 
+		do_start 
+		case "$?" in 
+		    0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;; 
+			2) [ "$VERBOSE" != no ] && log_end_msg 1 ;; 
+		esac 
+		;; 
+	stop) 
+	    [ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME" 
+		do_stop 
+		case "$?" in 
+		    0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;; 
+			2) [ "$VERBOSE" != no ] && log_end_msg 1 ;; 
+		esac 
+		;; 
+	#reload|force-reload) 
+	    # 
+		# If do_reload() is not implemented then leave this commented out 
+		# and leave 'force-reload' as an alias for 'restart'. 
+		# 
+		#log_daemon_msg "Reloading $DESC" "$NAME" 
+		#do_reload 
+		#log_end_msg $? 
+		#;; 
+	restart|force-reload) 
+		# 
+		# If the "reload" option is implemented then remove the 
+		# 'force-reload' alias 
+		# 
+		log_daemon_msg "Restarting $DESC" "$NAME" 
+		do_stop 
+		case "$?" in 
+		    0|1) 
+			    do_start 
+				case "$?" in 
+				    0) log_end_msg 0 ;; 
+					1) log_end_msg 1 ;; # Old process is still running 
+					*) log_end_msg 1 ;; # Failed to start 
+				esac 
+				;; 
+			*) 
+			    # Failed to stop 
+				log_end_msg 1 
+				;; 
+		esac 
+		;; 
+	*) 
+	    #echo "Usage: $SCRIPTNAME {start|stop|restart|reload|force-reload}" >&2 
+	    echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2 
+	    exit 3 
+		;; 
+esac 
+:
+
+chmod +x /etc/init.d/supervisord # 设置该脚本为可以执行
+update-rc.d supervisord defaults # 设置为开机自动运行
+service supervisord stop # 试一下，是否工作正常
+service supervisord start 
+
+若报错：insserv: warning: script 'service' missing LSB tags and overrides，请执行:
+sudo apt-get remove insserv
+
+
+下面是配置的解释：
+;[program:theprogramname]      ;这个就是咱们要管理的子进程了，":"后面的是名字，最好别乱写和实际进程
+                                有点关联最好。这样的program我们可以设置一个或多个，一个program就是
+                                要被管理的一个进程
+;command=/bin/cat              ; 这个就是我们的要启动进程的命令路径了，可以带参数
+                                例子：/home/test.py -a 'hehe'
+                                有一点需要注意的是，我们的command只能是那种在终端运行的进程，不能是
+                                守护进程。这个想想也知道了，比如说command=service httpd start。
+                                httpd这个进程被linux的service管理了，我们的supervisor再去启动这个命令
+                                这已经不是严格意义的子进程了。
+                                这个是个必须设置的项
+;process_name=%(program_name)s ; 这个是进程名，如果我们下面的numprocs参数为1的话，就不用管这个参数
+                                 了，它默认值%(program_name)s也就是上面的那个program冒号后面的名字，
+                                 但是如果numprocs为多个的话，那就不能这么干了。想想也知道，不可能每个
+                                 进程都用同一个进程名吧。
+
+                                
+;numprocs=1                    ; 启动进程的数目。当不为1时，就是进程池的概念，注意process_name的设置
+                                 默认为1    。。非必须设置
+;directory=/tmp                ; 进程运行前，会前切换到这个目录
+                                 默认不设置。。。非必须设置
+;umask=022                     ; 进程掩码，默认none，非必须
+;priority=999                  ; 子进程启动关闭优先级，优先级低的，最先启动，关闭的时候最后关闭
+                                 默认值为999 。。非必须设置
+;autostart=true                ; 如果是true的话，子进程将在supervisord启动后被自动启动
+                                 默认就是true   。。非必须设置
+;autorestart=unexpected        ; 这个是设置子进程挂掉后自动重启的情况，有三个选项，false,unexpected
+                                 和true。如果为false的时候，无论什么情况下，都不会被重新启动，
+                                 如果为unexpected，只有当进程的退出码不在下面的exitcodes里面定义的退 
+                                 出码的时候，才会被自动重启。当为true的时候，只要子进程挂掉，将会被无
+                                 条件的重启
+;startsecs=1                   ; 这个选项是子进程启动多少秒之后，此时状态如果是running，则我们认为启
+                                 动成功了
+                                 默认值为1 。。非必须设置
+;startretries=3                ; 当进程启动失败后，最大尝试启动的次数。。当超过3次后，supervisor将把
+                                 此进程的状态置为FAIL
+                                 默认值为3 。。非必须设置
+;exitcodes=0,2                 ; 注意和上面的的autorestart=unexpected对应。。exitcodes里面的定义的
+                                 退出码是expected的。
+;stopsignal=QUIT               ; 进程停止信号，可以为TERM, HUP, INT, QUIT, KILL, USR1, or USR2等信号
+                                  默认为TERM 。。当用设定的信号去干掉进程，退出码会被认为是expected
+                                  非必须设置
+;stopwaitsecs=10               ; 这个是当我们向子进程发送stopsignal信号后，到系统返回信息
+                                 给supervisord，所等待的最大时间。 超过这个时间，supervisord会向该
+                                 子进程发送一个强制kill的信号。
+                                 默认为10秒。。非必须设置
+;stopasgroup=false             ; 这个东西主要用于，supervisord管理的子进程，这个子进程本身还有
+                                 子进程。那么我们如果仅仅干掉supervisord的子进程的话，子进程的子进程
+                                 有可能会变成孤儿进程。所以咱们可以设置可个选项，把整个该子进程的
+                                 整个进程组都干掉。 设置为true的话，一般killasgroup也会被设置为true。
+                                 需要注意的是，该选项发送的是stop信号
+                                 默认为false。。非必须设置。。
+;killasgroup=false             ; 这个和上面的stopasgroup类似，不过发送的是kill信号
+;user=chrism                   ; 如果supervisord是root启动，我们在这里设置这个非root用户，可以用来
+                                 管理该program
+                                 默认不设置。。。非必须设置项
+;redirect_stderr=true          ; 如果为true，则stderr的日志会被写入stdout日志文件中
+                                 默认为false，非必须设置
+;stdout_logfile=/a/path        ; 子进程的stdout的日志路径，可以指定路径，AUTO，none等三个选项。
+                                 设置为none的话，将没有日志产生。设置为AUTO的话，将随机找一个地方
+                                 生成日志文件，而且当supervisord重新启动的时候，以前的日志文件会被
+                                 清空。当 redirect_stderr=true的时候，sterr也会写进这个日志文件
+;stdout_logfile_maxbytes=1MB   ; 日志文件最大大小，和[supervisord]中定义的一样。默认为50
+;stdout_logfile_backups=10     ; 和[supervisord]定义的一样。默认10
+;stdout_capture_maxbytes=1MB   ; 这个东西是设定capture管道的大小，当值不为0的时候，子进程可以从stdout
+                                 发送信息，而supervisor可以根据信息，发送相应的event。
+                                 默认为0，为0的时候表达关闭管道。。。非必须项
+;stdout_events_enabled=false   ; 当设置为ture的时候，当子进程由stdout向文件描述符中写日志的时候，将
+                                 触发supervisord发送PROCESS_LOG_STDOUT类型的event
+                                 默认为false。。。非必须设置
+;stderr_logfile=/a/path        ; 这个东西是设置stderr写的日志路径，当redirect_stderr=true。这个就不用
+                                 设置了，设置了也是白搭。因为它会被写入stdout_logfile的同一个文件中
+                                 默认为AUTO，也就是随便找个地存，supervisord重启被清空。。非必须设置
+;stderr_logfile_maxbytes=1MB   ; 这个出现好几次了，就不重复了
+;stderr_logfile_backups=10     ; 这个也是
+;stderr_capture_maxbytes=1MB   ; 这个一样，和stdout_capture一样。 默认为0，关闭状态
+;stderr_events_enabled=false   ; 这个也是一样，默认为false
+;environment=A="1",B="2"       ; 这个是该子进程的环境变量，和别的子进程是不共享的
+;serverurl=AUTO                ;
+
+
+https://www.cnblogs.com/zhoujinyi/p/6073705.html
