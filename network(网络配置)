@@ -42,3 +42,30 @@ service network restart/start 重启/开启网络
 
 service ip6tables stop   #停止IPV6服务
 chkconfig ip6tables off  #禁止IPV6开机启动
+
+
+CentOS 7 网络设置：
+vim /etc/sysconfig/network-scripts/ifcfg-eno16777736 修改配置如下：
+TYPE=Ethernet
+BOOTPROTO=static
+DEFROUTE=yes
+PEERDNS=yes
+PEERROUTES=yes
+IPV4_FAILURE_FATAL=no
+IPV6INIT=yes
+IPV6_AUTOCONF=yes
+IPV6_DEFROUTE=yes
+IPV6_PEERDNS=yes
+IPV6_PEERROUTES=yes
+IPV6_FAILURE_FATAL=no
+NAME=eno16777736
+UUID=bbc94fa6-c212-4263-8465-df9f13615a01
+DEVICE=eno16777736
+ONBOOT=yes
+ZONE=public
+IPADDR=172.16.51.135
+NETMASK=255.255.255.0
+GATEWAY=172.16.51.2
+DNS1=202.96.128.68
+DNS2=202.96.134.133
+重启网络：service network restart

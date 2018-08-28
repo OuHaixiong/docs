@@ -22,7 +22,7 @@ C3            192.168.0.105          /usr/local/php 5.6.22           C3
 
 
 
-localhost     172.16.51.135          mysql 5.6.25 (从)                CentOS7         (我日ip地址又变了)                           
+localhost     172.16.51.135          mysql 5.6.25 (从)                CentOS7
                                      主Redis
                                      
                                      
@@ -30,16 +30,6 @@ localhost     172.16.51.135          mysql 5.6.25 (从)                CentOS7  
                                      从mysql，从172.16.51.132（CentOS_6.9）异步同步数据
                                      GRANT SELECT on *.* to "read"@"%" Identified by "123456" with grant option; // 这个不行，只因为空格和下面的不一样，我靠
                                      GRANT SELECT ON *.* TO "read"@"%" IDENTIFIED BY "123456" WITH GRANT OPTION;
-                                     172.16.51.135
-                                     255.255.255.0
-                                     172.16.51.255
-                                     202.96.134.133
-                                     202.96.128.68
-                                     
-                                     
-
-
-
 
 C66mini       172.16.51.131          /usr/local/mariadb               CentOS_6.6_mini
                                      /usr/local/php 5.6.22
