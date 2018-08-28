@@ -14,7 +14,7 @@ CentOS命令行使用shadowsocks代理的方法
     nohup sslocal -s try02.jiasudu.xx -p 27146 -l 1080 -k Xxxxx -t 600 -m aes-256-cfb > /dev/null 2>&1 &
   
 3，安装Privoxy
-    安好了shadowsocks，但它是socks5代理，我门在shell里执行的命令，发起的网络请求现在还不支持socks5代理，只支持http／https代理。为了我门需要安装privoxy代理，它能把电脑上所有http请求转发给shadowsocks。
+    安好了shadowsocks，但它是socks 5代理，我门在shell里执行的命令，发起的网络请求现在还不支持socks5代理，只支持http／https代理。为此我们需要安装privoxy代理，它能把电脑上所有http请求转发给shadowsocks。
     官网https://www.privoxy.org在国内很难打开，可以在如下地址下载源码：
     https://ayera.dl.sourceforge.net/project/ijbswa/Sources/3.0.26%20%28stable%29/privoxy-3.0.26-stable-src.tar.gz 或 https://nchc.dl.sourceforge.net/project/ijbswa/Sources/3.0.26%20%28stable%29/privoxy-3.0.26-stable-src.tar.gz
     tar -zxvf privoxy-3.0.26-stable-src.tar.gz
@@ -42,7 +42,7 @@ CentOS命令行使用shadowsocks代理的方法
         "server":"try02.jiasudu.xx",    # shadowsocks服务器IP
         "server_port":"27146",          # shadowsocks服务器端口
         "local_address":"127.0.0.1",    # 本地ip
-        "local_port":1080,              # 本地端口
+        "local_port":1080,              # 本地端口(监听本地的端口号)
         "password":"Xxxxxxx",           # shadowsocks服务器密码
         "timeout":300,                  # 等待超时秒数
         "method":"aes-256-cfb",         # 加密方式
@@ -50,7 +50,7 @@ CentOS命令行使用shadowsocks代理的方法
         "workers":1                     # 工作线程数
     }
     vim /etc/rc.local
-    nohup /bin/python /usr/bin/sslocal -c /etc/shadowsocks_client.json /dev/null 2>&1 &
+    nohup /bin/python /usr/bin/sslocal -c /etc/shadowsocks_client.json > /dev/null 2>&1 &   （或：sslocal -c /xxx/xx.conf -d start）
     privoxy --user privoxy /usr/local/etc/privoxy/config
     
 备注：如果不需要用代理了，记得把bash里的配置注释上，免得把流量跑完了。
@@ -61,10 +61,10 @@ CentOS命令行使用shadowsocks代理的方法
     wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks.sh
     chmod +x shadowsocks.sh
     ./shadowsocks.sh 2>&1 | tee shadowsocks.log     输入你想要的密码、端口等
-2，安装完成后就直接启动了，且配置文件在：
+2，安装完成后就直接启动了，且配置文件在：/etc/shadowsocks.json
 {
     "server":"0.0.0.0",
-    "server_port":27188,
+    "server_port":8888,
     "local_address":"127.0.0.1",
     "local_port":1080,
     "password":"Bear.Ou",
@@ -72,4 +72,21 @@ CentOS命令行使用shadowsocks代理的方法
     "method":"aes-256-cfb",
     "fast_open":false
 }
+3，可通过ps aux | grep ssserver 查看shadowsocks服务器是否已启动；至此服务器端的配置到此就完成了。(你可以配置客户端，这样客户端就可以访问被墙的网站了)
 
+如果需要配置多用户，如下：
+{
+    "server" : "0.0.0.0",
+    "local_address" : "127.0.0.1",
+    "local_port" : 1080,
+    "port_password" : {
+        "8888" : "password",
+        "8889" : "XXXXXX",
+        "8886" : "******"
+    },
+    "timeout" : 600,
+    "method" : "rc4-md5",  // 加密方式推荐使用rc4-md5，因为 RC4 比 AES 速度快好几倍，如果用在路由器上会带来显著性能提升
+    "fast_open" : false
+}
+
+启动、重启：ssserver -c /etc/shadowsocks.json --log-file /var/log/shadowsocks.log -d start/stop   // --log-file:指定日记文件路径
