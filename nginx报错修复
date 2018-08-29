@@ -7,6 +7,8 @@ Nginx出现的413 Request Entity Too Large错误,这个错误一般在上传文�
 client_max_body_size 80M;
 client_body_buffer_size 828k;
 然后重启nginx
+特别注意了：这个配置配在nginx主配置（http段）或站点配置（server段）里都是可以的；且后面的单位M，大小写均可
+
 要是以php运行的话，这个大小client_max_body_size要和php.ini中的如下值的最大值差不多或者稍大，这样就不会因为提交数据大小不一致出现错误
 post_max_size = 80M
 upload_max_filesize = 20M
@@ -15,3 +17,5 @@ upload_max_filesize = 20M
 所以php.ini中设置 memory_limit > post_max_size > upload_max_filesize 
 当上传大文件时为了防止网速慢时超时现象，需要适当调大max_execution_time的值。
 注意：如果nginx支持大文件上传，但超出了php文件最大大小时，程序并不会报错（返回200），但上传文件会失败
+
+
