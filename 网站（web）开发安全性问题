@@ -2,6 +2,7 @@
 
 跨站脚本攻击(Cross Site Scripting)，为不和层叠样式表(Cascading Style Sheets, CSS)的缩写混淆，故将跨站脚本攻击缩写为XSS
 
-CSRF
+CSRF: Cross-Site Request Forgery 跨站请求攻击(伪造跨站请求)
+
 
 sql注入:

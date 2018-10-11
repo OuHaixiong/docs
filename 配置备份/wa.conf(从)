@@ -32,6 +32,10 @@ server {
         expires 30d; 
     }
     
+    location ~ .*\.ico$ {
+        expires 300d;
+    }
+    
     location ~ .*\.(js|css)?$ {
         expires 24h;
     }

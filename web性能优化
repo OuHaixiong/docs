@@ -1,0 +1,43 @@
+
+
+1，减少请求。合并js、css、图片；js除公用js或类库（jquery）外，一个页面最好就只加载一个js；同样css也适用前面的规则；对样式图片多个可合并成一个（雪碧图）；合并某些ajax请求。
+对请求进行缓存，比如一些不需要实时更新的请求，可添加Expires 或 Cache-Control报文头使响应可以被客户端缓存
+
+2，使用gzip进行压缩。通过gzip对内容页面进行压缩；图片、pdf、flash等文件最好不要压缩。
+
+3，使用前端缓存。尽可能的缓存前端资源，如js、css和图片；对js和css做到永久缓存。图片也可做缓存。
+
+4，压缩图片、css、js。图片在不影响用户体验的情况下，尽可能的缩小大小，将css和js的空格和注释去掉。
+
+5，对图片进行懒加载
+
+6，后端服务器使用缓存
+
+7，对不常修改的页面进行静态化处理或页面缓存
+
+8，使用cdn加速。静态内容，如css、js、flash、图片可以上cdn
+
+9，把css放在头部，把js放在页脚
+
+10，css相关：避免css表达式（如果需要动态效果请用js实现），用<link>代替@import
+
+11，代码需要规范。不写空的img src，不包太多层的div，cookie越小越好（没有必要的cookie不要写），css选择器最好不要超过三层，尽量写高效的js代码，避免使用 eval和 Function。
+
+
+JS compressors:
+
+    Packer
+    JSMin
+    Closure compiler
+    YUICompressor (also does CSS)
+    AjaxMin (also does CSS)
+
+CSS compressors:
+
+    CSSTidy
+    Minify
+    YUICompressor (also does JS)
+    AjaxMin (also does JS)
+    CSSCompressor
+
+YUI和sea.js衡量是否需要使用
