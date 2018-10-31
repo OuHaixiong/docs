@@ -130,7 +130,7 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
 命令行：
 1, 删除表：drop table if exists admin_user; 或 drop table admin_action; // 删除表后，或同时把自增id表（admin_action_id_seq）给删除
 2, 增加一列 ：alter table table_name add column_name datatype;alter table feedback add column type smallint default 1;
-3, 删除一列：alter table table_name drop column_name;
+3, 删除一列：alter table table_name drop column_name; alter table business drop artificial_person;
 4, 更改列的数据类型: ALTER TABLE table_name ALTER  column_name TYPE datatype; 如果有数据或数据类型不匹配时，基本是修改不成功的
                     ALTER TABLE product ALTER  descimgs TYPE jsonb USING descimgs::jsonb[]; 
 5, 表重命名：ALTER TABLE table_name RENAME TO new_name;
@@ -142,7 +142,7 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
 11, \q ：退出
 12, \l : 列出所有库
 13, \du: 列出所有用户
-14, \d : 列出库下所有表
+14, \d : 列出库下所有表     (\dt:查看所有表，\d tableName: 查看表结构)
 15, 创建索引：create unique index user_id_index on admin_user_action using btree("admin_user_id", "xxx"); // unique index:唯一索引；index：普通索引
 16, 备份数据库表结构和数据：/usr/pgsql-10/bin/pg_dump -h 127.0.0.1 -p 5432 -U postgres ybapi > /data/ybapi.sql  使用pg_dumpall可以备份本地所有库
 17, 恢复数据库： /usr/bin/psql -h127.0.0.1 -p 5432 -U postgres -d abc < /data/abc.sql   -d：数据库名称
@@ -154,7 +154,7 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
 23, 修改主键id的自增值从某个值开始：alter sequence business_id_seq restart with 600002;
 24, 备份指定表结构和数据： /usr/bin/pg_dump -U root testdb -t tb1  > /data/testdb_tb1.sql // 只能备份单表
 25, 备份多个表：/usr/bin/pg_dump -U root testdb -t tb1 -t admin_action  > /data/testdb_tbs.sql
-26,
+26, 查找邀请人大于100的所有用户列表：select * from ( select user_id, count(user_id) num from invite where type=0 group by user_id) as i where i.num>99 order by i.num desc;
 27,
 28,
 29,

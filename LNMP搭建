@@ -408,6 +408,7 @@ Installing PDO headers:          /usr/local/php/include/php/ext/pdo/
 cp /data/tool/php-5.4.35/php.ini-development /usr/local/php/lib/php.ini
 vim /usr/local/php/lib/php.ini
 修改php.ini配置
+session.save_path = "/tmp/php_session"   (mkdir /tmp/php_session && chown -R www.www /tmp/php_session)
 date.timezone = PRC
 short_open_tag = Off
 post_max_size = 200M
