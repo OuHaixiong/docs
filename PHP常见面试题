@@ -55,7 +55,7 @@
     
 7，echo、print和print_r的区别
     1） echo和print 只能打印简单类型变量，如：字符串和整形；print_r可以打印任何类型的数据，如：数组、对象
-    2） echo 可以打印多个变量；print和print_r 不能打印多个变量
+    2） echo 可以打印多个变量(echo $a, $b;)；print和print_r 不能打印多个变量
     3） echo是语法结构，没有返回值，速度快；print和print_r是函数，可以有返回值，速度相对echo慢一点
 
 8，传址和传值的区别？

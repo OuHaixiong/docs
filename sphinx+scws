@@ -1,0 +1,74 @@
+php+中文分词scws+sphinx+PostgreSql打造千万级数据全文搜索
+
+Simple Chinese Word Segmentation(SCWS)
+
+1，安装依赖包：yum -y install make gcc g++ gcc-c++ libtool autoconf automake imake php-devel mysql-devel libxml2-devel expat expat-devel 
+
+2，下载安装Sphinx
+    wget -c http://sphinxsearch.com/files/sphinx-3.1.1-612d99f-linux-amd64.tar.gz
+    tar -zxvf sphinx-3.1.1-612d99f-linux-amd64.tar.gz -C /usr/local/
+    mv /usr/local/sphinx-3.1.1 /usr/local/sphinx
+    
+3，下载scws并安装
+    wget -c http://www.xunsearch.com/scws/down/scws-1.2.3.tar.bz2
+    tar -xvf scws-1.2.3.tar.bz2
+    cd scws-1.2.3
+    ./configure --prefix=/usr/local/scws
+    make && make install
+    
+4，安装scws的php扩展
+    cd ./phpext
+    /usr/local/php/bin/phpize
+    ./configure --with-php-config=/usr/local/php/bin/php-config
+    make && make install
+    修改php配置文件（vim /usr/local/php/lib/php.ini），并加入如下配置：
+    [scws]
+    extension=/usr/local/php/lib/php/extensions/no-debug-non-zts-20170718/scws.so
+    scws.default.charset = utf-8
+    scws.default.fpath=/usr/local/scws/etc/
+    重启php-fpm进程：
+    ps -ef |grep php
+    kill -quit 7219
+    /usr/local/php/sbin/php-fpm
+
+5，下载字典并安装
+    wget http://www.xunsearch.com/scws/down/scws-dict-chs-utf8.tar.bz2
+    tar -xvf scws-dict-chs-utf8.tar.bz2 -C /usr/local/scws/etc/
+    chown www:www /usr/local/scws/etc/dict.utf8.xdb
+
+6，修改sphinx配置文件，并加入开机启动
+
+
+
+
+
+    
+    ./searchd -c /usr/local/sphinx/etc/sphinx.conf 启动搜索服务
+    ./searchd -c /usr/local/sphinx/etc/sphinx.conf --stop 停止搜索服务
+    ./searchd -c /usr/local/sphinx/etc/sphinx.conf -h 查看帮助
+    ./indexer -c /usr/local/sphinx/etc/sphinx.conf --all 重建所有索引（服务未启动时）
+    ./indexer -c /usr/local/sphinx/etc/sphinx.conf i_product 重建单个索引
+    ./indexer -c /usr/local/sphinx/etc/sphinx.conf --all --rotate 平滑重建所有索引（服务已启动时）
+    ./indexer -c /usr/local/sphinx/etc/sphinx.conf --merge main delta --rotate 合并索引
+    
+ 
+安装php扩展，如果不安装，就需要拷贝/data/tool/sphinx-3.1.1/api/sphinxapi.php文件到程序目录中，并包含此文件才能调用sphinx的api    
+安装sphinx的php扩展：（报错无法安装）
+1，下载sphinx的php扩展源码包，http://pecl.php.net/package/sphinx 
+    wget -c http://pecl.php.net/get/sphinx-1.3.3.tgz
+
+2，安装扩展前需要先安装sphinx-client，在下载的sphinx的二进制包中有libsphinxclient
+    cd /data/tool/sphinx-3.1.1/api/libsphinxclient
+    ./configure --prefix=/usr/local/sphinx/libsphinxclient
+    make && make install
+ 
+3，解压php扩展sphinx-1.3.3.tgz，并编译安装
+    tar -zxvf sphinx-1.3.3.tgz
+    cd sphinx-1.3.3
+    /usr/local/php/bin/phpize
+    ./configure --with-sphinx=/usr/local/sphinx/libsphinxclient --with-php-config=/usr/local/php/bin/php-config
+    ./configure --with-php-config=/usr/local/php/bin/php-config
+    make && make install（报错）
+    
+
+坑：无法更新索引数据，只能通过增量索引或合并索引、实时索引解决
