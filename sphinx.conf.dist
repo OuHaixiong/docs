@@ -141,7 +141,7 @@ source src1 # 数据源名称
 	# 当数据源数据太大的时候，一个sql语句查询下来往往很有可能锁表等操作。
     # 那么我么就可以使用多次查询，那么这个多次查询就需要有个范围和步长，sql_query_range和sql_range_step就是做这个使用的。
     # 获取最大和最小的id，然后根据步长来获取数据。比如下面的例子，如果有4500条数据，这个表建立索引的时候就会进行5次sql查询。 
-    # 而5次sql查询每次的间隔时间是使用sql_ranged_rhrottle来进行设置的。单位是毫秒。
+    # 而5次sql查询每次的间隔时间是使用sql_ranged_throttle来进行设置的。单位是毫秒。
 	# sql_query_range		= SELECT MIN(id),MAX(id) FROM documents
 	
 	# range query step

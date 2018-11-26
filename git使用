@@ -21,7 +21,7 @@ git pull
 # git reflog 可以查看git的所有版本记录包括提交信息，这样可以通过reset重置到某个版本[git reset --hard xxx]，也可以找回已删除的commit记录
 # git log 查看历史提交记录【进入后可按q退出】；可加参数--pretty=oneline 这样可以；还可以git log -n[5]：查看最近的几条提交记录;
           git log -- filename -n：查看指定文件的提交信息；git log branchName -- ：查看指定分支的提交信息
-# git remote set-url origin xxx 修改仓库的远程仓库地址
+# git remote set-url origin xxx 修改仓库的远程仓库地址（也可以用来切换仓库地址，即如果是https的地址，可以切换为ssh的地址）
 
 学习网址：
 http://git-scm.com/book/zh/

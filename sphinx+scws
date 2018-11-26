@@ -38,7 +38,8 @@ Simple Chinese Word Segmentation(SCWS)
 
 6，修改sphinx配置文件，并加入开机启动
 
-
+    vim /etc/rc.local 加入：
+    /usr/local/sphinx/bin/searchd -c /usr/local/sphinx/etc/sphinx.conf
 
 
 
@@ -71,4 +72,6 @@ Simple Chinese Word Segmentation(SCWS)
     make && make install（报错）
     
 
-坑：无法更新索引数据，只能通过增量索引或合并索引、实时索引解决
+坑：
+1，无法更新索引数据，只能通过增量索引或合并索引、实时索引解决
+2， 数据源和所有都可以继承，同时继承了的话，所有的东东都继承过来了，包括sql_query_post_index、sql_query_pre等

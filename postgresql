@@ -155,9 +155,10 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
 24, 备份指定表结构和数据： /usr/bin/pg_dump -U root testdb -t tb1  > /data/testdb_tb1.sql // 只能备份单表
 25, 备份多个表：/usr/bin/pg_dump -U root testdb -t tb1 -t admin_action  > /data/testdb_tbs.sql
 26, 查找邀请人大于100的所有用户列表：select * from ( select user_id, count(user_id) num from invite where type=0 group by user_id) as i where i.num>99 order by i.num desc;
-27,
-28,
-29,
+27, 从更新的多条数据是从另一张表里来的：UPDATE sphinx_counter SET (min_id, max_id) = (select MIN(id), MAX(id) from product) where table_name='product'
+28, 从别的表中插入多条数据：INSERT INTO sphinx_counter (table_name, min_id, max_id) VALUES ('product', (select MIN(id) from product), (select MAX(id) from product))
+29, 时间戳字符串转整型：select (date_part('epoch',CURRENT_TIMESTAMP))::bigint
+30，多条记录更新，并加入时间戳 ： UPDATE sphinx_counter SET (min_id, max_id, update_time) = (select MIN(id), MAX(id), (date_part('epoch', CURRENT_TIMESTAMP))::bigint from product)  where table_name='product'
 
   
    
