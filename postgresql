@@ -160,5 +160,29 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
 29, 时间戳字符串转整型：select (date_part('epoch',CURRENT_TIMESTAMP))::bigint
 30，多条记录更新，并加入时间戳 ： UPDATE sphinx_counter SET (min_id, max_id, update_time) = (select MIN(id), MAX(id), (date_part('epoch', CURRENT_TIMESTAMP))::bigint from product)  where table_name='product'
 
-  
+
+一、日期格式转换
+
+1.字符日期格式转化为UNIX时间戳格式
+
+字段endtime为内容为UNIX时间戳格式，例如1346650755
+
+select * from test where endtime >= extract(epoch FROM date('2012-09-03 00:00:00'));
+
+2.UNIX时间戳转化为字符日期格式
+
+select * from test where date(to_timestamp(endtime))>='2012-09-02';
+
+
+
+下面是字段的取值范围：
+smallint            2 字节     小范围整数                                   -32768 到 +32767
+integer             4 字节     常用的整数                                   -2147483648 到 +2147483647
+bigint              8 字节     大范围的整数                              -9223372036854775808 到 9223372036854775807
+decimal             变长          用户声明精度，精确               无限制
+numeric             变长          用户声明精度，精确               无限制
+real                4 字节     变精度，不精确                         6 位十进制数字精度
+double precision    8 字节     变精度，不精确                         15 位十进制数字精度
+serial              4 字节     自增整数                                        1 到 2147483647
+bigserial           8 字节     大范围的自增整数                    1 到 9223372036854775807
    

@@ -36,14 +36,37 @@ Simple Chinese Word Segmentation(SCWS)
     tar -xvf scws-dict-chs-utf8.tar.bz2 -C /usr/local/scws/etc/
     chown www:www /usr/local/scws/etc/dict.utf8.xdb
 
-6，修改sphinx配置文件，并加入开机启动
-
+6，修改sphinx配置文件，重建索引，并加入开机启动
+    sphinx.conf配置详细项，详见 /opt/ybsearch/docs/sphinx.conf
+    cp /opt/ybsearch/docs/sphinx.conf /usr/local/sphinx/etc/
+    创建日记文件目录：
+    mkdir -p /data/logs/sphinx/
+    mkdir -p /data/logs/sphinx/data/
+    mkdir -p /data/db/sphinx/
+    重建所有索引
+    /usr/local/sphinx/bin/indexer -c /usr/local/sphinx/etc/sphinx.conf --all --rotate
+    首次启动sphinx：/usr/local/sphinx/bin/searchd -c /usr/local/sphinx/etc/sphinx.conf
     vim /etc/rc.local 加入：
     /usr/local/sphinx/bin/searchd -c /usr/local/sphinx/etc/sphinx.conf
 
+7，创建全量索引和增量索引的脚本，并设置为可执行
+    vim /data/www/ybsearch/docs/productAll.sh 加入：
+    #!/bin/bash
+    /usr/local/sphinx/bin/indexer -c /usr/local/sphinx/etc/sphinx.conf --all --rotate
+    vim /data/www/ybsearch/docs/productDelta.sh 加入：
+    #!/bin/bash
+    /usr/local/sphinx/bin/indexer -c /usr/local/sphinx/etc/sphinx.conf i_product_delta --rotate
+    chmod a+x /data/www/ybsearch/docs/productAll.sh
+    chmod a+x /data/www/ybsearch/docs/productDelta.sh
+
+8，设置定时计划
+    crontab -e 加入
+    */1 * * * * /usr/bin/sh /data/www/ybsearch/docs/productDelta.sh >/dev/null 2>&1
+    40 4 * * * /usr/bin/sh /data/www/ybsearch/docs/productAll.sh >/dev/null 2>&1
+    /bin/systemctl restart  crond.service
 
 
-    
+下面是常用的sphinx命令：
     ./searchd -c /usr/local/sphinx/etc/sphinx.conf 启动搜索服务
     ./searchd -c /usr/local/sphinx/etc/sphinx.conf --stop 停止搜索服务
     ./searchd -c /usr/local/sphinx/etc/sphinx.conf -h 查看帮助
