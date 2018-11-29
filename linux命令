@@ -97,6 +97,7 @@ killall crond 杀死crond 服务器的进程 (在CentOS 7中命令：/bin/system
 ps aux |grep crond 查看一下是否被杀死
 /usr/sbin/crond 启动 crond 服务器 (在ubuntu中：sudo apt-get install cron ； sudo service cron restart/start/stop/status)
 (貌似还是需要等1分钟才能执行，定时任务只能在脚本中无限循环来实现)
+crontab -l 查看所有定时任务
 
 # mysql 数据库操作相关
 mysql -hlocalhost -uroot -p 链接mysql数据库

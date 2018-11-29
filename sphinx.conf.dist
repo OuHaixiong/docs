@@ -263,12 +263,12 @@ source src1 # 数据源名称
     # 这个时候就使用到了这个字段了
 	# sql_query_killlist	= SELECT id FROM documents WHERE edited>=@last_reindex
 
-    ## 命令行获取信息查询。
-    ## 什么意思呢？
-    ## 我们进行索引一般只会返回主键id，而不会返回表中的所有字段。
-    ## 但是在调试的时候，我们一般需要返回表中的字段，那这个时候，就需要使用sql_query_info。
-    ## 同时这个字段只在控制台有效，在api中是无效的。（貌似在新版中此配置作废）
-    sql_query_info      = SELECT * FROM documents WHERE id=$id
+    # 命令行获取信息查询。
+    # 什么意思呢？
+    # 我们进行索引一般只会返回主键id，而不会返回表中的所有字段。
+    # 但是在调试的时候，我们一般需要返回表中的字段，那这个时候，就需要使用sql_query_info。
+    # 同时这个字段只在控制台有效，在api中是无效的。（貌似在新版中此配置作废）
+    #sql_query_info      = SELECT * FROM documents WHERE id=$id
 
 	# columns to unpack on indexer side when indexing
 	# multi-value, optional, default is empty list
@@ -526,7 +526,7 @@ index test1 # 索引
 	# expand_keywords		= 1
 
 	
-	# n-gram length to index, for CJK indexing 对于非字母型数据的长度切割(for CJK indexing) 
+	# n-gram length to index, for CJK indexing 对于非字母型数据的长度切割(for CJK indexing) (默认以字符和数字切割,设置1为按每个字母切割)
 	# only supports 0 and 1 for now, other lengths to be implemented
 	# optional, default is 0 (disable n-grams)
 	# 简单分词，搜索中文必须设置为1（只有0和1两个选项）
@@ -787,17 +787,18 @@ index rt
 
 	# index files path and file name, without extension
 	# mandatory, path must be writable, extensions will be auto-appended
+	# 索引保存路径，平时都是保存在内存内，数据量超过内存量的时候会保存在文件内
 	path			= /var/data/rt
 
 	# RAM chunk size limit
 	# RT index will keep at most this much data in RAM, then flush to disk
 	# optional, default is 128M
-	# RT索引内存限制
+	# RT索引内存限制（超过这个就会保存到硬盘中）
 	# rt_mem_limit		= 512M
 
 	# full-text field declaration
 	# multi-value, mandatory
-	# 全文字段定义
+	# 全文检索字段定义（需索引的字段声明）
 	rt_field		= title
 	rt_field		= content
 
