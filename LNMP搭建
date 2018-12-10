@@ -284,6 +284,10 @@ which mysql 查询运行文件所在路径（目录）
           可查看3306端口是否被监控：netstat -ntulp |grep 3306
      (重启的命令也可以直接用，如：
      sudo /usr/local/mysql/support-files/mysql.server restart --defaults-file=/usr/local/mysql/my.cnf)
+     
+     如果报错：myaql [ERROR] InnoDB: Unable to lock ./ibdata1, error: 11
+     使用 ps aux|grep mysql 查看是否还有进程未被关闭，如果有则使用  kill -9  $pid   ($pid 为数据库应用运行的pid)
+     
  17，修改root用户的密码
      cd /usr/local/mysql
      ./bin/mysqladmin -u root [-h 127.0.0.1 -P 3307] password  (这里一定要启动着mysql)

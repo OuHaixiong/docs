@@ -159,6 +159,8 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
 28, 从别的表中插入多条数据：INSERT INTO sphinx_counter (table_name, min_id, max_id) VALUES ('product', (select MIN(id) from product), (select MAX(id) from product))
 29, 时间戳字符串转整型：select (date_part('epoch',CURRENT_TIMESTAMP))::bigint
 30，多条记录更新，并加入时间戳 ： UPDATE sphinx_counter SET (min_id, max_id, update_time) = (select MIN(id), MAX(id), (date_part('epoch', CURRENT_TIMESTAMP))::bigint from product)  where table_name='product'
+31，导入sql文件： psql -h localhost -d databaseName -U username -f /xxx/xxx/xx.sql
+32，删除索引：drop index product_recommend_type_idx;
 
 
 一、日期格式转换
