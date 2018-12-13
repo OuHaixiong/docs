@@ -98,3 +98,13 @@ Simple Chinese Word Segmentation(SCWS)
 坑：
 1，无法更新索引数据，只能通过增量索引或合并索引、实时索引解决
 2， 数据源和所有都可以继承，同时继承了的话，所有的东东都继承过来了，包括sql_query_post_index、sql_query_pre等
+
+创建索引时，如果报错如下：
+ERROR: index 'i_product': sql_connect: FATAL:  no pg_hba.conf entry for host "35.198.224.25", user "ybapi", database "ybapi", SSL off
+ (DSN=pgsql://ybapi:***@35.240.147.53:5432/ybapi).
+原因： PostgreSQ数据库为了安全，它不会监听除本地以外的所有连接请求
+解决：只需要在PostgreSQL数据库的安装目录下找到/data/pg_hba.conf,找到“# IPv4 local connections:”  
+    vim /var/lib/pgsql/data/pg_hba.conf
+    加入信任的机器ip即可：
+    host    all    all    35.198.224.25/32    trust 
+    pg_hba.conf修改后，使用pg_ctl reload重新读取pg_hba.conf文件，如果pg_ctl找不到数据库，则用-D /.../pgsql/data/　指定数据库目录，或export PGDATA=/.../pgsql/data/　导入环境变量。

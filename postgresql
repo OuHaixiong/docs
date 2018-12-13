@@ -30,6 +30,9 @@ host all all 0.0.0.0/0 md5 （CONNECTIONTYPE DATABASE USER ADDRESS METHDO md5即
 listen_addresses = '*' 监听地址 （默认只能本机访问： listen_addresses = 'localhost'）
 postgresql.conf文件中涉及诸如：最大连接数、监听地址，监听端口、日志、内存、硬盘等等各种设置
 
+假如允允许10.1.1.0~10.1.1.255网段登录数据库：
+host    all    all    10.1.1.0/24    md5
+
 安装目录/var/lib/pgsql及目录下文件或文件夹的可读、可写、可操作统统只开放给用户postgres
 
 在终端输入psql命令时，常常会遇到下面这个错。这个错有两个解决方式：
