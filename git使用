@@ -121,8 +121,10 @@ git clean -n
 git clean -f 通过以上两个命令，可以还原更改
 git checkout 46657577382c23d0cf2d51fb5d5ea54a32d5126c 通commit id 提取老版本的代码
 
-git tag version1.6 -m 'version 1.6'  创建一个标记    
+git tag version1.6 -m 'version 1.6'  创建一个标记    ， 然后需要提交到远端仓库
+git push origin --tags  推送所有标签 。  git push origin <tag name> 推送指定版本的标签
 git checkout <tag_name> 恢复到一个标记
+git push origin --delete testversion[tag name] 删除远端仓库一个标签（本地还存在）。  git tag -d 1.0.0 ： 删除本地标签
 
 
 
@@ -205,3 +207,12 @@ doc/*.txt #只忽略doc/下所有的txt文件,但是不忽略doc/subdir/下的tx
 2，在缓存中移除你要忽略的文件或文件夹：git rm --cached XXX 并在.gitignore中添加刚才要忽略的文件或文件夹的路径
 3，添加到索引：git add .
 4，提交更改：git commit -m "fixed untracked files" && git push origin master
+
+git的实际应用场景
+1，测试不充分就进行了一次上线，要回滚的话，如下:
+git reset --hard HEAD~1  // 回滚到上一版本。   git reset --hard HEAD~3：将最近3次的提交回滚
+
+
+
+
+
