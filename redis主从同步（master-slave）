@@ -84,7 +84,6 @@ vim redis.conf   把
 requirepass ouhaixiong
 
 4，命令行下进行测试：
-先创建数据文件夹：mkdir -p /data/db/redis/
 sudo /usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf （启动redis）
 netstat -ntpl |grep 6379 
 sudo /usr/local/redis/bin/redis-cli -h 192.168.17.130
