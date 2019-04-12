@@ -116,6 +116,7 @@ host      all            all             0.0.0.0/0               md5
       extinfo jsonb,
       create_time int4 default 0,
       update_time int4 default 0,
+      money NUMERIC(20, 2) default 0.00, // 全部20位，小数点后2位
       primary key(id)
     );
 
@@ -184,10 +185,14 @@ select * from test where date(to_timestamp(endtime))>='2012-09-02';
 smallint[int2]            2 字节     小范围整数                                   -32768 到 +32767
 integer[int4/int]         4 字节     常用的整数                                   -2147483648 到 +2147483647
 bigint[int8]              8 字节     大范围的整数                              -9223372036854775808 到 9223372036854775807
-decimal                   变长          用户声明精度，精确               无限制
-numeric                   变长          用户声明精度，精确               无限制
-real[float4]              4 字节     变精度，不精确                         6 位十进制数字精度
-double precision[float8]  8 字节     变精度，不精确                         15 位十进制数字精度(浮点型数据)
-serial                    4 字节     自增整数                                        1 到 2147483647
-bigserial                 8 字节     大范围的自增整数                    1 到 9223372036854775807
+decimal                   可变长      用户声明精度，精确                  小数点前 131072 位；小数点后 16383 位 （无限制）。 类型decimal和numeric是等效的
+numeric                   可变长      用户声明精度，精确                  小数点前 131072 位；小数点后 16383 位 （无限制）。  建议将它用于货币金额和其它要求精确计算的场合（计算要慢很多）
+real[float4]              4 字节     可变精度，不精确                       6位十进制数字精度
+double precision[float8]  8 字节     可变精度，不精确                       15位十进制数字精度(浮点型数据)
+smallserial               2 字节     自增的小范围整数                        1 到 32767
+serial                    4 字节     自增整数                                       1 到 2147483647
+bigserial                 8 字节     自增的大范围整数                        1 到 9223372036854775807
+
+
+
    
