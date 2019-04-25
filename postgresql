@@ -2,7 +2,7 @@ CentOS 7 默认系统安装Postgresql： (最好不要系统自带的，版本�
 1，yum install -y postgresql-server postgresql postgresql-contrib
 2，初始化：postgresql-setup initdb
 3，重启：systemctl restart[start/stop] postgresql.service
-4，登录后进行修改密码，postgres的默认密码为空   （貌似修改了密码没有什么用）
+4，登录后进行修改密码，postgres的默认密码为空   （貌似修改了密码没有什么用，原因是因为没有设置pg_hba.conf中登录的ip和用户需要用密码进行登录）
 # sudo su - postgres 切换postgres用户
 -bash-4.2$ psql 切换成执行sql控制体 【psql (9.2.23)】
 postgres=# alter user postgres password '123456';
@@ -165,6 +165,7 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
 30，多条记录更新，并加入时间戳 ： UPDATE sphinx_counter SET (min_id, max_id, update_time) = (select MIN(id), MAX(id), (date_part('epoch', CURRENT_TIMESTAMP))::bigint from product)  where table_name='product'
 31，导入sql文件： psql -h localhost -d databaseName -U username -f /xxx/xxx/xx.sql
 32，删除索引：drop index product_recommend_type_idx;
+33，修改用户密码：alter user root with password '123456';
 
 
 一、日期格式转换
@@ -194,5 +195,27 @@ serial                    4 字节     自增整数                             
 bigserial                 8 字节     自增的大范围整数                        1 到 9223372036854775807
 
 
+
+
+下面是数据库的事务隔离级别总结：set traansaction isolation level serializable; // 设置事务隔离级别
+
+事务隔离级别分为：read uncommitted（读取未提交），read committed（读取已提交），repeatable read（可重复读），serializable（可串行化），级别从左到右依次递增 
+postgresql默认事务隔离级别是read committed，且postgresql没有read uncommitted隔离级别
+mysql默认事务隔离级别是repeatable read
+
+脏读（dirty read）：当一个事务读取另一个事务尚未提交的修改时数据就叫脏读
+非重复读（nonrepeatable read）：同一查询在同一事务中多次进行，由于其他提交事务所做的修改或删除，如果每次返回不同的结果集，就叫非重复读。
+幻像（phantom read）：同一查询在同一事务中多次进行，由于其他提交事务所做的插入操作，每次返回不同的结果集，就叫幻像读。
+
+postgresql如果一个事务内，未提交的数据，是可以马上读取出来的。如果不在一个事务内，不管读取的是事务涉及的表还是非事务涉及的表，均会等等事务执行完毕，才可进行读取，且不能读取未提交的数据。
+经多次测试mysql也和postgresql一样，会阻塞请求，且没有测出脏读和不可重复读的情况。后经证实和框架有关，我用yii2进行测试的，yii2判断如果有事务在执行时，会阻塞所有的查询、更新、删除操作。
+
+
+总结表格如下
+Isolation level               Dirty read（脏读）                                  Non-repeatable read（不可重复读）                      Phantoms read（幻读）
+Read Uncommitted              may occur（可能）                                       may occur                                 may occur
+Read Committed                don't occur（不可能）                               may occur                                 may occur
+Repeatable Read               don't occur                      don't occur                               may occur
+Serializable                  don't occur                      don't occur                               don't occur
 
    
