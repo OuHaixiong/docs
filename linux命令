@@ -62,6 +62,7 @@ find . -name ".DS_Store" | xargs rm -rf 批量删除文件名为.DS_Store的文�
 # 用户相关
 useradd bear 添加新用户  (sudo adduser bear 貌似一样的)
 userdel -f bear 删除用户，并删除用户目录
+passwd bear 为用户设置密码
 smbpasswd -a bear 为samba服务器的用户设置一个秘密（修改密码也一样）
 smbpasswd -x bear 删除samba服务器中的一个账号
 groupadd group 添加用户组
@@ -77,7 +78,7 @@ sudo gpasswd -d `whoami` dialout 把当前用户从组dialout中移除掉[删除
 # 服务器相关
 sudo /etc/init.d/smbd restart 重启samba服务器
 sudo /etc/init.d/ssh restart 重启ssh服务器
-/usr/local/webserver/nginx/sbin/nginx 启动nginx（nginx所在目录）
+free -h 查看内存使用
 yum install -y lrzsz 安装上传和下载的rz、sz（下载）
 
   

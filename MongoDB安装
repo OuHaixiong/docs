@@ -96,3 +96,16 @@ mongorestore -h host:port -d dbname [--drop 恢复时，先删除当前的数据
 mysqli中的real_escape_string函数的相反函数是htmlspecialchars_decode
 
 
+下面安装php的mongo扩展：（php 7.2.XX）
+1，下载扩展：http://pecl.php.net/package-search.php?pkg_name=mongo
+    里面有两个版本，特别注意需要下载 mongodb  mongoDB driver for PHP的版本，mongo的那个版本是老版本，仅支持PHP 5.3+
+2，下载mongodb-1.5.3.tgz，并解压
+tar -zxvf mongodb-1.5.3.tgz
+3，配置并安装
+cd mongodb-1.5.3
+phpize
+./configure --with-php-config=/usr/local/php/bin/php-config
+make && make install
+4，修改php配置，加入mongodb.so，并重启php即可使用
+
+

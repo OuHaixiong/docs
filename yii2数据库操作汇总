@@ -107,13 +107,7 @@ $count=Admin::model()->updateAll(array('username'=>'11111','password'=>'11111'),
 if($count> 0){ echo "修改成功"; }else{echo "修改失败"; }
  
 $rt= PostList::model()->updateAll(array('status'=>'1'),'staff_id=:staff AND host_id=:host',array(':staff'=>$staff_id,':host'=>$host_id));
- 
-//$pk主键,可以是一个也可以是一个集合,$attributes是要修改的字段的集合,$condition条件,$params传入的值
-Post::model()->updateByPk($pk,$attributes,$condition,$params);
-$count=Admin::model()->updateByPk(1,array('username'=>'admin','password'=>'admin'));
-$count=Admin::model()->updateByPk(array(1,2),array('username'=>'admin','password'=>'admin'),'username=:name',array(':name'=>'admin'));
-if($count>0){echo "修改成功"; }else{echo "修改失败"; }
- 
+
 Post::model()->updateCounters($counters,$condition,$params);
 $count=Admin::model()->updateCounters(array('status'=>1),'username=:name',array(':name'=>'admin'));
 if($count> 0){ echo "修改成功"; }else{echo "修改失败"; }
@@ -155,6 +149,9 @@ $titles = $command->queryColumn();
 
 $command = $connection->createCommand('SELECT COUNT(*) FROM post');
 $postCount = $command->queryScalar();
+
+Yii::$app->db->createCommand("select * from article_status where id=:id AND name = :name")->bindValues([':name'=>'ss',':id'=>1])->getRawSql();
+getRawSql() 获取最终执行的sql语句
 
 八、更新
 $command = $connection->createCommand('UPDATE post SET status=1 WHERE id=1');

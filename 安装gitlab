@@ -1,0 +1,87 @@
+CentOS 7 安装gitlab
+
+1，安装依赖：
+sudo yum install -y curl policycoreutils-python openssh-server
+（sudo systemctl enable sshd && sudo systemctl start sshd 应该不需要，都能ssh登录了）
+下面这两句貌似也执行不成功
+sudo firewall-cmd --permanent --add-service=http
+sudo systemctl reload firewalld
+（firewall-cmd --zone=public --add-port=10080/tcp --permanent && firewall-cmd --reload）
+
+2，如果需要通过 postfix 来发送邮件则需要安装，命令如下：
+sudo yum install postfix
+sudo systemctl enable postfix
+sudo systemctl start postfix
+后面也可以通过smtp来发送邮件，配置如：https://docs.gitlab.com/omnibus/settings/smtp.html
+
+3，添加gitlab包仓库
+curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | sudo bash
+
+4,安装gitlab-ee
+EXTERNAL_URL="https://gitlab.example.com" yum install -y gitlab-ee
+
+5，修改 gitlab 的配置文件
+vim /etc/gitlab/gitlab.rb
+修改如下几行：
+external_url 'https://gitlab.example.com'
+# gitlab_rails['gitlab_default_can_create_group'] = true
+# unicorn['port'] = 8080
+改成：
+external_url 'http://121.42.XXX.xxx:10080'  # 你的主机ip，或你也可以配置域名进行访问
+gitlab_rails['gitlab_default_can_create_group'] = false
+unicorn['port'] = 10079
+
+6，配置gitlab并启动
+gitlab-ctl reconfigure
+
+7，至此，所有配置已完成，可以通过浏览器进行访问了，如：http://121.42.xxx.xxx:10080 （首次进入需要修改密码）
+
+
+gitlab 常用命令：
+gitlab-ctl stop/start/restart 停止/启动/重启 gitlab 服务
+gitlab-ctl reconfigure (修改配置后)重新配置 gitlab 并启动
+gitlab-ctl tail 查看日志（还可以这样用： gitlab-ctl tail unicorn）
+gitlab-ctl deploy-page 安装部署页面
+gitlab-ctl status 查看状态
+cat /opt/gitlab/embedded/service/gitlab-rails/VERSION //查看版本
+gitlab-ctl show-config | grep smtp_password 查看运行使用的配置
+
+/var/opt/gitlab/git-data/repositories/ 仓库数据目录
+
+
+如果不使用默认的nginx，可以按如下进行配置
+1，修改gitlab的配置：vim /etc/gitlab/gitlab.rb
+# web_server['external_users'] = []
+# nginx['enable'] = true 
+修改为
+web_server['external_users'] = ['www', 'root']
+nginx['enable'] = false
+
+2，修改网站访问路径的权限：
+chown -R www:www  /var/opt/gitlab/gitlab-workhorse/
+usermod -aG gitlab-www www usermod  【-aG ==> -a -G】
+
+3, 将/var/opt/gitlab/nginx/conf/nginx.conf 的部分配置，写入 /var/opt/gitlab/nginx/conf/gitlab-nginx.conf中，具体内容见“配置备份/gitlab-nginx.conf”
+
+4，修改nignx配置，并重启nginx即可
+  vim /usr/local/nginx/conf/nginx.conf
+  在http段加入如下三行：
+    # 下面是gitlab的配置
+    include /var/opt/gitlab/nginx/conf/gitlab-nginx.conf;
+    include /var/opt/gitlab/nginx/conf/gitlab-http.conf;
+
+
+
+
+下面是常见的错误：
+1，502错误可能是端口被占用，也可能是权限问题
+
+2，错误：
+level=error ts=2019-06-10T02:08:04.22094683Z caller=main.go:202 msg="unable to initialize gossip mesh" err="create memberlist: Could not set up network transport: failed to obtain an address: Failed to start TCP listener on \"0.0.0.0\" port 9094: listen tcp 0.0.0.0:9094: bind: address already in use"
+通过往上翻，看到如下信息：caller=cluster.go:161 component=cluster msg="setting advertise address explicitly" addr=10.31.88.37 port=9094
+而这个advertise用的是alertmanager，所以我们通过start命令可以看到：timeout: down: alertmanager: 1s, normally up, want up
+解决：
+一直没有找到解决的办法，直接停掉这个服务，不知道有什么影响，
+修改配置 vim /etc/gitlab/gitlab.rb
+alertmanager['enable'] = false
+

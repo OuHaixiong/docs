@@ -559,3 +559,17 @@ php-fpm.conf 中的 request_terminate_timeout 设置成0s。0s的含义是让PHP
 如果是nginx中cgi配置超时（长时间没有得到处理的请求）就会出现504 Gateway Time-out错误。解决就是在http端设置 fastcgi_read_timeout 300; 设置接收后端应答超时时间长点
 
 
+下面是php的部分扩展的安装：
+安装bcmath扩展：
+在php的源码安装包中就有这个扩展，所以不需要下载
+1，进入php安装包的ext目录
+    cd ./ext/bcmath
+2，执行phpize，并进行配置安装
+    /usr/local/php/bin/phpize
+	./configure --with-php-config=/usr/local/php/bin/php-config --enable-bcmath
+	make && make install
+3，将扩展添加进php.ini中，并重启php
+    vim /usr/local/php/lib/php.ini 加入如下：
+	extension=/usr/local/php/lib/php/extensions/no-debug-non-zts-20170718/bcmath.so
+	kill -quit 15473 && /usr/local/php/sbin/php-fpm
+
