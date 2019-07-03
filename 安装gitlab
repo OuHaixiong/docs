@@ -38,15 +38,18 @@ gitlab-ctl reconfigure
 
 
 gitlab 常用命令：
+gitlab-ctl help  查看gitlab帮助信息
 gitlab-ctl stop/start/restart 停止/启动/重启 gitlab 服务
 gitlab-ctl reconfigure (修改配置后)重新配置 gitlab 并启动
-gitlab-ctl tail 查看日志（还可以这样用： gitlab-ctl tail unicorn）
+gitlab-ctl tail 查看日志（还可以这样用： gitlab-ctl tail unicorn/postgresql）
 gitlab-ctl deploy-page 安装部署页面
 gitlab-ctl status 查看状态
+gitlab-ctl show-config  查看gitlab配置信息
 cat /opt/gitlab/embedded/service/gitlab-rails/VERSION //查看版本
 gitlab-ctl show-config | grep smtp_password 查看运行使用的配置
 
 /var/opt/gitlab/git-data/repositories/ 仓库数据目录
+/var/log/gitlab/nginx/gitlab_error.log nginx的错误日记
 
 
 如果不使用默认的nginx，可以按如下进行配置
@@ -84,4 +87,16 @@ level=error ts=2019-06-10T02:08:04.22094683Z caller=main.go:202 msg="unable to i
 一直没有找到解决的办法，直接停掉这个服务，不知道有什么影响，
 修改配置 vim /etc/gitlab/gitlab.rb
 alertmanager['enable'] = false
+
+
+下面是优化gitlab
+vim /etc/gitlab/gitlab.rb
+unicorn['worker_timeout'] = 60   # 设置超时时间
+unicorn['worker_processes'] = 2  # 最小不能低于2，否则会卡死，官方建议cpu核心数+1
+postgresql['shared_buffers'] = "256MB"   # 默认256M缓存，可适当改小
+postgresql['max_worker_processes'] = 8   # 数据库并发数，默认8，可适当减少
+sidekiq['concurrency'] = 10              # 减少sidekiq数，默认25
+优化完后执行：gitlab-ctl reconfigure
+
+
 

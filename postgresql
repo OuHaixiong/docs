@@ -166,6 +166,19 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
 31，导入sql文件： psql -h localhost -d databaseName -U username -f /xxx/xxx/xx.sql
 32，删除索引：drop index product_recommend_type_idx;
 33，修改用户密码：alter user root with password '123456';
+34，外键级联删除或级联更新： ALTER TABLE table_name ADD [ CONSTRAINT constraint_name ] FOREIGN KEY ( column_name [, … ] ) REFERENCES reftable [ ( refcolumn [, … ] ) ] [ MATCH matchtype ] [ ON DELETE action ] [ ON UPDATE action ]
+      比如：alter table receipt_attributes add constraint FK_RECEIPT_GENRE_ID foreign key (receipt_genre_id) references receipt_genre(id) on delete CASCADE;  
+    [ ON DELETE action ] [ ON UPDATE action ] 当删除被引用行或者更新被引用列时，对于引用表或引用列,不同的action有不同的行为。可用的action如下：
+      NO ACTION 如果违反外键约束会产生一个错误。如果约束被延迟，那么到事务结束检查约束时如果仍然因为存在一个引用行而违反外键约束，则仍会产生错误。这是默认值。其他的动作action都不能被延迟。
+      RESTRICT 违反外键约束会产生一个错误。
+      CASCADE 级联删除或更新。分别删除一个引用行或者更新一个引用列的值。
+      SET NULL 设置引用列(referencing column(s))的值为null
+      SET DEFAULT 设置引用列为其缺省值。如果缺省值不是null,那么仍然需要被引用表中有一条记录的被引用字段的值与之匹配，否则操作会失败。
+    [ MATCH matchtype ] 当向引用表的引用列(referencing column(s))插入数据时，根据给定的匹配规则matchtype匹配被引用表的被引用列的值。匹配规则如下：
+      MATCH FULL 不允许多列外键约束中的任何一个为null,除非他们全部为null，这样不要求被引用表中有与其匹配的数据。
+      MATCH PARTIAL 此特性尚未实现
+      MATCH SIMPLE 这是默认值。允许外键约束中的任何一列为null,只要外键约束中的一列为null,则不要求与被引用表相匹配。
+         外键约束也可以引用自身表中的字段。
 
 
 一、日期格式转换
