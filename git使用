@@ -1,3 +1,4 @@
+Git 不仅仅是个版本控制系统，它也是个内容管理系统(CMS)，工作管理系统等。
 
 git add . && git commit -m "删除log" && git push origin master 添加索引并提交更新到线上
 
@@ -5,6 +6,11 @@ git强制覆盖本地文件，拉取代码
 git fetch --all
 git reset --hard origin/master
 git pull
+（
+也可以这样操作：（不知道对不）
+git fetch origin
+git reset --hard origin/master
+）
 
 常见命令行的使用
 # git remote show origin[或者用git remote -v] 查看某个远端仓库的详细信息，如：克隆的url地址
@@ -22,9 +28,12 @@ git pull
 # git log 查看历史提交记录【进入后可按q退出】；可加参数--pretty=oneline 这样可以；还可以git log -n[5]：查看最近的几条提交记录;
           git log -- filename -n：查看指定文件的提交信息；git log branchName -- ：查看指定分支的提交信息
 # git remote set-url origin xxx 修改仓库的远程仓库地址（也可以用来切换仓库地址，即如果是https的地址，可以切换为ssh的地址）
+# git tag 1.0.0 1b2e1d63ff 创建一个叫做 1.0.0 的标签(提交id可以通过 git log 查看)
+# git checkout -- <filename> 替换掉本地改动
+
 
 学习网址：
-http://git-scm.com/book/zh/
+http://git-scm.com/book/zh/ [https://git-scm.com/book/zh/v2]
 http://my.oschina.net/xdev/blog/114383
 http://www.worldhello.net/gotgithub/
 https://github.com/gotgit/gotgithub
@@ -95,8 +104,8 @@ git init --bare example.git 创建一个远端仓库
 git add . 添加所有文件（包括文件夹和文件）到仓库的索引中(和这个一样： git add *)
 git commit -m "提交" 提交更改到本地仓库
 git log 查看提交记录
-git diff 查看更改
-git commit -a -m "These are new changes" 提交修改的文件，-a 表示只提交修改的文件，新增的文件无法提交（注意：这里的提交信息不能为空）
+git diff 查看更改 (git diff <source_branch> <target_branch>)
+git commit -a -m "These are new changes" 提交修改的文件，-a 表示只提交修改(包括被修改和已删除)的文件，新增的文件无法提交（注意：这里的提交信息不能为空）
 git add . && git commit -m "More chaanges - typo in the commit message" 添加所有文件到索引中，并提交修改
 git commit --amend -m "More changes - now correct" 更正【修改】最后一次提交的信息
 cd ~/test   进入本地仓库，然后：git clone --bare . ../t2 设置一个远端的Git仓库
@@ -109,6 +118,7 @@ git remote add bieming bear@192.168.17.130:example.git 为本地仓库起个短�
 git push bieming master 通过短名提交修改到远端仓库的主干上（下面会要求输入密码）
 git clone bear@192.168.17.130:example.git bb  克隆远端仓库到本地文件夹bb
 或 git clone http://xxx.xxx.com/project/xx.git ./ 克隆xx项目到当前目录[git clone 只能clone远程库的master分支，无法clone所有分支]
+
 
 
 
@@ -134,13 +144,11 @@ touch README.md 或 echo "# nodeLibraries" >> README.md
 git init
 git add README.md
 git commit -m "first commit"
-git remote add origin git@github.com:OuHaixiong/libs.git[https://github.com/OuHaixiong/nodeLibraries.git]
+git remote add origin git@github.com:OuHaixiong/libs.git[https://github.com/OuHaixiong/nodeLibraries.git]  // 将现有仓库连接到某个远程仓库
 git push -u origin master
 
 
 可以通过下面的命令来创建一个新的分支
-复制代码
-
 # Syntax: git branch <name> <hash>
 # <hash> in the above is optional 
 # if not specified the last commit will be used
@@ -152,14 +160,13 @@ git checkout testing // 切换分支到testing
 echo "Cool new feature in this branch" > test01
 git commit -a -m "new feature"
 # Switch to the master branch
-git checkout master
+git checkout master // 切换到主分支(或第一个分支)
 # Check that the content of test01 is the old one
 cat test01
 
 
-git merge testing
-
-一旦合并发生了冲突，Git会标志出来，开发人员需要手工的去解决这些冲突。解决冲突以后，就可以将文件添加到索引中，然后提交更改
+git merge testing // 合并某个分支到当前分支
+一旦合并发生了冲突，Git会标志出来，开发人员需要手工的去解决这些冲突。解决冲突以后，就可以将文件添加到索引中(git add <filename>)，然后提交更改
 
 git config --global alias.cav "commit -a -v" 下次执行命令就可以直接git cav了（给命令一个别名）
 
@@ -216,4 +223,10 @@ git reset --hard HEAD~1  // 回滚到上一版本。   git reset --hard HEAD~3�
 
 
 
+    Git 与 SVN 区别点：
+    1、Git 是分布式的，SVN 不是：这是 Git 和其它非分布式的版本控制系统，例如 SVN，CVS 等，最核心的区别。
+    2、Git 把内容按元数据方式存储，而 SVN 是按文件：所有的资源控制系统都是把文件的元信息隐藏在一个类似 .svn、.cvs 等的文件夹里。
+    3、Git 分支和 SVN 的分支不同：分支在 SVN 中一点都不特别，其实它就是版本库中的另外一个目录。
+    4、Git 没有一个全局的版本号，而 SVN 有：目前为止这是跟 SVN 相比 Git 缺少的最大的一个特征。
+    5、Git 的内容完整性要优于 SVN：Git 的内容存储使用的是 SHA-1 哈希算法。这能确保代码内容的完整性，确保在遇到磁盘故障和网络问题时降低对版本库的破坏。
 

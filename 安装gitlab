@@ -18,7 +18,7 @@ sudo systemctl start postfix
 curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | sudo bash
 
 4,安装gitlab-ee
-EXTERNAL_URL="https://gitlab.example.com" yum install -y gitlab-ee
+EXTERNAL_URL="https://gitlab.example.com" yum install -y gitlab-ee  // 这里的域名可以换成你自己的域名
 
 5，修改 gitlab 的配置文件
 vim /etc/gitlab/gitlab.rb
@@ -29,7 +29,7 @@ external_url 'https://gitlab.example.com'
 改成：
 external_url 'http://121.42.XXX.xxx:10080'  # 你的主机ip，或你也可以配置域名进行访问
 gitlab_rails['gitlab_default_can_create_group'] = false
-unicorn['port'] = 10079
+unicorn['port'] = 10079  // 默认 unicorn['listen'] = '127.0.0.1'
 
 6，配置gitlab并启动
 gitlab-ctl reconfigure
@@ -50,7 +50,8 @@ gitlab-ctl show-config | grep smtp_password 查看运行使用的配置
 
 /var/opt/gitlab/git-data/repositories/ 仓库数据目录
 /var/log/gitlab/nginx/gitlab_error.log nginx的错误日记
-
+/var/opt/gitlab/gitlab-rails/etc/unicorn.rb gitlab-rails相关配置
+/var/log/gitlab/gitlab-shell/gitlab-shell.log 错误日记
 
 如果不使用默认的nginx，可以按如下进行配置
 1，修改gitlab的配置：vim /etc/gitlab/gitlab.rb
@@ -58,7 +59,9 @@ gitlab-ctl show-config | grep smtp_password 查看运行使用的配置
 # nginx['enable'] = true 
 修改为
 web_server['external_users'] = ['www', 'root']
-nginx['enable'] = false
+nginx['enable'] = false nginx['listen_addresses']
+# nginx['listen_addresses'] = ['*'] 这个监听地址可以不设置，在nginx的vhost中进行设置
+# nginx['listen_port'] = 82 如果external_url中没有指定端口号，就需要在这里进行设置
 
 2，修改网站访问路径的权限：
 chown -R www:www  /var/opt/gitlab/gitlab-workhorse/
@@ -91,12 +94,18 @@ alertmanager['enable'] = false
 
 下面是优化gitlab
 vim /etc/gitlab/gitlab.rb
-unicorn['worker_timeout'] = 60   # 设置超时时间
-unicorn['worker_processes'] = 2  # 最小不能低于2，否则会卡死，官方建议cpu核心数+1
-postgresql['shared_buffers'] = "256MB"   # 默认256M缓存，可适当改小
-postgresql['max_worker_processes'] = 8   # 数据库并发数，默认8，可适当减少
+unicorn['worker_timeout'] = 30   # 设置超时时间
+unicorn['worker_processes'] = 3  # 最小不能低于2，否则会卡死，官方建议cpu核心数+1
+postgresql['shared_buffers'] = "128MB"   # 默认256M缓存，可适当改小
+postgresql['max_worker_processes'] = 4   # 数据库并发数，默认8，可适当减少
 sidekiq['concurrency'] = 10              # 减少sidekiq数，默认25
+# 减少unicorn内存使用
+unicorn['worker_memory_limit_min'] = "200 * 1 << 20"  # 默认：400 * 1 << 20
+unicorn['worker_memory_limit_max'] = "300 * 1 << 20"  # 默认：650 * 1 << 20
 优化完后执行：gitlab-ctl reconfigure
 
 
+gitlab使用ssh来拉取代码，其协议也是使用linux的ssh，使用的端口号需要和linux的ssh一样
+使用ssh连接gitlab时，需要设置git（通用）账号的密码。
+如果没有设置密码有可能出现ssh port XXX: Connection refused的错误
 
