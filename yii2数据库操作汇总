@@ -142,6 +142,7 @@ $command = $connection->createCommand('SELECT COUNT(*) FROM post');
 $postCount = $command->queryScalar();
 
 Yii::$app->db->createCommand("select * from article_status where id=:id AND name = :name")->bindValues([':name'=>'ss',':id'=>1])->getRawSql();
+$query->createCommand()->getRawSql();
 getRawSql() 获取最终执行的sql语句
 
 八、更新
