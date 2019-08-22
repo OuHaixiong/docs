@@ -236,3 +236,39 @@ Repeatable Read               don't occur                      don't occur      
 Serializable                  don't occur                      don't occur                               don't occur
 
    
+   
+distinct和Group by的区别： 
+distinct只是将重复的行从结果中除去；是把不同的记录显示出来（也可以按照多列去重）； 而distinct不能使用聚集函数（count除外）。
+group by是按指定的列分组，一般这时在select中会用到聚合函数。 在查询时先把纪录按照类别分出来再查询。（group by 会重新排序）
+一样的地方：如果group by不使用聚合函数，就和distinct是一样的结果，但两者的性能有区别，且和数据量的列的唯一性有关系。加索引对两者均有效
+
+聚合函数 ：
+AVG      求平均值
+MAX      求最大值
+MIN      求最小值
+SUM      求总和
+COUNT    求总记录数
+
+假定 Table 表有三列， 
+id, key， value 
+其中 id是主键，不能重复，key和value可能有重复记录 
+ 
+使用distinct去重复： 
+select distinct key,value 
+from table 
+不能显示主键。 
+ 
+使用group by 去重复 
+select id,key,value from table A, 
+(select key,value, min(id) PID 
+from table group by key,value 
+) B 
+where A.id=b.PID 
+可以显示主键
+
+结论：如果数据量大的情况下，列的数据唯一性比较好的话，group by会快点，因为group by查询时会进行排序，
+相反，如果唯一性差的话，distinct会快点，
+distinct占用内存（空间）大，对于DISTINCT操作，它会读取了所有记录； 
+group by 占用空间小，而GROUP BY需要读取的记录数量与分组的组数量一样多，也就是说比实际存在的记录数目要少很多
+
+

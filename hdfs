@@ -1,0 +1,72 @@
+安装phdfs扩展：http://pecl.php.net/get/phdfs-0.1.2.tgz
+报错：phdfs-0.1.2/php_phdfs.h:64:18: fatal error: hdfs.h: No such file or directory
+ #include "hdfs.h"
+ 后找尽各种办法均无法安装，后放弃了。
+
+
+HDFS基本命令格式如下：
+# cd /usr/local/hadoop/bin
+# ./hadoop fs -cmd args     其中，cmd为具体的操作，args为参数。
+
+部分HDFS命令示例如下：
+hadoop fs -mkdir /user/trunk             #建立目录/user/trunk
+hadoop fs -ls /user                      #查看/user目录下的目录和文件
+hadoop fs -lsr /user                     #递归查看/user目录下的目录和文件
+hadoop fs -put test.txt /user/trunk      #上传test.txt文件至/user/trunk
+hadoop fs -get /user/trunk/test.txt      #获取/user/trunk/test.txt文件
+hadoop fs -cat /user/trunk/test.txt      #查看/user/trunk/test.txt文件内容
+hadoop fs -tail /user/trunk/test.txt     #查看/user/trunk/test.txt文件的最后1000行
+hadoop fs -rm /user/trunk/test.txt       #删除/user/trunk/test.txt文件
+hadoop fs -help ls                       #查看ls命令的帮助文档
+./hdfs dfs -ls 目录名称                                                 #列出文件、目录
+./hdfs dfs -put 本地文件路名 HDFS文件路径     #上传文件
+./hdfs dfs -get HDFS文件路径 本地文件路名     #下载文件
+./hdfs dfs -mv 原路径 目标路径                                 #移动文件
+./hdfs dfs -rm 文件路径                                                 #删除文件
+./hdfs dfs -rmdir 目录路径                                         #删除目录
+./hdfs dfs -chmod 权限 文件或目录路径               #修改权限
+
+
+下面安装thrift软件，并安装PHP扩展thrift_protocol，可以使用thrift_protocol操作hdfs (最后也是因为无法找到怎么使用thrift_protocol来操作hdfs，然后放弃了)
+1，安装所需的依赖包
+  yum install -y bison gcc-c++ zlib-devel boost-devel libtool automake pkgconfig flex openssl-devel boost-devel-static
+  libevent-devel （如果本机没有安装的话，需要安装此依赖包）
+  ruby-devel python-devel （如果需要支持ruby和python时，需要安装此依赖包）
+
+2，从http://thrift.apache.org/download下载安装包
+  http://mirror.bit.edu.cn/apache/thrift/0.12.0/thrift-0.12.0.tar.gz
+
+3，安装thrift
+  # tar -zxvf thrift-0.12.0.tar.gz
+  # cd thrift-0.12.0
+  # ./configure --with-lua=no --prefix=/usr/local/thrift  （可能出现的错误  bison版本不够，升级bison2.5.*）
+  ./configure --with-lua=no --with-go=no --prefix=/usr/local/thrift
+  # make && make install (make期间要等很久，因为有些php包需要到网络上去下载)
+  
+4，安装PHP扩展
+  # cd /data/tool/thrift-0.12.0/lib/php/src/ext/thrift_protocol
+  # /usr/local/php/bin/phpize
+  # ./configure --enable-thrift_protocol --with-php-config=/usr/local/php/bin/php-config
+  # make && make install
+
+5，修改php.ini，添加thrift_protocol扩展
+  # vim /usr/local/php/lib/php.ini  添加
+  extension=/usr/local/php/lib/php/extensions/no-debug-non-zts-20170718/thrift_protocol.so
+  # 重启php，使用phpinfo查看
+
+安装报错及解决办法：
+1，make时报错如下：
+  g++: error: /usr/lib64/libboost_unit_test_framework.a: No such file or directory
+  # 原因：./configure 的时候是默认编译32位的，不会在 /usr/lib64/ 下产生文件  。    用yum安装boost后连/usr/lib/ 或 /usr/local/lib目录下都不存在这个文件libboost_unit_test_framework.a文件
+  # 解决：如果/usr/local/lib/ 下有该文件，直接软连接过去就OK，ln -s /usr/local/lib/libboost_unit_test_framework.a /usr/lib64/libboost_unit_test_framework.a
+  # 如果/usr/local/lib/ 下没有该文件，就需要手动安装boost（或者，如果是centos7：yum install boost-devel-static ）
+  # 下面手动安装boost：https://jaist.dl.sourceforge.net/project/boost/boost/1.70.0/boost_1_70_0.tar.bz2
+  # wget http://sourceforge.net/projects/boost/files/boost/1.53.0/boost_1_53_0.tar.gz
+  # tar -zxf boost_1_53_0.tar.gz
+  # cd boost_1_53_0
+  # ./bootstrap.sh
+  # ./b2 install  （这个版在CentOS 7中报一大堆note、warning错误）
+  # ln -s /usr/local/lib/libboost_unit_test_framework.a /usr/lib64/libboost_unit_test_framework.a
+
+
+最后，可以通过web方式来访问hdfs，对hdfs进行增删改查

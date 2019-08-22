@@ -23,7 +23,7 @@ find $HOME -mtime -1 -print 查找家目录下所有在24小时之前修改过�
 find . -type f -cmin -20[ -ls] 查找当前目录下，20分钟内修改过的文件。-type f：表示只查看文件，不查看目录, -ls：表示列出详细信息
 find /etc -name '*srm*' 查找etc目录下所有包含srm文件名的文件 （全名：find /usr -name "libchm.so.0"）
 find . |grep config.inc. 在本目录下查找文件
-find . -type f -size +100M 查找当前目录下，所有大约100M的文件（可用于查找大文件）
+find . -type f -size +100M 查找当前目录下，所有大于100M的文件（可用于查找大文件）
 find . -name "*" -type f -size 0c 查找文件大小为0的文件 （find . -name "*" -type f -size 0c | xargs -n 1 rm -f：查找文件大小为0的文件并删除之）。 如果 -size 1k：表示占用空间1k，不是文件大小1k的
 find . -user root 查找当前目录下，属于某个用户的文件
 find -type d -empty 查询出所有的空文件夹
@@ -32,7 +32,7 @@ du -sh [.|filename|dirname|*] 当前目录或文件的大小(du -sh * |sort -nr 
 locate php.ini 根据文件名进行查找文件（这个速度不错，默认从根目录开始搜索）
 ln -s[symbolic:符号的] 源文件 目标文件 创建软连接(在目标文件夹下创建一个目录可以链接到源文件夹)
 pwd 查看所在位置的绝对路径
-wget -c http://soft.vpser.net/web/mcrypt/mcrypt-2.6.8.tar.gz 下载网络上的一个文件；如果没有安装wget，需运行：yum install wget.x86_64
+wget -c http://soft.vpser.net/web/mcrypt/mcrypt-2.6.8.tar.gz 下载网络上的一个文件；如果没有安装wget，需运行：yum install wget.x86_64 或 yum install -y wget
 scp -rvp /usr/local/redis/ root@192.168.1.113:/usr/local/   通过ssh向远端服务器传文件或文件夹(两边服务器都需要安装scp： yum install -y openssh-clients)
 scp -P 22354  -rvp /data/www/oc_index_information_pre_online.sql ouhaixiong@45.79.163.XX:/data/db/ 通过ssh向远端服务器传文件或文件夹；如果是带端口的话-P一定要跟在scp后面
 scp -P 22357 kunz@45.79.XXX.XXX:/data/db/export.tar.gz export.tar.gz 同样也可以通过远程把文件传到本地
