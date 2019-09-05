@@ -182,3 +182,6 @@ yum -y remove httpd 这个也是卸载
 # 筛选数据 常用工具 相关
 可以重点学习cut、grep、awk、sed命令
 
+grep -v '^;' ./php-fpm.conf |grep -v '^$'   查找当前目录下文件php-fpm.conf的内容，过滤掉不是以";"开头的行，然后再过滤掉空行
+
+ 

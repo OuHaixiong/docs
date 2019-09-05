@@ -33,23 +33,16 @@ May 01 10:50:58.046818 [NOTICE] [pool www] child 4082 started
 另一个就是多说，这个东西是增加了网站的交互性，但是使用的多了反应就慢了，如果你网站超时且使用了多说是，可以关闭它。
 
 Nginx 502的触发条件
-
-　　502错误最通常的出现情况就是后端主机当机。在upstream配置里有这么一项配置：proxy_next_upstream，这个配置指定了 nginx在从一个后端主机取数据遇到何种错误时会转到下一个后端主机，里头写上的就是会出现502的所有情况拉，默认是error timeout。error就是当机、断线之类的，timeout就是读取堵塞超时，比较容易理解。我一般是全写上的：
-
-proxy_next_upstream error timeout invalid_header http_500 http_503;　　不过现在可能我要去掉http_500这一项了，http_500指定后端返回500错误时会转一个主机，后端的jsp出错的话，本来会打印一堆 stacktrace的错误信息，现在被502取代了。但公司的程序员可不这么认为，他们认定是nginx出现了错误，我实在没空跟他们解释502的原理 了……
+502错误最通常的出现情况就是后端主机当机。在upstream配置里有这么一项配置：proxy_next_upstream，这个配置指定了 nginx在从一个后端主机取数据遇到何种错误时会转到下一个后端主机，里头写上的就是会出现502的所有情况拉，默认是error timeout。
+error就是当机、断线之类的，timeout就是读取堵塞超时，比较容易理解。我一般是全写上的：
+proxy_next_upstream error timeout invalid_header http_500 http_503;　　
+不过现在可能我要去掉http_500这一项了，http_500指定后端返回500错误时会转一个主机，后端的jsp出错的话，本来会打印一堆 stacktrace的错误信息，现在被502取代了。但公司的程序员可不这么认为，他们认定是nginx出现了错误，我实在没空跟他们解释502的原理 了……
 
 503错误就可以保留，因为后端通常是apache resin，如果apache死机就是error，但resin死机，仅仅是503，所以还是有必要保留的。
-
 解决办法
-
 遇到502问题，可以优先考虑按照以下两个步骤去解决。
-
 1、查看当前的PHP FastCGI进程数是否够用：
-
-复制代码 代码如下:
-
 netstat -anpo | grep "php-cgi" | wc -l
-
 如果实际使用的“FastCGI进程数”接近预设的“FastCGI进程数”，那么，说明“FastCGI进程数”不够用，需要增大。
 
 2、部分PHP程序的执行时间超过了Nginx的等待时间，可以适当增加nginx.conf配置文件中FastCGI的timeout时间，例如：
@@ -66,7 +59,6 @@ php.ini中memory_limit设低了会出错，修改了php.ini的memory_limit为64M
 　　如果这样修改了还解决不了问题，可以参考下面这些方案：
 
 一、max-children和max-requests
-
 　　一台服务器上运行着nginx php(fpm) xcache，访问量日均 300W pv左右。
 　　最近经常会出现这样的情况：php页面打开很慢，cpu使用率突然降至很低，系统负载突然升至很高，查看网卡的流量，也会发现突然降到了很低。这种情况只持续数秒钟就恢复了。
 　　检查php-fpm的日志文件发现了一些线索。
@@ -81,47 +73,29 @@ php.ini中memory_limit设低了会出错，修改了php.ini的memory_limit为64M
     然后重启php-fpm。
 
 二、增加缓冲区容量大小
-
 　　将nginx的error log打开，发现“pstream sent too big header while reading response header from upstream”这样的错误提示。查阅了一下资料，大意是nginx缓冲区有一个bug造成的,我们网站的页面消耗占用缓冲区可能过大。参考老外写的修 改办法增加了缓冲区容量大小设置，502问题彻底解决。后来系统管理员又对参数做了调整只保留了2个设置参数：client head buffer，fastcgi buffer size。
 
 三、request_terminate_timeout
-
 　　如果主要是在一些post或者数据库操作的时候出现502这种情况，而不是在静态页面操作中常见，那么可以查看一下php-fpm.conf设置中的一项：
-
 request_terminate_timeout
-
 这个值是max_execution_time，就是fast-cgi的执行脚本时间。
-
 0s
-
 0s为关闭，就是无限执行下去。（当时装的时候没仔细看就改了一个数字）问题解决了，执行很长时间也不会出错了。优化fastcgi中，还可以改改这个值5s 看看效果。
 
-php-cgi进程数不够用、php执行时间长、或者是php-cgi进程死掉，都会出现502错误。Nginx 502 Bad Gateway错误的解决办法2
-
+Nginx 502 Bad Gateway错误的解决办法
 今天，我的VPS频繁提示Nginx 502 Bad Gateway错误了，重启了VPS解决之后又出现，很烦。有点想不通，前两天网站达到了1290的访问量都没有出什么问题，怎么这次就出现了502 Bad Gateway？郁闷啊！！！在搜索了很久，终于找到了不少相关的答案，希望修改之后不会再出现这个错误了。唉，既然在网上找了那么久的答案，那当然得把有用的东西记录下，免得我下次再去谷歌~
-
 由于我是采用了LNMP一键安装包 ，出了问题肯定要先到官方论坛去搜索下了，真好，官方有个这样的置顶帖，大家先瞧瞧。
 
 LNMP一键安装包官方的：
-
 第一种原因：目前lnmp一键安装包比较多的问题就是502 Bad Gateway，大部分情况下原因是在安装php前，脚本中某些lib包可能没有安装上，造成php没有编译安装成功。解决办法：可以尝试根据lnmp一键安装包中的脚本手动安装一下，看看是什么错误导致的。
-
 第二种原因：
-
 在php.ini里，eaccelerator配置项一定要放在Zend Optimizer配置之前，否则也可能引起502 Bad Gateway
-
 第三种原因：
-
 在安装好使用过程中出现502问题，一般是因为默认php-cgi进程是5个，可能因为phpcgi进程不够用而造成502，需要修改/usr/local/php/etc/php-fpm.conf 将其中的max_children值适当增加。
-
 第四种原因：
-
 php执行超时，修改/usr/local/php/etc/php.ini 将max_execution_time 改为300
-
 第五种原因：
-
 磁盘空间不足，如mysql日志占用大量空间
-
 第六种原因：
 查看php-cgi进程是否在运行
 也有网友给出了另外的解决办法：

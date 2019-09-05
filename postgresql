@@ -183,6 +183,8 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
       MATCH PARTIAL 此特性尚未实现
       MATCH SIMPLE 这是默认值。允许外键约束中的任何一列为null,只要外键约束中的一列为null,则不要求与被引用表相匹配。
          外键约束也可以引用自身表中的字段。
+35，根据in的顺序查询数据：select * from tbl_vendor where id in(5,2,4,3) order by position(id::text in '5,2,4,3')
+
 
 
 一、日期格式转换
@@ -241,6 +243,7 @@ distinct和Group by的区别：
 distinct只是将重复的行从结果中除去；是把不同的记录显示出来（也可以按照多列去重）； 而distinct不能使用聚集函数（count除外）。
 group by是按指定的列分组，一般这时在select中会用到聚合函数。 在查询时先把纪录按照类别分出来再查询。（group by 会重新排序）
 一样的地方：如果group by不使用聚合函数，就和distinct是一样的结果，但两者的性能有区别，且和数据量的列的唯一性有关系。加索引对两者均有效
+使用group by查询时，select中的字段只能是group by后面的字段，去重distinct亦如此
 
 聚合函数 ：
 AVG      求平均值
