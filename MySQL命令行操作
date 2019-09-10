@@ -602,3 +602,19 @@ ALTER TABLE table_name DROP PRIMARY KEY
                 mysql -uroot -p123456 --protocol tcp -hlocalhost;  --这样就可以登录，这样就不用mysql.socket来登录，而mysql.socket是启动mysqld服务时产生的
             *能后这个方式登录进来之后，你在重启下mysql服务，mysql.socket文件会自动建立
          
+
+显示每个地区的总人口数和总面积．仅显示那些面积超过1000000的地区
+SELECT region, SUM(population), SUM(area)7 ]; Z& I! t% i
+FROM bbc8 F4 w2 v( P- f
+GROUP BY region
+HAVING SUM(area)>1000000# y" P  z. O7 D9 `# X
+在这里，我们不能用where来筛选超过1000000的地区，因为表中不存在这样一条记录。
+相反，HAVING子句可以让我们筛选成组后的各组数据，即having是分组（group by）后的筛选条件，分组后的数据组内再筛选
+
+要求平均成绩大于90分的学生都有资格，并且语文课必须在95分以上，请列出有资格的学生
+//实际上，这个查询先把语文大于95分的学生号提取出来，之后求平均值，分组显示后根据having语句选出平均成绩大于90的
+ select sno,avg(grade) from sc where SNO IN (SELECT SNO FROM SC WHERE GRADE>=95 AND PNO='YW') group by sno having avg(grade)>=90;
+ SC:成绩表; SNO:学号; GRADE:分数; PNO:课程;
+ 查询比平均成绩至少比学号是3的平均成绩高的学生学号以及平均分数
+ select sno,avg(grade) from sc group by sno having avg(grade) > (select avg(grade) from sc where sno=3); // having子句中可进行比较和子查询
+
