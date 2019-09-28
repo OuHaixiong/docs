@@ -582,5 +582,6 @@ php-fpm.conf 中的 request_terminate_timeout 设置成0s。0s的含义是让PHP
 3，将扩展添加进php.ini中，并重启php
     vim /usr/local/php/lib/php.ini 加入如下：
 	extension=/usr/local/php/lib/php/extensions/no-debug-non-zts-20170718/bcmath.so
+	或  echo 'extension=/usr/local/php/lib/php/extensions/no-debug-non-zts-20170718/bcmath.so' >> /usr/local/php/lib/php.ini
 	kill -quit 15473 && /usr/local/php/sbin/php-fpm
 

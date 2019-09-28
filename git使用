@@ -30,10 +30,11 @@ git reset --hard origin/master
 # git remote set-url origin xxx 修改仓库的远程仓库地址（也可以用来切换仓库地址，即如果是https的地址，可以切换为ssh的地址）
 # git tag 1.0.0 1b2e1d63ff 创建一个叫做 1.0.0 的标签(提交id可以通过 git log 查看)
 # git checkout -- <filename> 替换掉本地改动
+git clone bear@192.168.17.130:example.git bb  克隆远端仓库到本地文件夹bb
 
 
 学习网址：
-http://git-scm.com/book/zh/ [https://git-scm.com/book/zh/v2]
+http://git-scm.com/book/zh/ [https://git-scm.com/book/zh/v2] 一定要去看
 http://my.oschina.net/xdev/blog/114383
 http://www.worldhello.net/gotgithub/
 https://github.com/gotgit/gotgithub
