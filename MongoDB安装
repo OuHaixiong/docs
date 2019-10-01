@@ -58,7 +58,8 @@ logpath=/data/logs/mongodb/mongodb.log #日志文件存放目录
 logappend=true #使用追加的方式写日志
 fork=true #以守护程序的方式启用，即在后台运行
 maxConns=5000 #最大同时连接数 默认2000
-bind_ip=127.0.0.1,172.16.20.126 #只允许通过局域网IP：172.16.20.126及本机访问
+bind_ip=127.0.0.1,172.16.20.126 #只允许通过局域网IP：172.16.20.126及本机访问  (貌似不能指定范围)
+# 特别特别注意了，在高版本（4.1.XX）里面，不能使用上面的配置，只能用bind_ip=[127.0.0.1,10.0.0.5] 或 bind_ip=127.0.0.1 10.0.0.5
 noauth=true #不启用验证
 nohttpinterface=true
 rest=false
