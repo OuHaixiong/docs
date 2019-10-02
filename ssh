@@ -5,7 +5,9 @@ CentOS下设置ssh连接断开时间设置
 2，重启sshd服务即可
 /etc/init.d/sshd restart   或者：/etc/rc.d/init.d/sshd restart 
 
-
+SSH无密码登录
+$ ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa
+$ cat ~/.ssh/id_dsa.pub >> ~/.ssh/authorized_keys
 
 一、关于 OpenSSH
 简单的说 OpenSSH 是一组安全远程的连接工具，主要包括了几个部份：ssh、sshd、scp、sftp、ssh-keygen、ssh-agent、ssh-add。OpenSSH 安装配置比较复杂，难点在配置，特别是在 VPS 中，配置不当就完全无法链接 VPS 了。

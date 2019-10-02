@@ -55,11 +55,14 @@ wq：保存刚才的设置并退出
 
 4、格式化新分区
 使用“mkfs.ext4 /dev/xvdb1”命令对新分区进行格式化，格式化的时间根据硬盘大小有所不同。
+mkfs.xfs -f /dev/sdb1 格式化磁盘，这里的文件格式为xfs
 
  5、添加分区信息
 使用“echo '/dev/xvdb1  /mnt ext3    defaults    0  0' >> /etc/fstab”（不含引号）命令写入新分区信息。
 然后使用“cat /etc/fstab”命令查看，出现以下信息就表示写入成功。
 注：ubuntu12.04不支持barrier，所以正确写法是：echo '/dev/xvdb1  /mnt ext3    barrier=0  0  0' >> /etc/fstab
+启动的时候，数据盘的盘符可能会变，最好用UUID来添加磁盘：如
+
 *  如果需要把数据盘单独挂载到某个文件夹，比如单独用来存放网页，可以修改以上命令中的/mnt部分
 其实不用上面的命令，直接挂载就行 ( 如果是直接挂载的话，需要把下面这句话写入开机启动中去/etc/rc.local )
 mount /dev/xvdb1 /data

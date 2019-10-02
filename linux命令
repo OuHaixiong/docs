@@ -1,3 +1,5 @@
+利用tab键可以查看本机所有的命令
+
 # 文件相关（不包括解压缩文件，解压缩请看“解压缩相关”文件）
 cd ~ 进入家目录，也可以直接cd就回到的当前用户的家目录了
 tail -f logs/log  查看文件（会把文件里最尾部的内容[默认最后10行]显示在屏幕上,并且不断刷新,使你看到最新的文件内容）
@@ -21,7 +23,7 @@ find $HOME -mtime -1 -print 查找家目录下所有在24小时之前修改过�
 find . -type f -cmin -20[ -ls] 查找当前目录下，20分钟内修改过的文件。-type f：表示只查看文件，不查看目录, -ls：表示列出详细信息
 find /etc -name '*srm*' 查找etc目录下所有包含srm文件名的文件 （全名：find /usr -name "libchm.so.0"）
 find . |grep config.inc. 在本目录下查找文件
-find . -type f -size +100M 查找当前目录下，所有大约100M的文件（可用于查找大文件）
+find . -type f -size +100M 查找当前目录下，所有大于100M的文件（可用于查找大文件）
 find . -name "*" -type f -size 0c 查找文件大小为0的文件 （find . -name "*" -type f -size 0c | xargs -n 1 rm -f：查找文件大小为0的文件并删除之）。 如果 -size 1k：表示占用空间1k，不是文件大小1k的
 find . -user root 查找当前目录下，属于某个用户的文件
 find -type d -empty 查询出所有的空文件夹
@@ -30,7 +32,7 @@ du -sh [.|filename|dirname|*] 当前目录或文件的大小(du -sh * |sort -nr 
 locate php.ini 根据文件名进行查找文件（这个速度不错，默认从根目录开始搜索）
 ln -s[symbolic:符号的] 源文件 目标文件 创建软连接(在目标文件夹下创建一个目录可以链接到源文件夹)
 pwd 查看所在位置的绝对路径
-wget -c http://soft.vpser.net/web/mcrypt/mcrypt-2.6.8.tar.gz 下载网络上的一个文件；如果没有安装wget，需运行：yum install wget.x86_64
+wget -c http://soft.vpser.net/web/mcrypt/mcrypt-2.6.8.tar.gz 下载网络上的一个文件；如果没有安装wget，需运行：yum install wget.x86_64 或 yum install -y wget
 scp -rvp /usr/local/redis/ root@192.168.1.113:/usr/local/   通过ssh向远端服务器传文件或文件夹(两边服务器都需要安装scp： yum install -y openssh-clients)
 scp -P 22354  -rvp /data/www/oc_index_information_pre_online.sql ouhaixiong@45.79.163.XX:/data/db/ 通过ssh向远端服务器传文件或文件夹；如果是带端口的话-P一定要跟在scp后面
 scp -P 22357 kunz@45.79.XXX.XXX:/data/db/export.tar.gz export.tar.gz 同样也可以通过远程把文件传到本地
@@ -41,7 +43,7 @@ echo 'wokao' >> access.log 在文件的末尾追加一行
 mimetype xxx 查看一个文件的mimetype属性，即文件是用哪类应用打开（关联应用程序，双击文件可直接打开）[也可以用mimetype -a xxx查看所有的mimetype属性]
 update-mime-database ~/.local/share/mime 更新mimetype数据库，即添加新的mimetype入操作系统
 split –b 50 原始文件 拆分后文件名前缀  以大小拆分文件（split -l 50 xxx xx 以行数拆分文件）
-wc -l `find -name *.php` 查看当前目录下php文件的总代码行数
+wc -l `find -name "*.php"` 查看当前目录及子目录下php文件的总代码行数，也可以使用：find ./ -name "*.php" | xargs wc -l  （尼玛，两命令出来的数据还不一样，前多后少）
 
 删除目录、文件 rm(remove)
 功能说明：删除文件或目录。
@@ -60,6 +62,7 @@ find . -name ".DS_Store" | xargs rm -rf 批量删除文件名为.DS_Store的文�
 # 用户相关
 useradd bear 添加新用户  (sudo adduser bear 貌似一样的)
 userdel -f bear 删除用户，并删除用户目录
+passwd bear 为用户设置密码
 smbpasswd -a bear 为samba服务器的用户设置一个秘密（修改密码也一样）
 smbpasswd -x bear 删除samba服务器中的一个账号
 groupadd group 添加用户组
@@ -75,18 +78,18 @@ sudo gpasswd -d `whoami` dialout 把当前用户从组dialout中移除掉[删除
 # 服务器相关
 sudo /etc/init.d/smbd restart 重启samba服务器
 sudo /etc/init.d/ssh restart 重启ssh服务器
-/usr/local/webserver/nginx/sbin/nginx 启动nginx（nginx所在目录）
+free -h 查看内存使用
 yum install -y lrzsz 安装上传和下载的rz、sz（下载）
 
   
 # 定时任务相关
 crontab -e 编辑定时任务
 00 3 * * * php /var/www/html/www.makeblock.com/daydb/index.php >/dev/null 2>&1
-00 4 * * * php /var/www/html/www.makeblock.com/daydb/packageSql.php >/dev/null 2>&1
-30 4 * * 1 php /var/www/html/www.makeblock.com/daydb/packageLogs.php >/dev/null 2>&1
-*/5 * * * * flock -xn /tmp/ordersendmail.lock -c '/usr/local/php/bin/php /data/www/Makeblock/emailSend/sendByOrder.php >/dev/null 2>&1'
-每五分钟执行一次
-*/1 * * * * sh /home/kun/check_db.sh >/dev/null 2>&1
+00 4 * * * php /var/www/html/www.makeblock.com/daydb/packageSql.php >/dev/null 2>&1  每天凌晨4:00开始执行
+30 4 * * 1 php /var/www/html/www.makeblock.com/daydb/packageLogs.php >/dev/null 2>&1 每周一凌晨4:30开始执行
+*/5 * * * * flock -xn /tmp/ordersendmail.lock -c '/usr/local/php/bin/php /data/www/Makeblock/emailSend/sendByOrder.php >/dev/null 2>&1' 每五分钟执行一次
+0 */2 * * * date 每两小时运行一次
+*/1 * * * * sh /home/kun/check_db.sh >/dev/null 2>&1 每分钟
 (M：分钟（0-59）
 H：小时（0-23）
 D：日期（1-31）
@@ -97,6 +100,7 @@ killall crond 杀死crond 服务器的进程 (在CentOS 7中命令：/bin/system
 ps aux |grep crond 查看一下是否被杀死
 /usr/sbin/crond 启动 crond 服务器 (在ubuntu中：sudo apt-get install cron ； sudo service cron restart/start/stop/status)
 (貌似还是需要等1分钟才能执行，定时任务只能在脚本中无限循环来实现)
+crontab -l 查看所有定时任务
 
 # mysql 数据库操作相关
 mysql -hlocalhost -uroot -p 链接mysql数据库
@@ -148,6 +152,8 @@ getconf LONG_BIT 查看操作系统是64位还是32位
 df 查看磁盘空间【df -lh 可过滤掉不需要的磁盘信息；l：只显示要的，h：字节按g表示】
 du -sh $HOME 查看当前用户占用了多少空间（文件的大小）。 -s：表示仅显示总计
 netstat -pnt | grep :80 | wc -l 统计服务器所有url被请求的数量(查看linux服务器并发量)
+ps aux|head -1;ps aux|grep -v PID|sort -rn -k +3|head 获取占用cpu最多的10个进程
+ps aux|head -1;ps aux|grep -v PID|sort -rn -k +4|head 获取占用内存最多的10个进程
 
 
 库搜索路径设置：
@@ -176,3 +182,6 @@ yum -y remove httpd 这个也是卸载
 # 筛选数据 常用工具 相关
 可以重点学习cut、grep、awk、sed命令
 
+grep -v '^;' ./php-fpm.conf |grep -v '^$'   查找当前目录下文件php-fpm.conf的内容，过滤掉不是以";"开头的行，然后再过滤掉空行
+
+ 

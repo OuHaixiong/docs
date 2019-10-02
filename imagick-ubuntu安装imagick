@@ -120,7 +120,7 @@ Delegates (built-in): bzlib fontconfig freetype jng jpeg png x xml zlib
  执行 /usr/local/imagemagick/bin/convert -sample 25%x25% /data/www/a.jpg /data/www/3.png 不出错，说明安装成功
  
  2，安装imagick
- tar -zxvf imagick-3.1.2.tgz
+ tar -zxvf imagick-3.1.2.tgz   (此版本在php 7.X+ 上会报错，无法编译通过，后面下载了最新版imagick-3.4.4后可以编译通过)
  cd imagick-3.1.2/
  /usr/local/php/bin/phpize
  ./configure --with-php-config=/usr/local/php/bin/php-config --with-imagick=/usr/local/imagemagick
@@ -136,3 +136,13 @@ ps -ef |grep php
 kill -quit 1415
 /usr/local/php/sbin/php-fpm
  用phpinfo();查看是否已加载imagick，到此安装结束。
+ 
+ 
+如果需要通过imagick处理pdf，生成图片的话，需要有安装GhostScript；下面是安装步骤：
+1，到官网进行下载：https://www.ghostscript.com/download/gsdnld.html 
+   我选择已经编译好的可执行程序：ghostscript-9.27-linux-x86_64.tgz
+   
+2，解压并进行拷贝
+tar -zxvf ghostscript-9.27-linux-x86_64.tgz
+cd ghostscript-9.27-linux-x86_64
+cp gs-927-linux-x86_64 /usr/bin/gs

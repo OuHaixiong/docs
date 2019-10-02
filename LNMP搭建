@@ -284,6 +284,10 @@ which mysql 查询运行文件所在路径（目录）
           可查看3306端口是否被监控：netstat -ntulp |grep 3306
      (重启的命令也可以直接用，如：
      sudo /usr/local/mysql/support-files/mysql.server restart --defaults-file=/usr/local/mysql/my.cnf)
+     
+     如果报错：myaql [ERROR] InnoDB: Unable to lock ./ibdata1, error: 11
+     使用 ps aux|grep mysql 查看是否还有进程未被关闭，如果有则使用  kill -9  $pid   ($pid 为数据库应用运行的pid)
+     
  17，修改root用户的密码
      cd /usr/local/mysql
      ./bin/mysqladmin -u root [-h 127.0.0.1 -P 3307] password  (这里一定要启动着mysql)
@@ -473,15 +477,24 @@ mv /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf
 )
 vim /usr/local/php/etc/php-fpm.conf
 修改 php-fpm.conf
+[global]
+error_log=/data/logs/php/php-fpm_error.log # php-fpm错误日记路径
+log_level=notice                           # php-fpm错误级别
+[www]
 user = www
 group = www
+listen = 127.0.0.1:9000
+pm = dynamic
 # 下面是：静态方式下开启的php-fpm进程最大数量
 pm.max_children = 50   #一般来说一台服务器正常情况下每一个php-cgi所耗费的内存在20M左右，因此我的”max_children”设置成40个，20M*40=800M
 pm.start_servers = 20  # 动态方式下的起始php-fpm进程数量
 pm.min_spare_servers = 5   # 动态方式下的最小php-fpm进程数量
 pm.max_spare_servers = 35  # 动态方式下的最大php-fpm进程数量
 pm.max_requests = 500
-request_terminate_timeout = 300
+slowlog = /data/logs/php/slowlog/$pool.log.slow # 慢执行日记路径
+request_slowlog_timeout = 5s                    # 脚本超过多少秒为慢执行
+request_terminate_timeout = 300                 # 超时时长
+catch_workers_output = yes                      # 是否输出异常信息，记录错误日志到php-fpm中
 
 执行 /usr/local/php/sbin/php-fpm
 （
@@ -551,7 +564,24 @@ fastcgi_cache_valid : fastcgi用来指定应答代码的缓存时间，实例中
 fastcgi_connect_timeout 70; 据说这个值不能超过75秒；nginx同FastCGI（php-fpm）服务器的连接超时时间
 当使用 PHP-FPM + Nginx 时，php.ini 的 max_execution_time 字段会失效（已证实确实会失效），要通过配置 PHP-FPM 的 request_terminate_timeout 字段来设置超时时间。
 php-fpm.conf 中的 request_terminate_timeout 设置成0s。0s的含义是让PHP-CGI一直执行下去而没有时间限制。最好设置一个值，怕php一直执行下去，设置为900也是可以的
+当在 php-fpm.conf 中设置了 request_terminate_timeout 的值时，就算在php的脚步中设置set_time_limit(0);或ini_set('max_execution_time', 0);也是无法改变执行时长的。
+当用命令行执行php脚步时，如：php ./timeout.php;执行时长不受max_execution_time的影响
 如果是php-fpm超时或正在处理的那几个php-cgi遇到了问题则会出现502 Bad Gateway错误。如果是超时出现502的话，就设置request_terminate_timeout的时间长点
 如果是nginx中cgi配置超时（长时间没有得到处理的请求）就会出现504 Gateway Time-out错误。解决就是在http端设置 fastcgi_read_timeout 300; 设置接收后端应答超时时间长点
 
+
+下面是php的部分扩展的安装：
+安装bcmath扩展：
+在php的源码安装包中就有这个扩展，所以不需要下载
+1，进入php安装包的ext目录
+    cd ./ext/bcmath
+2，执行phpize，并进行配置安装
+    /usr/local/php/bin/phpize
+	./configure --with-php-config=/usr/local/php/bin/php-config --enable-bcmath
+	make && make install
+3，将扩展添加进php.ini中，并重启php
+    vim /usr/local/php/lib/php.ini 加入如下：
+	extension=/usr/local/php/lib/php/extensions/no-debug-non-zts-20170718/bcmath.so
+	或  echo 'extension=/usr/local/php/lib/php/extensions/no-debug-non-zts-20170718/bcmath.so' >> /usr/local/php/lib/php.ini
+	kill -quit 15473 && /usr/local/php/sbin/php-fpm
 

@@ -106,7 +106,14 @@ HHVM facebook中间件
 
 先学习shell脚本，在学习Perl，在学习python
 
-中文分词：SCWS、MMSEG、friso（php中文分词扩展robbe）、php-mmseg（php对中文分词的一个扩展库）、sfc（sphinx-for-chinese）[和php-mmseg是同一作者]、jieba-php（还有python版等）
+中文分词：SCWS、MMSEG、friso（php中文分词扩展robbe）、php-mmseg（php对中文分词的一个扩展库）、sfc（sphinx-for-chinese）[和php-mmseg是同一作者]、
+jieba-php （https://github.com/fukuball/jieba-php）
+https://github.com/fxsjy/jieba “结巴”中文分词：做最好的 Python 中文分词组件 python版
+https://github.com/baidu/lac 百度中文词法分析（分词+词性+专名）系统
+https://github.com/baidu/AnyQ 百度FAQ自动问答系统
+https://github.com/baidu/Senta 百度情感识别系统
+对于词库可以用 搜狗细胞词库
+
 
 学习使用Fiddler或其他抓包工具
 
@@ -123,4 +130,7 @@ js打包相关
 4，线上和线小可通过开关来看源文件，方便调试
 5，如果能只需要发布时读取一遍js文件是最好的，不需要每次请求都读取或判断
 
+
+利用HAProxy和VRRP实现高可用性和容错集群的搭建
+heartbeat 高可用集群
 

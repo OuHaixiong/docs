@@ -1,18 +1,14 @@
-一、时区
-显示时区
 date --help 获取帮助
-date -R
-date +%z
-上面两个命令都可
-[root@localhost ~]# date -R; date +%z  
+一、时区
+显示时区 
+# date -R; date +%z  // 两个命令都可
     Fri, 19 Oct 2012 23:34:27 +0800  
     +0800  
 主要就是后面的+0800，东八区
 
-
 修改时区
-    cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime  
-时区的信息存在/usr/share/zoneinfo/下面，本机的时区信息存在/etc/localtime，利用tab键技巧，可以任意修改时区
+    cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime  或  rm -rf /etc/localtime && ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+时区的信息存在/usr/share/zoneinfo/下面，本机的时区信息存在/etc/localtime
 tzselect，互动式命令，不过用了好象不太行，还是用上面的吧。
 
 二、时间

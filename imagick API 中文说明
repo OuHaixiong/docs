@@ -142,7 +142,7 @@ imagick::getimagewhitepoint 返回 chromaticity 白色点
 imagick::getimagewidth返回指定图像宽度
 imagick::getinterlacescheme 获取的对象的非方形像素方案
 imagick::getiteratorindex 获取当前活动图像的索引.
-imagick::getnumberimages 返回的对象中的图像
+imagick::getnumberimages 返回的对象中的图像数
 imagick::getoption ()返回一个值与指定键相关联的
 imagick::getpackagename 返回 imagemagick 包名称
 imagick::getpage返回页面几何
@@ -443,7 +443,7 @@ imagickdraw::skewy 该参数设置为"right"当前在垂直方向坐标系统
 imagickdraw::translate 应用一个翻译翻译到当前坐标系
 imagickpixel 类
 imagickpixel::clear 清除与该对象关联的资源
-imagickpixel::__constructimagickpixel actionscript
+imagickpixel::__construct imagickpixel actionscript
 imagickpixel::destroy deallocates 资源与该对象关联的
 imagickpixel::getColor 代码中返回指定颜色
 imagickpixel::getcolorasstring 作为字符串返回颜色.

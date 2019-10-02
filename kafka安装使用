@@ -1,0 +1,88 @@
+kafka安装和使用 (官方地址：http://kafka.apache.org)
+
+1，下载二进制文件：http://mirror.bit.edu.cn/apache/kafka/2.3.0/kafka_2.12-2.3.0.tgz
+
+2，解压，无需安装即可使用
+  tar -zxvf kafka_2.12-2.3.0.tgz -C /usr/local
+  mv /usr/local/kafka_2.12-2.3.0/ /usr/local/kafka
+  
+3, 启动kafka服务
+  cd /usr/local/kafka
+  # 需先启动zookeeper
+  # -daemon 可启动后台守护模式
+  bin/zookeeper-server-start.sh config/zookeeper.properties
+  bin/kafka-server-start.sh config/server.properties
+  // 如果需远端生产和消费  vim config/server.properties
+  // advertised.listeners=PLAINTEXT://ip:9092 => 这里改为你外网kafka的ip即可
+  
+  有可能报错如下：
+  org.apache.zookeeper.KeeperException$SessionExpiredException: KeeperErrorCode = Session expired for 
+  session连接超时了，即会话超时，当zookeeper还未来得及创建连接，会话时间已到，因此抛出异常认为该节点故障
+  修改配置文件：vim /usr/local/kafka/config/server.properties
+  zookeeper.connection.timeout.ms=6000 修改为： zookeeper.connection.timeout.ms=15000
+  
+4，启动kafka客户端测试
+  # 创建一个话题，test话题2个分区
+  bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 2 --topic test
+  # 显示所有话题
+  bin/kafka-topics.sh --list --zookeeper localhost:2181
+  # 显示话题信息
+  bin/kafka-topics.sh --describe --zookeeper localhost:2181 --topic test
+  # 启动一个生产者（输入消息）
+  bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
+  [等待输入自己的内容 出现>输入即可]
+  >i am a new msg !
+  >i am a good msg ?
+  # 启动一个消费者（等待消息） 
+  # 注意这里的--from-beginning，每次都会从头开始读取，你可以尝试去掉和不去掉看下效果
+  bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
+  [等待消息]
+  i am a new msg !
+  i am a good msg ?
+  然后在生产者中输入信息，在消费者中就能马上看到信息，类似
+  # 生产者
+  >I am a new msg !
+  >i am a good msg ?
+  >无聊！！！
+  >你好我也好
+  >大家好才是真的好
+  >
+  #消费者
+  # I am a new msg !
+  # i am a good msg ?
+  # 无聊！！！
+  # 你好我也好
+  # 大家好才是真的好
+  
+  # 如果不要--from-beginning参数的话，他只会获取最新的消息
+  
+  
+  
+安装kafka的php扩展  
+1，先安装rdkfka库文件
+  git clone https://github.com/edenhill/librdkafka.git
+  cd librdkafka/
+  ./configure
+   make
+   make install
+   
+2，安装PHP扩展rdkafka
+   git clone https://github.com/arnaud-lb/php-rdkafka.git
+   cd php-rdkafka/
+   /usr/local/php/bin/phpize
+   ./configure
+   make all -j 5
+   make install
+   
+3，修改php配置，并重启php
+   vim /usr/local/php/lib/php.ini 添加如下一行：
+   extension=/usr/local/php/lib/php/extensions/no-debug-non-zts-20170718/rdkafka.so
+   ps -ef |grep php 找到对应的进程id，退出并重启
+   kill -quit 26706 && /usr/local/php/sbin/php-fpm
+   
+   
+rdkafka的下php-rdkafka的php类库
+https://github.com/qkl9527/php-rdkafka-class
+
+PHP下kafka的常用脚本实践
+https://segmentfault.com/a/1190000016106045

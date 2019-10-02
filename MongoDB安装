@@ -22,13 +22,15 @@ dbpath=/data/db/mongodb/
 logpath=/data/logs/mongodb/mongodb.log
 port=27017
 fork=true
-nohttpinterface=true
+# nohttpinterface=true  # 貌似在高版本里面没有这个参数
 
 7，绑定本地ip进行启动
 /usr/local/mongodb/bin/mongod --bind_ip localhost -f /usr/local/mongodb/bin/mongodb.conf
+# --bind_ip 127.0.0.1,10.0.133.xxx 绑定多个IP 
 
 8，加入开机启动
 echo "/usr/local/mongodb/bin/mongod --config /usr/local/mongodb/bin/mongodb.conf" >> /etc/rc.local
+# 也可以再启动时指定数据目录和日记目录、端口等： --dbpath=/home/mongo/data--logpath=/home/mongo/log/mongodb.log --logappend --port=5555 --fork
 
 9，/usr/local/mongodb/bin/mongo // 进入mongodb的shell模式 
 > show dbs  // 查看数据库列表 
@@ -56,7 +58,8 @@ logpath=/data/logs/mongodb/mongodb.log #日志文件存放目录
 logappend=true #使用追加的方式写日志
 fork=true #以守护程序的方式启用，即在后台运行
 maxConns=5000 #最大同时连接数 默认2000
-bind_ip=127.0.0.1,172.16.20.126 #只允许通过局域网IP：172.16.20.126及本机访问
+bind_ip=127.0.0.1,172.16.20.126 #只允许通过局域网IP：172.16.20.126及本机访问  (貌似不能指定范围)
+# 特别特别注意了，在高版本（4.1.XX）里面，不能使用上面的配置，只能用bind_ip=[127.0.0.1,10.0.0.5] 或 bind_ip=127.0.0.1 10.0.0.5
 noauth=true #不启用验证
 nohttpinterface=true
 rest=false
@@ -97,4 +100,17 @@ mysqli中的real_escape_string函数的相反函数是htmlspecialchars_decode
 
 mongodb远程连接：
 mongo 远程主机ip或DNS:MongoDB端口号/数据库名 -u 用户名 -p 密码
+
+下面安装php的mongo扩展：（php 7.2.XX）
+1，下载扩展：http://pecl.php.net/package-search.php?pkg_name=mongo
+    里面有两个版本，特别注意需要下载 mongodb  mongoDB driver for PHP的版本，mongo的那个版本是老版本，仅支持PHP 5.3+
+2，下载mongodb-1.5.3.tgz，并解压
+tar -zxvf mongodb-1.5.3.tgz
+3，配置并安装
+cd mongodb-1.5.3
+phpize
+./configure --with-php-config=/usr/local/php/bin/php-config
+make && make install
+4，修改php配置，加入mongodb.so，并重启php即可使用
+
 

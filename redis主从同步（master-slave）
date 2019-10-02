@@ -28,63 +28,19 @@ cp redis.conf /usr/local/redis/etc/
 cp /usr/local/bin/redis-* /usr/local/redis/bin/ 
 
 3，修改配置文件如下： vim /usr/local/redis/etc/redis.conf  (具体配置文件可参考“配置备份/redis_master.conf”)
-daemonize yes
-pidfile /usr/local/redis/var/redis.pid
-port 6379
-tcp-backlog 511
+# bind 127.0.0.1  # 如果需要外部连接的话，这个注释掉
 timeout 300
-tcp-keepalive 0
-loglevel notice
-logfile ""
-databases 16
-save 900 1
-save 300 10
-save 60 10000
-stop-writes-on-bgsave-error yes
-rdbcompression yes
-rdbchecksum yes
-dbfilename dump.rdb
-dir ./
-slave-serve-stale-data yes
-slave-read-only yes
-repl-disable-tcp-nodelay no
-slave-priority 100
-appendonly no
-appendfilename "appendonly.aof"
-appendfsync everysec
-no-appendfsync-on-rewrite no
-auto-aof-rewrite-percentage 100
-auto-aof-rewrite-min-size 64mb
-aof-load-truncated yes
-lua-time-limit 5000
-slowlog-log-slower-than 10000
-slowlog-max-len 128
-latency-monitor-threshold 0
-notify-keyspace-events ""
-hash-max-ziplist-entries 512
-hash-max-ziplist-value 64
-list-max-ziplist-entries 512
-list-max-ziplist-value 64
-set-max-intset-entries 512
-zset-max-ziplist-entries 128
-zset-max-ziplist-value 64
-hll-sparse-max-bytes 3000
-activerehashing yes
-client-output-buffer-limit normal 0 0 0
-client-output-buffer-limit slave 256mb 64mb 60
-client-output-buffer-limit pubsub 32mb 8mb 60
-hz 10
-aof-rewrite-incremental-fsync yes
+daemonize yes
+pidfile /usr/local/redis/var/redis.pid  # pid文件保存路径
+logfile "/data/logs/redis/redis.log" # 日记文件保存路径
+dir /data/db/redis/ # 数据存放路径
+requirepass ouhaixiong # 设置密码
 
 创建日志文件夹（日志目录）：mkdir -p /data/logs/redis/（如果没有的话）
 创建数据目录：mkdir -p /data/db/redis/ （如果没有的话）
-如果需要设置密码；如下：
-vim redis.conf   把
-# requirepass foobared   改成
-requirepass ouhaixiong
+
 
 4，命令行下进行测试：
-先创建数据文件夹：mkdir -p /data/db/redis/
 sudo /usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf （启动redis）
 netstat -ntpl |grep 6379 
 sudo /usr/local/redis/bin/redis-cli -h 192.168.17.130
@@ -222,10 +178,10 @@ sudo /etc/init.d/apache2 restart
     pidfile /var/run/redis.pid // pid文件位置(进程锁文件路径)
 3. 指定Redis监听端口，默认端口为6379，作者在自己的一篇博文中解释了为什么选用6379作为默认端口，因为6379在手机按键上MERZ对应的号码，而MERZ取自意大利歌女Alessia Merz的名字
     port 6379
-4. 绑定的主机地址
+4. 绑定的主机(IP)地址，默认值为127.0.0.1
     bind 127.0.0.1 // 表示仅仅允许通过127.0.0.1这个ip地址进行访问
-5. 当客户端闲置多长时间后关闭连接，如果指定为0，表示关闭该功能
-    timeout 300 //请求超时时间
+5. 当客户端闲置多少秒后关闭(断开)连接，默认300秒，如果指定为0，表示关闭该功能
+    timeout 300 //  请求超时时间
 6. 指定日志记录级别，Redis总共支持四个级别：debug、verbose、notice、warning，默认为verbose
     loglevel verbose
 7. 日志记录方式，默认为标准输出，如果配置Redis为守护进程方式运行，而这里又配置为日志记录方式为标准输出，则日志将会发送给/dev/null
@@ -287,16 +243,7 @@ sudo /etc/init.d/apache2 restart
     include /path/to/local.conf
 
 
-#是否作为守护进程运行
-daemonize yes
-#如以后台进程运行，则需指定一个pid，默认为/var/run/redis.pid
-pidfile redis.pid
-#绑定主机IP，默认值为127.0.0.1
-#bind 127.0.0.1
-#Redis默认监听端口
-port 6379
-#客户端闲置多少秒后，断开连接，默认为300（秒）
-timeout 300
+
 #日志记录等级，有4个可选值，debug，verbose（默认值），notice，warning
 loglevel verbose
 #指定日志输出的文件名，默认值为stdout，也可设为/dev/null屏蔽日志

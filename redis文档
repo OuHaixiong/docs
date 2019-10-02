@@ -5,8 +5,9 @@ connect, open 链接redis服务
 参数
 host: string，服务地址
 port: int,端口号
-timeout: float,链接时长 (可选, 默认为 0 ，不限链接时间)
+timeout: float,链接时长 (可选, 默认为 0 ，不限链接时间)；即连接超时时间
 注: 在redis.conf中也有时间，默认为300
+$redis->open('192.168.0.100', 6379, 3);
 
 pconnect, popen 不会主动关闭的链接
 参考上面
@@ -60,7 +61,7 @@ $redis->setex('key', 3600, 'value'); // sets key → value, with 1h TTL.
 
 setnx 判断是否重复的，写入值
 $redis->setnx('key', 'value');
-$redis->setnx('key', 'value');
+$redis->setnx('key', 'value'); 若给定的 key 已经存在，则 SETNX 不做任何动作。即这里是不会执行的，因为之前的key已经存在
 
 delete  删除指定key的值
 返回已经删除key的个数（长整数）
@@ -84,17 +85,16 @@ multi, exec, discard
 进入或者退出事务模式
 参数可选Redis::MULTI或Redis::PIPELINE. 默认是 Redis::MULTI
 Redis::MULTI：将多个操作当成一个事务执行
-Redis::PIPELINE:让（多条）执行命令简单的，更加快速的发送给服务器，但是没有任何原子性的保证
+Redis::PIPELINE:让（多条）执行命令简单的、更加快速的发送给服务器，但是没有任何原子性的保证
 discard:删除一个事务
 返回值
-multi()，返回一个redis对象，并进入multi-mode模式，一旦进入multi-mode模式，以后调用的所有方法都会返回相同的对象，只到exec(）方法被调用。
+multi()，返回一个redis对象，并进入multi-mode模式，一旦进入multi-mode模式，以后调用的所有方法都会返回相同的对象，只到exec()方法被调用。
 
 watch, unwatch （代码测试后，不能达到所说的效果）
 监测一个key的值是否被其它的程序更改。如果这个key在watch 和 exec （方法）间被修改，这个 MULTI/EXEC 事务的执行将失败（return false）
 unwatch  取消被这个程序监测的所有key
 参数，一对key的列表
 $redis->watch('x');
-
 $ret = $redis->multi() ->incr('x') ->exec();
 
 

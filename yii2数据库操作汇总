@@ -5,19 +5,8 @@ $admin=Admin::model()->findAll($condition,$params);
 $admin=Admin::model()->findAll("username=:name",array(":name"=>$username));
  
 $infoArr= NewsList::model()->findAll("status = '1' ORDER BY id DESC limit 10 ");
- 
-//2. findAllByPk(该方法是根据主键查询一个集合,可以使用多个主键)
-$admin=Admin::model()->findAllByPk($postIDs,$condition,$params);
-$admin=Admin::model()->findAllByPk($id,"name like :name and age=:age",array(':name'=>$name,'age'=>$age));
-$admin=Admin::model()->findAllByPk(array(1,2));
- 
-//3.findAllByAttributes (该方法是根据条件查询一个集合,可以是多个条件,把条件放到数组里面)
-$admin=Admin::model()->findAllByAttributes($attributes,$condition,$params);
-$admin=Admin::model()->findAllByAttributes(array('username'=>'admin'));
- 
+
 //4.findAllBySql (该方法是根据SQL语句查询一个数组)
-$admin=Admin::model()->findAllBySql($sql,$params);
-$admin=Admin::model()->findAllBySql("select * from admin where username like :name",array(':name'=>'%ad%'));
 User::find()->all();    此方法返回所有数据；
 User::findOne($id);   此方法返回 主键 id=1  的一条数据(举个例子)； 
 User::find()->where(['name' => '小伙儿'])->one();   此方法返回 ['name' => '小伙儿'] 的一条数据；
@@ -84,6 +73,13 @@ $criteria->order ='xxx DESC,XXX ASC' ;//排序条件
 $criteria->group ='group 条件'; 
 $criteria->having ='having 条件 '; 
 $criteria->distinct = FALSE;//是否唯一查询
+
+// where条件里面的like查询
+Admin::model()->find()->andWhere(['like', 'name', '海海']);   => name LIKE '%海海%'
+Admin::model()->find()->where(['like', 'name', '%海海', false])  =>  name LIKE '%海海'
+
+
+
 三、查询个数,判断查询是否有结果
 //该方法是根据一个条件查询一个集合有多少条记录,返回一个int型数字
 $n=Post::model()->count($condition,$params);
@@ -107,13 +103,7 @@ $count=Admin::model()->updateAll(array('username'=>'11111','password'=>'11111'),
 if($count> 0){ echo "修改成功"; }else{echo "修改失败"; }
  
 $rt= PostList::model()->updateAll(array('status'=>'1'),'staff_id=:staff AND host_id=:host',array(':staff'=>$staff_id,':host'=>$host_id));
- 
-//$pk主键,可以是一个也可以是一个集合,$attributes是要修改的字段的集合,$condition条件,$params传入的值
-Post::model()->updateByPk($pk,$attributes,$condition,$params);
-$count=Admin::model()->updateByPk(1,array('username'=>'admin','password'=>'admin'));
-$count=Admin::model()->updateByPk(array(1,2),array('username'=>'admin','password'=>'admin'),'username=:name',array(':name'=>'admin'));
-if($count>0){echo "修改成功"; }else{echo "修改失败"; }
- 
+
 Post::model()->updateCounters($counters,$condition,$params);
 $count=Admin::model()->updateCounters(array('status'=>1),'username=:name',array(':name'=>'admin'));
 if($count> 0){ echo "修改成功"; }else{echo "修改失败"; }
@@ -125,11 +115,6 @@ $count= Admin::model()->deleteAll('username=:name and password=:pass',array(':na
 $count= Admin::model()->deleteAll('id in("1,2,3")');//删除id为这些的数据
 if($count>0){echo"删除成功"; }else{echo "删除失败"; }
  
-//deleteByPk
-Post::model()->deleteByPk($pk,$condition,$params);
-$count= Admin::model()->deleteByPk(1);
-$count=Admin::model()->deleteByPk(array(1,2),'username=:name',array(':name'=>'admin'));
-if($count>0){echo "删除成功"; }else{echo "删除失败"; }
 
 七、查询
 //createCommand(执行原生的SQL语句)
@@ -155,6 +140,10 @@ $titles = $command->queryColumn();
 
 $command = $connection->createCommand('SELECT COUNT(*) FROM post');
 $postCount = $command->queryScalar();
+
+Yii::$app->db->createCommand("select * from article_status where id=:id AND name = :name")->bindValues([':name'=>'ss',':id'=>1])->getRawSql();
+$query->createCommand()->getRawSql();
+getRawSql() 获取最终执行的sql语句
 
 八、更新
 $command = $connection->createCommand('UPDATE post SET status=1 WHERE id=1');

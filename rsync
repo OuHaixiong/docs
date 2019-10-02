@@ -6,7 +6,7 @@ rsync，remote synchronize顾名思意就知道它是一款实现远程同步功
 　　对于多个文件来说，内部流水线减少文件等待的延时；
 　　能用rsh、ssh 或直接端口做为传输入端口；
 　　支持匿名rsync 同步文件，是理想的镜像工具；
-
+（同样功能的软件还有：inotify）
 rsync的安装:(首要条件：如果没有安装libiconv，需要安装之；注意新建动态链接库文件：/etc/ld.so.conf.d加入内容/usr/local/lib)
 1，下载并安装
 可以到网站http://rsync.samba.org进行下载
