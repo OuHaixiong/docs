@@ -95,4 +95,6 @@ mongorestore -h host:port -d dbname [--drop 恢复时，先删除当前的数据
 下面是php的函数
 mysqli中的real_escape_string函数的相反函数是htmlspecialchars_decode
 
+mongodb远程连接：
+mongo 远程主机ip或DNS:MongoDB端口号/数据库名 -u 用户名 -p 密码
 

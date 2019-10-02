@@ -260,6 +260,33 @@ https://www.cnblogs.com/li0803/archive/2008/11/03/1324746.html
     28，mysql的主键自增id是怎么实现的？如果回滚了一条记录，这个id还会在吗？
 29，   order by 班级 order by 年龄最小的人的姓名
 
+35，请在题目下方写出执行完每一行以后每一个变量的值
+        $a = 1; $b = 1; $c = 1; $d = 1; $e = 1;
+        $b = &$a;          $a：1, $b：1, $c：1, $d：1, $e：1        // 引用打印值时是一样的，除非获取的地址才不一样
+        $b = "6$b";        $a：'61', $b：'61', $c：1, $d：1, $e：1  // 这里对整形进行了隐形转字符串
+        $c = $e = (++$b);  $a：62, $b：62, $c：62, $d：1, $e：62    // 需要自增时，进行了字符串转整（隐形）； ++$X 的话是先自增后使用
+        $d = ($c > $b) ? ($a+=10) : ($b--); $a：61, $b：61, $c：62, $d：62, $e：62      // $X-- 的话是先使用后自减
+        $e = implode(',', [$c, $e]);        $a：61, $b：61, $c：62, $d：62, $e：'62,62' // 连接连个字符串，也是隐形转整了
+
+36，编译安装LAMP，安装顺序需要注意什么？
+    1) yum安装依赖包，如：gcc、 gcc-c++、 autoconf、libxml2-devel、 zlib-devel、 glibc glibc-devel、curl-devel、openssl、openssl-devel等
+    2) 依次编译安装apache、mysql、php，因为php中的mysql扩展依赖mysql环境
+    3) 安装php之前，需要先安装图形库，为编译php做准备；如：libxml2、jpegsrc.v8b、libpng、freetype、gd
+    4) 开启80端口。如果需要其他的扩展，分别安装；如：redis、imagick
+    
+37，请设计一条crontab配置，实现每隔一分钟将系统的负载信息记录到/var/log/load.log文件里
+    crontab -e 加入：    
+    */1 * * * * uptime >> /var/log/load.log 2>&1
+    杀死crond服务器的进程:killall crond 
+    启动 crond 服务器:/usr/sbin/crond
+    
+38，使用PHP实现当一个类的属性发生变化时，另外一个类就可以收到通知（列出关键点即可）
+    使用观察者模式
+    1)
+    2)
+    3)
+    4)
+    
 ，索引类型有Hash索引和BTress索引，他们的区别是什么？
 Memory存储引擎可以选择Hash或BTree索引，Hash索引只能用于=或<=>的等式比较。
 B-tree索引以B+树的结构存储数据
