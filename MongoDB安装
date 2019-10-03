@@ -26,7 +26,7 @@ fork=true
 
 7，绑定本地ip进行启动
 /usr/local/mongodb/bin/mongod --bind_ip localhost -f /usr/local/mongodb/bin/mongodb.conf
-# --bind_ip 127.0.0.1,10.0.133.xxx 绑定多个IP 
+# --bind_ip 127.0.0.1,10.0.133.xxx 绑定多个IP (只能是本机ip或0.0.0.0) ;  bind_ip的意思是mongodb运行时是绑定在哪个ip上（mongod去监听listen哪个IP的哪个port端口），当然就只能是本机的ip
 
 8，加入开机启动
 echo "/usr/local/mongodb/bin/mongod --config /usr/local/mongodb/bin/mongodb.conf" >> /etc/rc.local
@@ -58,9 +58,11 @@ logpath=/data/logs/mongodb/mongodb.log #日志文件存放目录
 logappend=true #使用追加的方式写日志
 fork=true #以守护程序的方式启用，即在后台运行
 maxConns=5000 #最大同时连接数 默认2000
-bind_ip=127.0.0.1,172.16.20.126 #只允许通过局域网IP：172.16.20.126及本机访问  (貌似不能指定范围)
-# 特别特别注意了，在高版本（4.1.XX）里面，不能使用上面的配置，只能用bind_ip=[127.0.0.1,10.0.0.5] 或 bind_ip=127.0.0.1 10.0.0.5
-noauth=true #不启用验证
+bind_ip=127.0.0.1,172.16.20.126 #只允许通过局域网通过IP：172.16.20.126及本机访问  (貌似不能指定范围)
+# 特别特别注意了，bind_ip指的是本机的ip，可以为127.0.0.1或本机在局域网的ip，并不是指远程访问mongodb服务的远程ip，这里可以指定为：0.0.0.0为所有远程ip均可以访问
+# 如果设置为：bind_ip=10.0.0.4,127.0.0.1 意味着局域网内的所有机器和本机可以访问(如果是云的话绑定到它自己的私有IP)
+# 特别注意，mongodb默认只能本地访问，如果想要远程也能访问，需要配置：bind_ip=0.0.0.0
+noauth=true #不启用验证  相反的：auth = true，启用验证，这样在进行数据库连接的时候需要相应的账号密码才能成功访问。
 nohttpinterface=true
 rest=false
 

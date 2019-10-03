@@ -28,7 +28,8 @@ cp redis.conf /usr/local/redis/etc/
 cp /usr/local/bin/redis-* /usr/local/redis/bin/ 
 
 3，修改配置文件如下： vim /usr/local/redis/etc/redis.conf  (具体配置文件可参考“配置备份/redis_master.conf”)
-# bind 127.0.0.1  # 如果需要外部连接的话，这个注释掉
+# bind 127.0.0.1  # 如果需要外部连接的话，这个注释掉。 这个代表监听哪个IP运行，所以只能是本机的IP【内网ip或外网ip，这点和mongodb是一样的】，如果是127.0.0.1代表只能本机访问（连接）。
+# 实测中如果是云服务器，监听的是内部的ip【10.0.0.4】，貌似外网也能访问（微软云已测）。一个服务器可以有多个网卡，多个ip用空格隔开
 timeout 300
 daemonize yes
 pidfile /usr/local/redis/var/redis.pid  # pid文件保存路径

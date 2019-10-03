@@ -45,10 +45,10 @@ firewall-cmd --reload
 8，设置默认接口区域
 # firewall-cmd --set-default-zone=public
 立即生效无需重启
- 
+
 9，打开端口（貌似这个才最常用）
-查看所有打开的端口：
-# firewall-cmd --zone=dmz --list-ports
+查看所有打开的端口：或 firewall-cmd --list-ports
+# firewall-cmd --zone=dmz --list-ports 或 firewall-cmd --zone=public --list-ports
 加入一个端口到区域：
 # firewall-cmd --zone=dmz --add-port=8080/tcp
 若要永久生效方法同上
@@ -66,6 +66,8 @@ firewall-cmd --reload
 # sudo service network restart 
 # ip addr
 
+14，使用firewall-cmd指定只允许10.0.0.5的ip访问5555端口
+firewall-cmd --permanent --add-rich-rule 'rule family=ipv4 source address=10.0.0.5/2 port port=5555 protocol=tcp accept'
 
 centos7系统静态IP地址配置
 1，打开网卡配置文件
