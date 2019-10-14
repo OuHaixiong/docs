@@ -184,9 +184,19 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
       MATCH SIMPLE 这是默认值。允许外键约束中的任何一列为null,只要外键约束中的一列为null,则不要求与被引用表相匹配。
          外键约束也可以引用自身表中的字段。
 35，根据in的顺序查询数据：select * from tbl_vendor where id in(5,2,4,3) order by position(id::text in '5,2,4,3')
-
-
-
+36，复制一个数据库：CREATE DATABASE my_new_database TEMPLATE my_old_database;或者createdb -T my_old_database my_new_database;
+37，在后台备份一个数据库：nohup export PGPASSWORD="***" && /usr/pgsql-9.6/bin/pg_dump -h XXX -p 5432 -U "username" -Fc -f /mnt/data/database_back/20191011.pgdump -d database_name > /data/logs/database/pgdump_20191011.log 2>&1 & 
+    其实上面的命令，没有任何输出，日记文件可以不用写，换成：> /dev/null 2>&1 即可
+38，在后台恢复一个数据库：
+    首先创建一个shell脚本，shell内容如下：
+#!/bin/bash
+export PGPASSWORD="***"
+/usr/pgsql-9.6/bin/pg_restore -h XXX -p 5432 -U "username" -d database_name /mnt/data/database_back.pgdump 貌似加 -v【verbose mode：详细模式】参数可以查看详细信息
+    然后执行如下命令：
+nohup /bin/bash /mnt/data/database_back/shell-postgresql_resto.sh > /mnt/data/logs/database/pg_restore_20191011.log 2>&1 &  貌似上面不加 -v 这里的日记也没有啥信息
+  
+  
+  
 一、日期格式转换
 
 1.字符日期格式转化为UNIX时间戳格式

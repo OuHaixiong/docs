@@ -5,9 +5,21 @@ CentOS下设置ssh连接断开时间设置
 2，重启sshd服务即可
 /etc/init.d/sshd restart   或者：/etc/rc.d/init.d/sshd restart 
 
+ssh登录： ssh username@host -p port
+
 SSH无密码登录
 $ ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa
 $ cat ~/.ssh/id_dsa.pub >> ~/.ssh/authorized_keys
+server A免登录到server B:
+1.在A上生成公钥私钥。【ssh-keygen -t rsa】
+2.将公钥拷贝给server B，要重命名成authorized_keys(从英文名就知道含义了)【这里是需要追加入authorized_keys】
+3.Server A向Server B发送一个连接请求。
+4.Server B得到Server A的信息后，在authorized_key中查找，如果有相应的用户名和IP，则随机生成一个字符串，并用Server A的公钥加密，发送给Server A。
+5.Server A得到Server B发来的消息后，使用私钥进行解密，然后将解密后的字符串发送给Server B。Server B进行和生成的对比，如果一致，则允许免登录。
+总之：A要免密码登录到B，B首先要拥有A的公钥，然后B要做一次加密验证。对于非对称加密，公钥加密的密文不能公钥解开，只能私钥解开。
+
+在微软云上需要执行：sudo ssh-copy-id -i ~/.ssh/id_rsa.pub slave_admin@10.0.0.5 【这个操作相当于拷贝id_rsa的内容到需要登录的服务器的~/.ssh/authorized_keys】
+
 
 一、关于 OpenSSH
 简单的说 OpenSSH 是一组安全远程的连接工具，主要包括了几个部份：ssh、sshd、scp、sftp、ssh-keygen、ssh-agent、ssh-add。OpenSSH 安装配置比较复杂，难点在配置，特别是在 VPS 中，配置不当就完全无法链接 VPS 了。
@@ -21,7 +33,7 @@ OpenSSH 是一组用于安全地访问远程计算机的连接工具。它可以
 二、编译前的准备工作
 2.1、查看 OpenSSH 版本
 部分 Linux 系统已默认安装了 OpenSSH，像 Ubuntu Server 10.10 就已安装了 OpenSSH_5.5p1
-# ssh -v
+# ssh -V
 OpenSSH_7.4p1, LibreSSL 2.5.0
 
 2.2、安装 OpenSSL 及编译环境

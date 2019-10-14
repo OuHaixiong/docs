@@ -29,7 +29,8 @@ else
     echo 'Good evening!'
 fi
 
-if test $# -eq 1  # 这里不能直接接then
+# 运行./shell-iffile.sh slave_admin
+if test $# -eq 1  # 这里不能直接接then.   $#: 表示：传给shell脚本的参数数量
 then
 	#if [ $1 == ${LOGNAME} ] ; then # ${LOGNAME}等于${USER}等于$(whoami)；${UID}等于$(id -u)
 	if who | grep -q $1; then # 判断用户是否已经在系统中登录. -q：表示禁止显示搜索到的信息
