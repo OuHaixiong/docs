@@ -35,12 +35,21 @@ host    all    all    10.1.1.0/24    md5
 
 安装目录/var/lib/pgsql及目录下文件或文件夹的可读、可写、可操作统统只开放给用户postgres
 
-在终端输入psql命令时，常常会遇到下面这个错。这个错有两个解决方式：
+在终端输入psql命令时，常常会遇到下面这个错：
+psql: could not connect to server: No such file or directory
+Is the server running locally and accepting
+connections on Unix domain socket "/tmp/.s.PGSQL.5432"?
+这个错有两个解决方式：
 1）    重启postgresql服务。
 2）    删掉/usr/local/var/postgres/postmaster.pid文件。
-       psql: could not connect to server: No such file or directory
-       Is the server running locally and accepting
-       connections on Unix domain socket "/tmp/.s.PGSQL.5432"?
+
+默认安装的路径：
+pg_dump  :  /usr/bin/pg_dump
+pgsql    :  /usr/lib64/pgsql
+pg_restore: /usr/bin/pg_restore
+
+
+
 
 下面在centos7 安装postgresql10
 1，更新源，访问https://yum.postgresql.org/repopackages.php找到Available Repository RPMs -> PostgreSQL 10 -> CentOS 7 - x86_64 右键复制链接地址
@@ -107,20 +116,19 @@ host      all            all             0.0.0.0/0               md5
       id bigserial,
       rid varchar(64) not null,
       appid varchar(32) not null,
-      hash varchar(64) not null,
+      "hash" varchar(64) not null,
       size int4 default 0,
       path varchar(256) not null,
       width int4 default 0,
       height int4 default 0,
-      duration int4 default 0,
+      duration int4 NOT NULL DEFAULT 0,
       extinfo jsonb,
+      "name" text NOT NULL DEFAULT '',
       create_time int4 default 0,
       update_time int4 default 0,
       money NUMERIC(20, 2) default 0.00, // 全部20位，小数点后2位
       primary key(id)
     );
-
-    
 
 
 安装目录：/usr/pgsql-10
@@ -152,8 +160,8 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
 13, \du: 列出所有用户
 14, \d : 列出库下所有表     (\dt:查看所有表，\d tableName: 查看表结构)
 15, 创建索引：create unique index user_id_index on admin_user_action using btree("admin_user_id", "xxx"); // unique index:唯一索引；index：普通索引
-16, 备份数据库表结构和数据：/usr/pgsql-10/bin/pg_dump -h 127.0.0.1 -p 5432 -U postgres ybapi > /data/ybapi.sql  使用pg_dumpall可以备份本地所有库
-17, 恢复数据库： /usr/bin/psql -h127.0.0.1 -p 5432 -U postgres -d abc < /data/abc.sql   -d：数据库名称
+16, 备份数据库表结构和数据：/usr/pgsql-10/bin/pg_dump -h 127.0.0.1 -p 5432 -U postgres ybapi > /data/ybapi.sql  使用pg_dumpall可以备份本地所有库：pg_dumpall -U username > /xxx/all.sql
+17, 恢复数据库： /usr/bin/psql -h127.0.0.1 -p 5432 -U postgres -d abc < /data/abc.sql   -d：数据库名称  (psql -U username -f backupfile.sql 还原完整备份并忽略还原过程中发生的任何错误[-f:代表文件路径])
 18, 删除数据库：postgres=# drop database abc; // 如果有用户打开了数据库，是无法删除的
 19, 删除用户：postgres=# drop role devops; // 如果该用户还拥有数据库，是无法删除该用户的，需要先删除数据库后，才能删除该用户
 20, 创建用户：postgres=# create user root with password '123456';
@@ -187,6 +195,7 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
 36，复制一个数据库：CREATE DATABASE my_new_database TEMPLATE my_old_database;或者createdb -T my_old_database my_new_database;
 37，在后台备份一个数据库：nohup export PGPASSWORD="***" && /usr/pgsql-9.6/bin/pg_dump -h XXX -p 5432 -U "username" -Fc -f /mnt/data/database_back/20191011.pgdump -d database_name > /data/logs/database/pgdump_20191011.log 2>&1 & 
     其实上面的命令，没有任何输出，日记文件可以不用写，换成：> /dev/null 2>&1 即可
+    -d ： 这个参数需要在高版本中才能有
 38，在后台恢复一个数据库：
     首先创建一个shell脚本，shell内容如下：
 #!/bin/bash
@@ -194,7 +203,8 @@ export PGPASSWORD="***"
 /usr/pgsql-9.6/bin/pg_restore -h XXX -p 5432 -U "username" -d database_name /mnt/data/database_back.pgdump 貌似加 -v【verbose mode：详细模式】参数可以查看详细信息
     然后执行如下命令：
 nohup /bin/bash /mnt/data/database_back/shell-postgresql_resto.sh > /mnt/data/logs/database/pg_restore_20191011.log 2>&1 &  貌似上面不加 -v 这里的日记也没有啥信息
-  
+39，删除一个check约束：ALTER TABLE "tbl_admin" DROP CONSTRAINT "ckc_username_tbl_admi"; 
+40，为字段添加注释：comment on column table_name.column_name is 'xxx'; 
   
   
 一、日期格式转换
@@ -283,5 +293,33 @@ where A.id=b.PID
 相反，如果唯一性差的话，distinct会快点，
 distinct占用内存（空间）大，对于DISTINCT操作，它会读取了所有记录； 
 group by 占用空间小，而GROUP BY需要读取的记录数量与分组的组数量一样多，也就是说比实际存在的记录数目要少很多
+
+
+ERROR: source database "template1" is being accessed by other users解决方法:
+select pg_terminate_backend(pid) from pg_stat_activity where DATNAME = 'template1'; // 注意后面的数据库名要设置成你自己的
+select pg_terminate_backend(pg_stat_activity.pid) from pg_stat_activity where datname='testdb' and pid<>pg_backend_pid(); // 这个更靠谱
+
+
+下面演示备份数据库：
+/usr/bin/pg_dump -U root -W -F t testdb > /data/databaseBack/testdb_201911101728.tar
+-U  :  指定连接到 PostgreSQL 数据库服务器的用户
+-W  :  强制 pg_dump 程序在连接到 PostgreSQL 服务器时，提示输入密码
+-F  :  指定输出的文件格式： (还可以这样写： -Fc)
+       c：自定义文件格式
+       d：目录格式
+       t：TAR 格式
+       p：纯文本
+       
+备份数据库所有对象，包括角色、表空间、数据库、schemes、表、索引、触发器、函数、常量、视图、权限等
+如果只想备份角色：
+pg_dumpall --roles-only > /data/xxx/all-roles.sql     // --schema-only 、 --tablespace-only（备份表空间）
+
+下面演示恢复数据库：
+/usr/bin/psql -h xxx.xxx.xx.x -p 5432 -U username -W --set ON_ERROR_STOR=on [-d databaseName] -f backupFilePath 在发生错误时，停止还原 (如果备份的是全部的数据库，可把-d参数去掉)
+
+/usr/bin/pg_restore -h 127.0.0.1 -p 5432 -U root -W --dbname=test2 --verbose /data/databaseBack/test_20191110183332.tar 还原数据库
+/usr/bin/pg_restore -h 127.0.0.1 -p 5432 -U root -W --dbname=test --create --verbose /data/databaseBack/test_20191110183332.tar 如果您还原的数据库与您备份的数据库相同
+
+
 
 

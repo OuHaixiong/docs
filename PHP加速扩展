@@ -64,6 +64,12 @@ php 7 的速度提升很多是不是就不需要加速器了呢？或php 7就已
 答：是需要的，最好启用Zend Opcache。php7性能比php5提高很多，但这和启用opcache并不矛盾，php并未实现加速器功能
 
 
+问题：
+1，如果遇到更新了代码，但是没有马上显示出效果，很有可能就是开启了opcache缓存代码功能，那如何才能马上刷新？马上见效呢？
+    答：需要在跟目录下创建一个php文件，opc_reset.php内容如下：
+    <?php opcache_reset();echo 'clean OPCache cache success!!';
+    然后访问上面的opc_reset.php的文件
+    特别需要注意的是上面的文件只能在浏览器或curl中进行访问才会清除缓存，否则无法清除缓存（在命令行中执行是无效的，无法清除OPCache的缓存）。
 
 
 

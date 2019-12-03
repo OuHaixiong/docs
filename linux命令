@@ -24,9 +24,11 @@ find . -type f -cmin -20[ -ls] 查找当前目录下，20分钟内修改过的�
 find /etc -name '*srm*' 查找etc目录下所有包含srm文件名的文件 （全名：find /usr -name "libchm.so.0"）
 find . |grep config.inc. 在本目录下查找文件
 find . -type f -size +100M 查找当前目录下，所有大于100M的文件（可用于查找大文件）
-find . -name "*" -type f -size 0c 查找文件大小为0的文件 （find . -name "*" -type f -size 0c | xargs -n 1 rm -f：查找文件大小为0的文件并删除之）。 如果 -size 1k：表示占用空间1k，不是文件大小1k的
+find . -name "*" -type f -size 0c 查找文件大小为0的文件 。 如果 -size 1k：表示占用空间1k，不是文件大小1k的
+find /path/to/sessions -cmin +24 -type f | xargs rm -rf  查找修改时间大约24分钟的文件，并删除（find . -name "*" -type f -size 0c | xargs -n 1 rm -f：查找文件大小为0的文件并删除之）
 find . -user root 查找当前目录下，属于某个用户的文件
 find -type d -empty 查询出所有的空文件夹
+find ./ -name '*.sh' |xargs grep -F 'content'    查找某一类文件里面的内容是什么（这里是查找后缀为.sh的所有文件，并查里面的内容有content的文件）
 find /var/ -not[!] -user nobody 查找指定目录下，不属于某个用户的文件
 du -sh [.|filename|dirname|*] 当前目录或文件的大小(du -sh * |sort -nr |head：显示前10个占用空间最大的文件或目录)
 locate php.ini 根据文件名进行查找文件（这个速度不错，默认从根目录开始搜索）
@@ -74,6 +76,8 @@ cat /etc/group  查看所有的用户组
 usermod -a -G dialout `whoami` 把当前用户加入dialout组，`whoami`代表当前用户的用户名（也可以写成sudo usermod -aG dialout `whoami`）
 [ -G: --groups GROUPS 新的附加组列表 GROUPS . -a: --append GROUP 将用户追加至上边 -G 中提到的附加组中，并不从其它组中删除此用户 ]
 sudo gpasswd -d `whoami` dialout 把当前用户从组dialout中移除掉[删除掉]
+查看linux所有用户：查看 /etc/passwd中的所有用户，看第三个参数，500以上的,就是后面建的用户了，其它则为系统的用户。或使用cat /etc/passwd |cut -f 1 -d:【将会查出所有的用户名，包括系统的】
+
 
 # 服务器相关
 sudo /etc/init.d/smbd restart 重启samba服务器

@@ -7,9 +7,10 @@ git fetch --all
 git reset --hard origin/master
 git pull
 （
-也可以这样操作：（不知道对不）
+也可以这样操作：
 git fetch origin
 git reset --hard origin/master
+git pull
 ）
 
 常见命令行的使用

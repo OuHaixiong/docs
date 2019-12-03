@@ -149,7 +149,7 @@ sshd            0:off  1:off  2:on    3:on    4:on    5:on    6:off
 [root@c64 ~]# mkdir /server/scripts -p
 [root@c64 ~]# vi /server/scripts/spool_clean.sh
 #!/bin/sh
-find/var/spool/clientmqueue/-typef -mtime +30|xargsrm-f
+find /var/spool/clientmqueue/ -type f -mtime +30 | xargs rm-f
 
 
 然后将其加入到crontab定时任务中
