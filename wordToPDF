@@ -1,0 +1,31 @@
+word、excel文档转换成pdf文件（word 转pdf 环境搭建）
+
+wget http://mirrors.ustc.edu.cn/tdf/libreoffice/stable/6.3.3/rpm/x86_64/LibreOffice_6.3.3_Linux_x86-64_rpm.tar.gz
+wget http://mirrors.ustc.edu.cn/tdf/libreoffice/stable/6.3.3/rpm/x86_64/LibreOffice_6.3.3_Linux_x86-64_rpm_sdk.tar.gz
+wget http://mirrors.ustc.edu.cn/tdf/libreoffice/stable/6.3.3/rpm/x86_64/LibreOffice_6.3.3_Linux_x86-64_rpm_langpack_zh-CN.tar.gz
+
+mkdir /usr/local/libreoffice
+tar -zxvf LibreOffice_6.3.3_Linux_x86-64_rpm.tar.gz -C /usr/local/libreoffice
+tar -zxvf LibreOffice_6.3.3_Linux_x86-64_rpm_sdk.tar.gz -C /usr/local/libreoffice
+tar -zxvf LibreOffice_6.3.3_Linux_x86-64_rpm_langpack_zh-CN.tar.gz -C /usr/local/libreoffice
+yum localinstall -y /usr/local/libreoffice/LibreOffice_6.3.3.2_Linux_x86-64_rpm/RPMS/*.rpm
+yum localinstall -y /usr/local/libreoffice/LibreOffice_6.3.3.2_Linux_x86-64_rpm_sdk/RPMS/*.rpm
+yum localinstall -y /usr/local/libreoffice/LibreOffice_6.3.3.2_Linux_x86-64_rpm_langpack_zh-CN/RPMS/*.rpm
+
+当出现/opt/libreoffice6.3/program/soffice.bin: error while loading shared libraries: libcairo.so.2: cannot open shared object file: No such file or directory的错误时：
+缺少libcairo.so.2依赖库：yum install ibus  【yum install cairo -y】
+
+whereis libreoffice6.3 可以检测是否已安装成功  或 libreoffice6.3 -h
+
+运行以下命令进行转换：--outdir:转换到指定目录
+libreoffice6.3 --convert-to pdf:writer_pdf_Export $officeFilePath【要转换word/excel的绝对路径】 --outdir $outDir【转换后要保存的目录路径】
+
+如果遇到中文的话，转出来都是乱码，需要把中文字体拷到对应的目录 （貌似yum install cups-libs fontconfig也可以安装中文包）
+cat /etc/fonts/fonts.conf | grep font 查看字体目录，发现字体目录在/usr/share/fonts
+把字体文件拷过去：cp fonts/* /usr/share/fonts/pdf 【字体文件见百度盘】
+刷新字体文件：fc-cache -fv 
+
+如果需要在php中使用的话，需要加入以下这句：
+putenv('HOME=/tmp');
+或 exec
+export HOME=/tmp && libreoffice6.0 --headless --invisible --convert-to pdf:writer_pdf_Export '/xxx/xx/x.x' 处理完后在当前目录下生成文件

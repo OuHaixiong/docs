@@ -1,28 +1,5 @@
-调用YII框架中jquery：Yii::app()->clientScript->registerCoreScript('jquery');   
-
+调用YII框架中jquery：Yii::app()->clientScript->registerCoreScript('jquery');
 framework/web/js/source的js,其中registerCoreScriptkey调用的文件在framework/web/js/packages.php列表中可以查看
-
- 在view中得到当前controller的ID方法：Yii::app()->getController()->id;     
-
- 在view中得到当前action的ID方法：Yii::app()->getController()->getAction()->id;    
-
- yii获取ip地址：Yii::app()->request->userHostAddress;  
-
- yii判断提交方式：Yii::app()->request->isPostRequest 
-
-得到当前域名: Yii::app()->request->hostInfo   
-
- 得到proteced目录的物理路径：YII::app()->basePath;    
-
- 获得上一页的url以返回：Yii::app()->request->urlReferrer; 
-
- 得到当前url ：Yii::app()->request->url; 
-
- 得到当前home url ：Yii::app()->homeUrl 
-
- 得到当前return url ：Yii::app()->user->returnUrl 
-
- 项目路径：dirname(Yii::app()->BasePath)   ///home/u32/www/yiitest/protected
 
 一：Yii framework 已经定义的命名空间常量
 system: 指向Yii框架目录;  Yii\framework
@@ -35,7 +12,8 @@ ext : 指向包含所有第三方扩展的目录;  \protected\extensions
 
 二：
 {full URL}:取得当前的完整路径
-Yii::getFrameworkPath()  :YII framework路径
+Yii::getFrameworkPath()          ： YII framework路径
+Yii::app()->getRuntimePath();    ：获取/protected/runtime的路径
 
  
 
@@ -61,72 +39,34 @@ Yii::app()->clientScript->registerCssFile(Yii::app()->baseUrl.'/css/my.css');   
  
 
 在view中得到当前controller的ID方法
-Yii::app()->getController()->id;  
-
- 
-
- 
+Yii::app()->getController()->id;
 
 在view中得到当前action的ID方法：
 Yii::app()->getController()->getAction()->id;  
 
- 
-
 Yii获取ip地址
-Yii::app()->request->userHostAddress;  
-
- 
+Yii::app()->request->userHostAddress;
 
 Yii判断提交方式
 Yii::app()->request->isPostRequest
 
- 
-
 得到当前域名:
-Yii::app()->request->hostInfo  
+Yii::app()->request->hostInfo
 
- 
-
- 
-
-得到proteced目录的物理路径
+得到proteced目录的物理路径：
 Yii::app()->basePath;
-
- 
-
- 
 
 获得上一页的url以返回
 Yii::app()->request->urlReferrer;  
 
- 
-
- 
-
 得到当前url
-
- 
-Yii::app()->request->url; 
-
- 
-
- 
+Yii::app()->request->url;
 
 得到当前home url
-
- 
 Yii::app()->homeUrl  
 
- 
-
 得到当前return url
-
- 
 Yii::app()->user->returnUrl
 
- 
-
 项目路径
-
- 
-dirname(Yii::app()->BasePath)  
+dirname(Yii::app()->BasePath)  // /home/u32/www/yiitest/protected

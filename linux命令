@@ -46,6 +46,7 @@ mimetype xxx 查看一个文件的mimetype属性，即文件是用哪类应用�
 update-mime-database ~/.local/share/mime 更新mimetype数据库，即添加新的mimetype入操作系统
 split –b 50 原始文件 拆分后文件名前缀  以大小拆分文件（split -l 50 xxx xx 以行数拆分文件）
 wc -l `find -name "*.php"` 查看当前目录及子目录下php文件的总代码行数，也可以使用：find ./ -name "*.php" | xargs wc -l  （尼玛，两命令出来的数据还不一样，前多后少）
+ll |grep ^-|wc -l  查看当前目录下有多少个文件(不包括文件夹)
 
 删除目录、文件 rm(remove)
 功能说明：删除文件或目录。

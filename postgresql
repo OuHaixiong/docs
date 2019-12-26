@@ -156,7 +156,7 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
 9, 修改主键id的自增值从某个值开始:alter sequence business_id_seq restart with 600002;
 10, 查询：select * from product where title='小米8' 特别注意这里，如果是字符型字段，不能用双引号(")，只能用单引号(')
 11, \q ：退出
-12, \l : 列出所有库
+12, \l : 列出所有库  ( \c databaseName 进入数据库【切换数据库】 )
 13, \du: 列出所有用户
 14, \d : 列出库下所有表     (\dt:查看所有表，\d tableName: 查看表结构)
 15, 创建索引：create unique index user_id_index on admin_user_action using btree("admin_user_id", "xxx"); // unique index:唯一索引；index：普通索引
@@ -165,7 +165,7 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
 18, 删除数据库：postgres=# drop database abc; // 如果有用户打开了数据库，是无法删除的
 19, 删除用户：postgres=# drop role devops; // 如果该用户还拥有数据库，是无法删除该用户的，需要先删除数据库后，才能删除该用户
 20, 创建用户：postgres=# create user root with password '123456';
-21, 创建数据库并指定所有者：postgres=# create database testdb owner root;
+21, 创建数据库并指定所有者：postgres=# create database testdb owner root;  (grant all privileges on database databaseName to userName;)
 22, 登录数据库：-bash-4.2$ psql -h127.0.0.1 -p5432 -Uroot -dtestdb
 23, 修改主键id的自增值从某个值开始：alter sequence business_id_seq restart with 600002;
 24, 备份指定表结构和数据： /usr/bin/pg_dump -U root testdb -t tb1  > /data/testdb_tb1.sql // 只能备份单表
@@ -192,7 +192,7 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
       MATCH SIMPLE 这是默认值。允许外键约束中的任何一列为null,只要外键约束中的一列为null,则不要求与被引用表相匹配。
          外键约束也可以引用自身表中的字段。
 35，根据in的顺序查询数据：select * from tbl_vendor where id in(5,2,4,3) order by position(id::text in '5,2,4,3')
-36，复制一个数据库：CREATE DATABASE my_new_database TEMPLATE my_old_database;或者createdb -T my_old_database my_new_database;
+36，复制一个数据库：CREATE DATABASE my_new_database TEMPLATE my_old_database;
 37，在后台备份一个数据库：nohup export PGPASSWORD="***" && /usr/pgsql-9.6/bin/pg_dump -h XXX -p 5432 -U "username" -Fc -f /mnt/data/database_back/20191011.pgdump -d database_name > /data/logs/database/pgdump_20191011.log 2>&1 & 
     其实上面的命令，没有任何输出，日记文件可以不用写，换成：> /dev/null 2>&1 即可
     -d ： 这个参数需要在高版本中才能有
@@ -208,16 +208,14 @@ nohup /bin/bash /mnt/data/database_back/shell-postgresql_resto.sh > /mnt/data/lo
   
   
 一、日期格式转换
-
 1.字符日期格式转化为UNIX时间戳格式
-
-字段endtime为内容为UNIX时间戳格式，例如1346650755
-
 select * from test where endtime >= extract(epoch FROM date('2012-09-03 00:00:00'));
 
 2.UNIX时间戳转化为字符日期格式
-
+字段endtime为内容为UNIX时间戳格式，例如1346650755
 select * from test where date(to_timestamp(endtime))>='2012-09-02';
+或查询出字符串如：SELECT to_char(to_timestamp(1234567890), 'YYYY-MM-DD HH24:MI:SS')
+
 
 
 
@@ -320,6 +318,35 @@ pg_dumpall --roles-only > /data/xxx/all-roles.sql     // --schema-only 、 --tab
 /usr/bin/pg_restore -h 127.0.0.1 -p 5432 -U root -W --dbname=test2 --verbose /data/databaseBack/test_20191110183332.tar 还原数据库
 /usr/bin/pg_restore -h 127.0.0.1 -p 5432 -U root -W --dbname=test --create --verbose /data/databaseBack/test_20191110183332.tar 如果您还原的数据库与您备份的数据库相同
 
+修改拥有者：
+DO $$DECLARE r record;
+DECLARE
+    v_schema varchar := 'public';
+    v_new_owner varchar := 'gyt_cds_admin'; // 在对应的数据库中执行，修改此行
+BEGIN
+    FOR r IN 
+        select 'ALTER TABLE "' || table_schema || '"."' || table_name || '" OWNER TO ' || v_new_owner || ';' as a from information_schema.tables where table_schema = v_schema
+        union all
+        select 'ALTER TABLE "' || sequence_schema || '"."' || sequence_name || '" OWNER TO ' || v_new_owner || ';' as a from information_schema.sequences where sequence_schema = v_schema
+        union all
+        select 'ALTER TABLE "' || table_schema || '"."' || table_name || '" OWNER TO ' || v_new_owner || ';' as a from information_schema.views where table_schema = v_schema
+        union all
+        select 'ALTER FUNCTION "'||nsp.nspname||'"."'||p.proname||'"('||pg_get_function_identity_arguments(p.oid)||') OWNER TO ' || v_new_owner || ';' as a from pg_proc p join pg_namespace nsp ON p.pronamespace = nsp.oid where nsp.nspname = v_schema
+        union all
+  SELECT 'ALTER TABLE '|| oid::regclass::text ||' OWNER TO '||v_new_owner||';' FROM pg_class WHERE relkind = 'm' 
+        union all
+        select 'ALTER DATABASE "' || current_database() || '" OWNER TO ' || v_new_owner 
+    LOOP
+        EXECUTE r.a;
+    END LOOP;
+END$$;
 
 
+
+当恢复数据库时，遇到下面的错误：
+pg_restore: [archiver (db)] Error from TOC entry 3010; 0 0 COMMENT EXTENSION plpgsql 
+pg_restore: [archiver (db)] could not execute query: ERROR:  must be owner of extension plpgsql
+    Command was: COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+分析：其实这个并不是致命的错误，可以忽略
+plpgsql插件在创建数据库的时候默认就是存在的，而且用户可用，不用再次create和comment，后边的数据如果使用plpgsql插件，也是可以的，应该不影响数据的恢复。
 
