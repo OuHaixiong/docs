@@ -1,3 +1,4 @@
+#!/bin/bash
 username='XXX';
 dir='/home/ftps/company/';
 password='****';

@@ -1,8 +1,9 @@
 #!/bin/sh
+
 cdsLbPath='/mnt/data/www/cds_lb';
 
 # 连接从机，先更新从机代码
-ssh slave_admin@10.0.0.5 <<EOF   # 连接上远程的服务器后需要执行的命令
+ssh -tt slave_admin@10.0.0.5 <<EOF   # 连接上远程的服务器后需要执行的命令
 if who | grep -q 'slave_admin'; then
     echo 'is logged on fedex-slave, next svn up...';
 else

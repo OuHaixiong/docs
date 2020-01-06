@@ -205,6 +205,7 @@ export PGPASSWORD="***"
 nohup /bin/bash /mnt/data/database_back/shell-postgresql_resto.sh > /mnt/data/logs/database/pg_restore_20191011.log 2>&1 &  貌似上面不加 -v 这里的日记也没有啥信息
 39，删除一个check约束：ALTER TABLE "tbl_admin" DROP CONSTRAINT "ckc_username_tbl_admi"; 
 40，为字段添加注释：comment on column table_name.column_name is 'xxx'; 
+41，清空表数据，并还原自增id：TRUNCATE table_name, table_name RESTART IDENTITY;  或     truncate table table_name;alter sequence seq_name start 1; （不同的数据库版本，可能有一定的差异）
   
   
 一、日期格式转换
@@ -312,6 +313,8 @@ select pg_terminate_backend(pg_stat_activity.pid) from pg_stat_activity where da
 如果只想备份角色：
 pg_dumpall --roles-only > /data/xxx/all-roles.sql     // --schema-only 、 --tablespace-only（备份表空间）
 
+(两个不同的数据库，貌似可以通过管道备份：pg_dump -h remotehost -U remoteuser remotedbname | psql -U localuser localdbname)
+
 下面演示恢复数据库：
 /usr/bin/psql -h xxx.xxx.xx.x -p 5432 -U username -W --set ON_ERROR_STOR=on [-d databaseName] -f backupFilePath 在发生错误时，停止还原 (如果备份的是全部的数据库，可把-d参数去掉)
 
@@ -350,3 +353,27 @@ pg_restore: [archiver (db)] could not execute query: ERROR:  must be owner of ex
 分析：其实这个并不是致命的错误，可以忽略
 plpgsql插件在创建数据库的时候默认就是存在的，而且用户可用，不用再次create和comment，后边的数据如果使用plpgsql插件，也是可以的，应该不影响数据的恢复。
 
+
+获取最新的一条记录，把客户的名称改了
+UPDATE tbl_customer SET customer_name=t.enter_name FROM (
+  SELECT 
+    (ARRAY_AGG(enter_name ORDER BY id DESC))[1] AS enter_name,customer_id 
+  FROM tbl_cd 
+  WHERE cd_company_id=206 GROUP BY customer_id
+) AS t WHERE t.customer_id=tbl_customer.id AND tbl_customer.cd_company_id=206;
+
+
+联合更新
+UPDATE tbl_hw_matnr AS hm
+SET first_uom = gh.first_uom, second_uom = gh.second_uom 
+FROM
+  tbl_goods_hs AS gh 
+WHERE
+  hm.hs_code = gh.hs_code AND (gh.first_uom <> hm.first_uom OR gh.second_uom <> hm.second_uom)
+  
+UPDATE tbl_ems_goods AS hm
+SET unit_1 = gh.first_uom, unit_2 = gh.second_uom 
+FROM
+  tbl_goods_hs AS gh 
+WHERE
+  hm.code_t = gh.hs_code AND (gh.first_uom <> hm.unit_1 OR gh.second_uom <> hm.unit_2)

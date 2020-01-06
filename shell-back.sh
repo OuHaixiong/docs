@@ -1,5 +1,6 @@
-makeblock部分shell脚本备份（mb脚本）
 #!/bin/bash
+# makeblock部分shell脚本备份（mb脚本）
+
 DATETIME=`date +%Y%m%d%H%M%S`
 DATEY=`date +%Y`
 
