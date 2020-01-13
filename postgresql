@@ -206,6 +206,7 @@ nohup /bin/bash /mnt/data/database_back/shell-postgresql_resto.sh > /mnt/data/lo
 39，删除一个check约束：ALTER TABLE "tbl_admin" DROP CONSTRAINT "ckc_username_tbl_admi"; 
 40，为字段添加注释：comment on column table_name.column_name is 'xxx'; 
 41，清空表数据，并还原自增id：TRUNCATE table_name, table_name RESTART IDENTITY;  或     truncate table table_name;alter sequence seq_name start 1; （不同的数据库版本，可能有一定的差异）
+42，删除可视化视图：drop MATERIALIZED VIEW "public"."view_task_trace" cascade  相关的视图也会删除，如果有相关的视图需要先备份（特别注意）
   
   
 一、日期格式转换
