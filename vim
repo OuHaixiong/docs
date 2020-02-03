@@ -104,7 +104,7 @@ set ignorecase  "搜索时忽略大小写
 
 set showmode        "开启模式显示
 set ruler           "开启光标位置提示
-set number      "显示行号
+set number      "显示行号  【:set nu】
 set nonu            "不显示行号
 set cursorline      "强调光标所在行
 set cmdheight=1 "命令部分高度为1
