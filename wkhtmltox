@@ -1,0 +1,21 @@
+htmltoimg htmltopdf wkhtmltoimage wkhtmltopdf html转换为图片、html转换为PDF
+
+安装wkhtmltox 0.12
+1，到官方网站上下载对应版本的安装包，centot7 下载 wkhtmltox-0.12.5-1.centos7.x86_64.rpm
+2，安装时会报错，需要先安装依赖：yum -y  install  fontconfig libX11 libXext xorg-x11-fonts-75dpi xorg-x11-fonts-Type1
+3，安装rpm包：rpm -ivh ./wkhtmltox-0.12.5-1.centos7.x86_64.rpm 
+4，安装完后，wkhtmltopdf所在的路径为/usr/local/bin/wkhtmltopdf；wkhtmltoimage所在的路径为/usr/local/bin/wkhtmltoimage
+5，转换时，对中文字体支持不友好，需要把中文字体拷贝到目录/usr/share/fonts中
+
+
+html转pdf命令
+/usr/local/bin/wkhtmltopdf http://cds-new.cc/admin/declaration/printDeclaration/id/1268575/type/1/page/0/doPrint/1/upsType/ ./htmltopdf.pdf
+通过/usr/local/bin/wkhtmltopdf -h 查看命令的帮助信息
+
+html转img命令
+/usr/local/bin/wkhtmltoimage --format "jpg" --width 1280 --height 1600 --enable-plugins --quality 100 http://luoqing3.gyt.com/admin/hwAboard/hwRealTimeBoard ./hwRealTimeBoard.jpg
+通过/usr/local/bin/wkhtmltoimage -h 查看命令的帮助信息
+
+wkhtmltopdf、wkhtmltoimage对于复杂的js和css还是无法解析
+
+有一个php的扩展，专门用来操作wkhtmltox的
