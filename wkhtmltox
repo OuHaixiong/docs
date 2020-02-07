@@ -1,15 +1,15 @@
 htmltoimg htmltopdf wkhtmltoimage wkhtmltopdf html转换为图片、html转换为PDF
 
 安装wkhtmltox 0.12
-1，到官方网站上下载对应版本的安装包，centot7 下载 wkhtmltox-0.12.5-1.centos7.x86_64.rpm
+1，到官方网站(https://wkhtmltopdf.org/)上下载对应版本的安装包，centot7 下载 wkhtmltox-0.12.5-1.centos7.x86_64.rpm
 2，安装时会报错，需要先安装依赖：yum -y  install  fontconfig libX11 libXext xorg-x11-fonts-75dpi xorg-x11-fonts-Type1
-3，安装rpm包：rpm -ivh ./wkhtmltox-0.12.5-1.centos7.x86_64.rpm 
+3，安装rpm包：rpm -ivh ./wkhtmltox-0.12.5-1.centos7.x86_64.rpm 或 rpm -Uvh wkhtmltox-0.12.5-1.centos7.x86_64.rpm
 4，安装完后，wkhtmltopdf所在的路径为/usr/local/bin/wkhtmltopdf；wkhtmltoimage所在的路径为/usr/local/bin/wkhtmltoimage
 5，转换时，对中文字体支持不友好，需要把中文字体拷贝到目录/usr/share/fonts中
 
 
 html转pdf命令
-/usr/local/bin/wkhtmltopdf http://cds-new.cc/admin/declaration/printDeclaration/id/1268575/type/1/page/0/doPrint/1/upsType/ ./htmltopdf.pdf
+/usr/local/bin/wkhtmltopdf --encoding utf-8 http://cds-new.cc/admin/declaration/printDeclaration/id/1268575/type/1/page/0/doPrint/1/upsType/ ./htmltopdf.pdf
 通过/usr/local/bin/wkhtmltopdf -h 查看命令的帮助信息
 
 html转img命令
@@ -19,3 +19,190 @@ html转img命令
 wkhtmltopdf、wkhtmltoimage对于复杂的js和css还是无法解析
 
 有一个php的扩展，专门用来操作wkhtmltox的
+
+
+wkhtmltoimage — html to image converter
+
+Synopsis
+ wkhtmltoimage [OPTIONS]... <input file> <output file>
+
+Description
+Converts an HTML page into an image,
+
+General Options
+   --allow <path>
+Allow the file or files from the specified folder to be loaded (repeatable)
+
+   --bypass-proxy-for <value>
+Bypass proxy for host (repeatable)
+
+   --cache-dir <path>
+Web cache directory
+
+   --checkbox-checked-svg <path>
+Use this SVG file when rendering checked checkboxes
+
+   --checkbox-svg <path>
+Use this SVG file when rendering unchecked checkboxes
+
+   --cookie <name> <value>
+Set an additional cookie (repeatable), value should be url encoded.
+
+   --cookie-jar <path>
+Read and write cookies from and to the supplied cookie jar file
+
+   --crop-h <int>
+Set height for cropping
+
+   --crop-w <int>
+Set width for cropping
+
+   --crop-x <int>
+Set x coordinate for cropping
+
+   --crop-y <int>
+Set y coordinate for cropping
+
+   --custom-header <name> <value>
+Set an additional HTTP header (repeatable)
+
+   --custom-header-propagation
+Add HTTP headers specified by --custom-header for each resource request.
+
+   --no-custom-header-propagation
+Do not add HTTP headers specified by --custom-header for each resource request.
+
+   --debug-javascript
+Show javascript debugging output
+
+   --no-debug-javascript
+Do not show javascript debugging output
+
+   --encoding <encoding>
+Set the default text encoding, for input
+
+-H, --extended-help
+Display more extensive help, detailing less common command switches
+
+-f, --format <format>
+Output file format
+
+   --height <int>
+Set screen height (default is calculated from page content)
+
+-h, --help
+Display help
+
+   --htmldoc
+Output program html help
+
+   --images
+Do load or print images
+
+   --no-images
+Do not load or print images
+
+-n, --disable-javascript
+Do not allow web pages to run javascript
+
+   --enable-javascript
+Do allow web pages to run javascript
+
+   --javascript-delay <msec>
+Wait some milliseconds for javascript finish
+
+   --license
+Output license information and exit
+
+   --load-error-handling <handler>
+Specify how to handle pages that fail to load: abort, ignore or skip
+
+   --load-media-error-handling <handler>
+Specify how to handle media files that fail to load: abort, ignore or skip
+
+   --disable-local-file-access
+Do not allowed conversion of a local file to read in other local files, unless explicitly allowed with --allow
+
+   --enable-local-file-access
+Allowed conversion of a local file to read in other local files.
+
+   --log-level <level>
+Set log level to: none, error, warn or info
+
+   --manpage
+Output program man page
+
+   --minimum-font-size <int>
+Minimum font size
+
+   --password <password>
+HTTP Authentication password
+
+   --disable-plugins
+Disable installed plugins
+
+   --enable-plugins
+Enable installed plugins (plugins will likely not work)
+
+   --post <name> <value>
+Add an additional post field (repeatable)
+
+   --post-file <name> <path>
+Post an additional file (repeatable)
+
+-p, --proxy <proxy>
+Use a proxy
+
+   --proxy-hostname-lookup
+Use the proxy for resolving hostnames
+
+   --quality <int>
+Output image quality (between 0 and 100)
+
+-q, --quiet
+Be less verbose, maintained for backwards compatibility; Same as using --log-level none
+
+   --radiobutton-checked-svg <path>
+Use this SVG file when rendering checked radiobuttons
+
+   --radiobutton-svg <path>
+Use this SVG file when rendering unchecked radiobuttons
+
+   --readme
+Output program readme
+
+   --run-script <js>
+Run this additional javascript after the page is done loading (repeatable)
+
+   --ssl-crt-path <path>
+Path to the ssl client cert public key in OpenSSL PEM format, optionally followed by intermediate ca and trusted certs
+
+   --ssl-key-password <password>
+Password to ssl client cert private key
+
+   --ssl-key-path <path>
+Path to ssl client cert private key in OpenSSL PEM format
+
+   --stop-slow-scripts
+Stop slow running javascripts
+
+   --no-stop-slow-scripts
+Do not Stop slow running javascripts
+
+   --user-style-sheet <url>
+Specify a user style sheet, to load with every page
+
+   --username <username>
+HTTP Authentication username
+
+-V, --version
+Output version information and exit
+
+   --width <int>
+Set screen width, note that this is used only as a guide line. Use --disable-smart-width to make it strict.
+
+   --window-status <windowStatus>
+Wait until window.status is equal to this string before rendering page
+
+   --zoom <float>
+Use this zoom factor

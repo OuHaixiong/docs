@@ -146,3 +146,19 @@ kill -quit 1415
 tar -zxvf ghostscript-9.27-linux-x86_64.tgz
 cd ghostscript-9.27-linux-x86_64
 cp gs-927-linux-x86_64 /usr/bin/gs
+
+
+gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=out1.4_1.7_1.6.pdf 1.4.pdf 1.7.pdf 1.6.pdf合并多个pdf
+
+gs -dSAFER -dBATCH -dNOPAUSE -r300 -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -sDEVICE=jpeggray -sOutputFile=test%03d.jpg -dFirstPage=102 -dLastPage=103 ori.pdf
+如果文件本身不是彩色的，可以用 pnggray 或 jpeggray ，可以快一點。 %03d 用來编号，这样就会变成数字以 001, 002, … 一直下去。
+
+-dNOCACHE -dDEVICEHEIGHTPOINTS=72 -dDEVICEWIDTHPOINTS=72 -g800x600 -dFIXEDMEDIA -dPDFFitPage 这几个参数不知道啥意思 
+-sDEVICE 支持 PNG, JPEG, TIFF, PNM, FAX, BMP, PCX, PSD 当然也有 pdfwrite, pswrite, epswrite，如果是黑白pnggray
+-r300 ： 表示转出來的图像的解析度(resolution)是 300dpi
+-dFirstPage=102 -dLastPage=103 表示处理第几页到第几页
+
+gs 还支持 antialiasing[貌似消除锯齿] ，可以根据 pdf 的字和图形各別做转化：
+-dTextAlphaBits=n : 用來支持文字的 antialiasing【[计]消除混叠现象，消除走样，图形保真】
+-dGraphicsAlphaBits=n : 用來支持图形的 antialiasing
+这两个 n 可以给到 4 就有可以接受的效果了。
