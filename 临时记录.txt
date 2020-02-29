@@ -85,142 +85,18 @@ ALTER TABLE `oc_index_information` CHANGE `buy_button_name` `buy_button_name` VA
 
 
 
-2016-10-9以后（已发布）
-airblock&roboticarm（Sign Up to Get 40% Off）
-ALTER TABLE `oc_index_information` ADD `buy_button_name` varchar(100) DEFAULT 'BUY NOW' COMMENT '购买按钮名称';
-
-
-120.26.193.222 - - [10/Oct/2016:04:02:50 +0000] "POST /index.php?route=api/kisorders HTTP/1.1" 200 103 "-" "Order100ForNet"
-121.41.167.197 - - [10/Oct/2016:04:02:55 +0000] "POST /index.php?route=api/kisorders HTTP/1.1" 200 65 "-" "Order100ForNet"
-120.26.193.222 - - [10/Oct/2016:04:01:43 +0000] "POST /index.php?route=api/kisorders HTTP/1.1" 200 644534 "-" "Order100ForNet"
-
-
-
-
-2016-10-22以后（已发布）
-添加修改订单状态记录（ip和用户名）
-ALTER TABLE `oc_order_history` ADD `user_id` int(11) DEFAULT 0 COMMENT '后台用户id'; 
-ALTER TABLE `oc_order_history` ADD `user_ip` int(11) DEFAULT 0 COMMENT '修改用户ip';
-
 
 
 http://www.confluence.cn/display/quickstart/Confluence
-
-http://baike.baidu.com/link?url=rN69_7wtKCylY6rjovCQpfDwzDq6Q88okOWSDlT8os8Qotd4-Gqi5h6uCtlCowDzObOZFiqGmlbE212FiAejaM0rSDqyYWjgHqr9nmw41MW
-
-以上是confluence的官方简介以及百度词条，大家可以先看看什么是confluence
+confluence做为wiki和知识共享是很哈偶的
 
 
-paypal
-http://m.com/index.php?route=api/order/historyii&order_id=9658&sToken=0b7bb9e9fea7426669b0e38cf97a0b40
-post: order_status_id=17
-response:json 
-success
-  "You order has been successfully modified orders"
-
-
-bank transfer
-http://m.com/index.php?route=payment/bank_transfer/confirm&_=1477974223642
-无post参数，无response
-
-<!-- 黑色星期五顶部banner -->
-<div style="margin: 0 0; width: 100%;background-color: #0d0d0d;text-align:center;">
-    <img src="http://cdnshop.makeblock.com/image/home/banner/3banner2.jpg" />
-</div>
- "templates/web.template.yml"
-  - "templates/sshd.template.yml"
-  - "templates/web.ratelimited.template.yml"
-
-已修改的文件
-
-system\library\cart.php
-system\library\customer.php
-
-
-2016-11-16后发布
-// 页脚的html自己可编辑
-CREATE TABLE `oc_information_footer` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id',
-  `type` char(10) DEFAULT '' COMMENT '页脚类型；如：en：英文站页脚，ch：中文，jp：日文',
-  `html` text default '' COMMENT 'html内容',
-  `created_time` datetime DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
-这里面的数据也一并弄上去
-
-// 弹窗
-CREATE TABLE `oc_information_popup` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id',
-  `type` char(10) DEFAULT '' COMMENT '页脚类型；如：en：英文站页脚，ch：中文，jp：日文',
-  `html` text default '' COMMENT '弹窗html内容',
-  `second_close` int(11) default 0 comment '多少秒后关闭',
-  `cookie_time` int(11) default 0 comment '多少秒后弹窗会再次出现',
-  `status` tinyint(1) DEFAULT 1 COMMENT '开关；默认1：开启，0：关闭',
-  `width` int(11) DEFAULT 0 COMMENT '弹窗的宽',
-  `height` int(11) default 0 comment '弹窗的高',
-  `created_time` datetime DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='首页弹窗信息表';
-
-// 单页面
-CREATE TABLE `oc_information_onepage` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id',
-  `html` text default '' COMMENT '单页面html内容',
-  `title` varchar(500) default '' comment '页面标题',
-  `keywords` varchar(11) default '' comment '页面关键词',
-  `description` varchar(500) DEFAULT '' COMMENT '页面描述',
-  `created_time` datetime DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='单页面信息表';
-
-
-
-2016-11-16后发布
-催付邮件修改
-ALTER TABLE `oc_order_send_email` ADD `send_times` int(11) DEFAULT 0 COMMENT '发送次数'; 
-
-
-2016-11-29后发布（已发布）
-加入页头
-ALTER TABLE `oc_information_footer` ADD `place` tinyint(2) DEFAULT 1 COMMENT '位置：1：页尾；2：页头';
-
-
-
-2016-12-12后发布 
-ALTER TABLE `oc_index_information` ADD `buy_url` varchar(255) DEFAULT '' COMMENT 'buy链接地址';
-
-
-An error occurred.
-
-Sorry, the page you are looking for is currently unavailable.
-Please try again later.
-
-If you are the system administrator of this resource then you should check the error log for details.
-
-Faithfully yours, nginx.
-
-1,me/orion_uno
-2,me/uno_shield_uno
-3,me/mbot_uno
-4,me/auriga_mega2560
-5,me/mega_pi_mega2560
-
-
-2017-01-18后发布(已发布)
-ALTER TABLE `oc_information_popup` ADD `promotion_type` varchar(50) DEFAULT '' COMMENT '订阅推广类型';
-ALTER TABLE `oc_information_popup` ADD `success_img` varchar(255) DEFAULT '' COMMENT '订阅成功后弹框图片';
-ALTER TABLE `oc_information_popup` ADD `success_url` varchar(255) DEFAULT '' COMMENT '订阅成功后跳转url';
-
-https://developer.chrome.com/apps/first_app
+https://developer.chrome.com/apps/first_app 创建google浏览器app
 
 https://www.debian.org/doc/manuals/maint-guide/build.zh-cn.html debian包系统
 
-mBlock 扩展 php 站：
-添加如下字段
-use `mblock-extensions`;
-ALTER TABLE `ext` ADD `tags` varchar(255) DEFAULT '' COMMENT 'tag标签';
 
-nohup node /home/wwwroot/www.mblock.cc/extensions/jsonParser.js >/dev/null 2>&1 &
+
 
 WordPress 
 1，添加一个页面后如何来显示
@@ -231,49 +107,14 @@ WordPress
 6，后台安全吗？如果不登录能执行一些文件吗？
 7，调试下后台/zh-home/wp-admin/profile.php
 
-divi 帮助页面
-https://www.elegantthemes.com/documentation/divi/
+
 
 wordpress 官方文档
 https://codex.wordpress.org/zh-cn:Main_Page
 
-2018-01-15 10:46:52 登录后获取到的用户详细信息：
-Array
-(
-    [avatar] => http://static.dingtalk.com/media/lADO4Mzsts0EYs0EYg_1122_1122.jpg
-    [userId] => 04451114371289645
-    [jobNumber] => 10604
-    [name] => 龚娇
-    [position] => 薪酬福利部主管
-    [directLeader] => 周荣佳
-    [manageProject] =>
-    [departmentId] => 12052671
-    [isLeader] =>
-    [directLeaderId] => 046545086221828312
-    [departments] => Array
-        (
-            [0] => Array
-                (
-                    [deptManagerUserIdList] => 046545086221828312
-                    [parentId] => 1
-                    [name] => 人力行政部
-                    [id] => 12052671
-                    [order] => 5
-                )
-
-        )
-
-    [access_token] => uO2vgNejbqtTlA5rVlPSUCfEivFR0bcJC2Lpa3uHscsOKRscdIIDqS1yQ9z8v7Y3
-    [isLoginFrontend] => 1
-)
-
-select id,appraisePeriodId,rateeFullName,isSelf,status from performance where appraiserUserId="04451114371289645";
 
 
 
-SELECT SQL_CALC_FOUND_ROWS  mb_posts.ID FROM mb_posts  
-INNER JOIN mb_postmeta ON ( mb_posts.ID = mb_postmeta.post_id ) 
-JOIN mb_icl_translations t ON mb_posts.ID = t.element_id AND t.element_type = CONCAT('post_', mb_posts.post_type)  
-WHERE (mb_postmeta.meta_key = 'views') AND mb_posts.post_type = 'resource' AND (mb_posts.post_status = 'publish' OR mb_posts.post_status = 'future' OR mb_posts.post_status = 'draft' OR mb_posts.post_status = 'pending' OR mb_posts.post_status = 'private') AND ( ( ( t.language_code = 'zh-hans' OR 0 ) AND mb_posts.post_type  IN ('post','page','custom_css','customize_changeset','oembed_cache','et_pb_layout','project','resource','fm-term-meta' )  ) OR mb_posts.post_type  NOT  IN ('post','page','custom_css','customize_changeset','oembed_cache','et_pb_layout','project','resource','fm-term-meta' )  ) GROUP BY mb_posts.ID ORDER BY mb_postmeta.meta_value+0 DESC LIMIT 0, 24
+
 
 

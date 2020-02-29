@@ -134,3 +134,8 @@ js打包相关
 利用HAProxy和VRRP实现高可用性和容错集群的搭建
 heartbeat 高可用集群
 
+
+分库分表中间件：ShardingSphere
+https://www.zhihu.com/question/19719997
+https://www.cnblogs.com/yilezhu/p/10530223.html
+https://zhuanlan.zhihu.com/p/57802566
