@@ -72,6 +72,8 @@ svn 命令共同的选项
     --config-dir  dir  从dir读取用户配置
     --editor-cm cmd 使用cmd作为日志消息的编辑器
 
+svn log -l3 : 查看最近的3条日记记录
+
 svn add [path]
 别名：无
 描述：添加文件或目录到你的wc，打上新增标记。这些文件会在下一次你提交wc的时候提交到svn服务器。

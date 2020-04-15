@@ -15,7 +15,7 @@ samba4-libs-4.0.0-58.el6.rc4.x86_64
 Samba服务器安装完毕，会生成配置文件目录/etc/samba和其它一些samba可执行命令工具，/etc/samba/smb.conf是samba的核心配置文件，/etc/init.d/smb是samba的启动/关闭文件。
 
 3，可以通过/etc/init.d/smb start/stop/restart来启动、关闭、重启Samba服务，启动SMB服务如下所示
-/etc/init.d/smb start
+/etc/init.d/smb start 或 /bin/systemctl restart smb.service（centos 7启动方式）
 
 4，查看samba的服务启动情况
 service smb status
@@ -219,3 +219,17 @@ unix extensions = no
 重启samba服务即可：# sudo /etc/init.d/samba restart
 
 10，如果不想挂载了就使用：umount /opt/xxx
+
+
+windows 和 linux 共享还有一个解决方案，就是nfs
+
+
+二. mount挂载过程可能会遇到的问题
+
+windows共享文档无法写入 可能是由于两方面造成的：
+共享文件所有者：
+这里就是windows，共享文档的共享权限和NTFS权限是与的关系。 都要允许才可以。 分别在右键属性的「安全」和「共享」中设置GUEST或者everyone属性。
+共享文件访问者：
+这里就是Linux，要采取以下措施： 关于linux在windows共享文档已经赋予写入权限后，linux对共享文件依然处于只读权限的原因：如果用mount挂载该共享文档，是不够由写入权限的，只能以root形式访问，必须加入两个参数gid和uid才能写入。gid和uid在控制台输入id即可查询。
+格式如：mount -t cifs  -o user=Administrator,password=ohx@Bear,iocharset=utf8,vers=2.0,gid=1000,uid=1000,dir_mode=0777,file_mode=0777 //192.168.0.114/fff /data/www/f
+实践证明上面的命令是可以的

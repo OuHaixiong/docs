@@ -1,0 +1,61 @@
+vscode+XDebug调试远程环境(虚拟机)上的PHP代码
+
+1，安装php的xdebug扩展，配置php.ini中的xdebug
+[xdebug]
+zend_extension=/usr/local/php/lib/php/extensions/no-debug-non-zts-20170718/xdebug.so
+xdebug.auto_trace=0
+; 是否允许Xdebug跟踪函数调用，跟踪信息以文件形式存储，默认值为0
+xdebug.collect_params=1
+; 是否允许Xdebug跟踪函数参数，默认值为0
+xdebug.collect_return=1
+; 是否允许Xdebug跟踪函数返回值，默认值为0
+;xdebug.trace_output_dir="/data/logs/php/xdebug/trace"          
+; 函数调用跟踪信息输出文件目录，默认值为/tmp, [务必确保目录是可读写的]      
+xdebug.profiler_enable=0
+; 打开xdebug的性能分析器，以文件形式存储，这项配置是不能以ini_set()函数配置的，默认值为0
+;xdebug.profiler_output_dir="/data/logs/php/xdebug/profiler"       
+; 性能分析文件的存放位置，默认值为/tmp
+xdebug.remote_enable=1
+; xdebug允许远程IDE连接
+xdebug.remote_host=192.168.0.114
+; 允许连接的zend studio的IP地址；特别注意这里指的是安装IDE那台电脑的ip，并不是php服务器的ip
+xdebug.remote_port=9001
+; 反向连接zend studio使用的端口；这里也是安装IDE那台电脑监控的端口
+xdebug.remote_handler=dbgp
+; 用于zend studio远程调试的应用层通信协议
+xdebug.remote_connect_back=1
+; 默认值：0；如果启用该配置， xdebug.remote_host设置将被忽略， Xdebug将尝试连接
+xdebug.remote_autostart=1
+; 开启远程调试自动启动, 默认值：0 
+
+2，重启php-fpm，或web环境
+
+3，vscode中安装插件“PHP Debug”
+
+4，配置launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Listen for XDebug",
+            "type": "php",
+            "request": "launch",
+            "stopOnEntry":false,
+            "pathMappings": { // 远程服务器上的路径和当前工作区的目录对应关系，可以设置多个
+                "/opt/www/cds_branch":"${workspaceRoot}/cds_branch"
+            },
+            "port": 9001 // 端口号
+        },
+        {
+            "name": "Launch currently open script",
+            "type": "php",
+            "request": "launch",
+            "program": "${file}",
+            "cwd": "${fileDirname}",
+            "port": 9001
+        }
+    ]
+}
+
+5，工作区中在需要调试的文件中设置断点，按F5启动调试，编辑器上方显示debug浮动栏无其它报错，应该就成功了， 打开浏览器，访问项目中设置了断点的功能或页面，编辑器中会自动中断在断点处。
+F5：跳到下一个断点处； F10：单步跳过； F11：单步调试； Shift+F5：停止调试
