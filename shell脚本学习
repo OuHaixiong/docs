@@ -83,7 +83,7 @@ fi 结束if时用fi
 if [ $# -ne 1 ] # $# 传给shell脚本的参数数量
 then
     echo "usage: $0 filePath"
-    exit 1
+    exit 1 # 注意这里了，运行exit后整个shell脚本都会结束掉的，特别是在无限循环中不能使用exit
 fi
 
 if [ -f $1 ] # -f 判断文件存在且是普通文件

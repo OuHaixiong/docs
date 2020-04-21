@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#if [ -f /bin/date ]
+#if [ -f /bin/date ] # 判断文件是否存在
 #then
 #    echo '/bin/date is exist'
 #else

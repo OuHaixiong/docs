@@ -232,4 +232,4 @@ windows共享文档无法写入 可能是由于两方面造成的：
 共享文件访问者：
 这里就是Linux，要采取以下措施： 关于linux在windows共享文档已经赋予写入权限后，linux对共享文件依然处于只读权限的原因：如果用mount挂载该共享文档，是不够由写入权限的，只能以root形式访问，必须加入两个参数gid和uid才能写入。gid和uid在控制台输入id即可查询。
 格式如：mount -t cifs  -o user=Administrator,password=ohx@Bear,iocharset=utf8,vers=2.0,gid=1000,uid=1000,dir_mode=0777,file_mode=0777 //192.168.0.114/fff /data/www/f
-实践证明上面的命令是可以的
+实践证明上面的命令是可以的；需要安装yum install cifs-utils
