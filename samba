@@ -188,6 +188,9 @@ service smb reload
 /sbin/iptables -I INPUT -p tcp --dport 139 -j ACCEPT
 /etc/rc.d/init.d/iptables save
 /etc/init.d/iptables restart
+在centos 7中防火墙被firewall代替了，所以需执行如下命令：
+firewall-cmd --permanent --zone=public --add-port=139/tcp
+firewall-cmd --reload
 
 特特别注意了：修改/etc/selinux/config 中的 SELINUX=disabled 然后重启电脑（修改linux非固化），否则就算配置正确了windows也是提示没有权限访问
 
