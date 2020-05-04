@@ -1,0 +1,35 @@
+从零开始制作CentOS 7的Docker镜像
+
+1，安装好CentOS 7的linux操作系统，并升级好软件包：
+# yum -y install vim-enhanced
+# yum -y upgrade
+
+2，安装镜像辅助制作工具：supermin5
+# yum -y install supermin5*
+
+3，通过supermin5命令开始安装docker镜像中需要用到的工具
+# supermin5 -v --prepare base coreutils vim yum -o ./supermin.d
+  -v : 激活调试消息，可以看见操作信息
+  --prepare : 准备supermin需要的工具，base、coreutils、vim、yum 是需要的工具，尽可能的保持环境的干净，需要用到的工具才写
+  -o : 设置一个输出目录
+  supermin.d : 输出的目录名称
+
+4，构建完整镜像
+# supermin5 -v --build --format chroot ./supermin.d -o appliance.d
+  --build : 构建完全需要的工具
+  --format : 设置输出格式
+
+5，设置系统版本号，让docker镜像可以获取正常运行
+# echo 7 > ./appliance.d/etc/yum/vars/releasever
+  这里我之前用的是7.8，后面发现使用yum进行软件安装时出错，改成7后才可以的
+
+6，封装docker镜像文件到归档文件中
+#tar --numeric-owner -cpf centos-78.tar -C ./appliance.d .
+
+7，导入tar归档文件到本地docker镜像列表中，以方便操作
+# cat centos-78.tar | docker import - centos-78
+
+8，导入成功后，可以通过查看镜像看是否导入成功
+# docker images
+
+9，以上即是 centos 7 基础镜像的制作，剩下的需要安装其他组件时，可以通过镜像生成容器，然后在容器中安装需要的组件，最后把容器打包成镜像即可。

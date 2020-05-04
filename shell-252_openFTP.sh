@@ -18,7 +18,7 @@ echo ${password}|passwd --stdin ${username}
 # 追加写入用户名
 echo ${username} >> /etc/vsftpd/user_list
 
-# 写入多行
+# 追加写入多行
 cat>>/etc/vsftpd/userconfig/${username}<<EOF
 local_root=${homeDir}
 write_enable=YES
@@ -27,3 +27,8 @@ local_umask=002
 EOF
 
 echo 'FTP账号已开通！！！！';
+
+# 如果是清空并写入的话 
+# cat >/xx/xxx<<EOF
+# ...
+# EOF
