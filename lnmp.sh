@@ -84,7 +84,7 @@ cd ${phpFileName}
 # 如果没有用到bcmath相关函数，就不需要开启
 ./configure --prefix=/usr/local/php --with-mysqli=mysqlnd --with-pdo_mysql=mysqlnd --with-pgsql --with-pdo_pgsql --with-openssl --enable-opcache --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-bz2 --with-libxml-dir=/usr --enable-xml --with-iconv=/usr/local/lib --with-curl --with-gd --with-mhash --enable-pcntl --enable-sockets  --enable-zip --enable-soap --enable-bcmath
 make && make install
-mkdir -p /tmp/php_session
+#mkdir -p /tmp/php_session # 这个不用改了
 cp ${toolsPath}'/php.ini' '/usr/local/php/lib/php.ini'
 mv /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf
 cp ${toolsPath}'/php-fpm.conf' '/usr/local/php/etc/php-fpm.d/php-fpm.conf'
