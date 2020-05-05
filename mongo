@@ -1,0 +1,29 @@
+#!/bin/bash
+cd ~/webserver
+mongo_version="4.1.6"
+if [ ! -s mongodb-linux-x86_64-$mongo_version.tgz ];then
+        wget -c http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-$mongo_version.tgz
+fi
+tar zvxf mongodb-linux-x86_64-$mongo_version.tgz
+
+
+mkdir -p /home/mongo/data
+mkdir -p /home/mongo/log
+mv ~/webserver/mongodb-linux-x86_64-$mongo_version/* /usr/local/mongo
+rm -rf ~/webserver/mongodb-linux-x86_64-$mongo_version
+
+cd /usr/local/mongo/bin/
+cat >autoStartMongo.sh<<EOF
+#!/bin/bash
+lockFilePath=/home/mongo/data/mongod.lock  
+if [ -f $lockFilePath ] ; then  
+        rm -f $lockFilePath  
+fi  
+#Second to start mongod
+#--bind_ip 127.0.0.1,10.0.133.14
+                                 /usr/local/mongo/bin/mongod --dbpath=/home/mongo/data --logpath=/home/mongo/log/mongodb.log --logappend --port=5555 --fork
+EOF
+chmod +x /usr/local/mongo/bin/autoStartMongo.sh
+echo "sh /usr/local/mongo/bin/autoStartMongo.sh">>/etc/rc.local
+sh /usr/local/mongo/bin/autoStartMongo.sh
+cd ~/webserver

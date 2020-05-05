@@ -3,13 +3,13 @@ MongoDB安装
 rpm -qa |grep mongodb
 
 2，通过wget获取二进制源码包（如果没有wget需要安装：yum install wget）
-wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-2.6.5.tgz -P /data/tool/
+wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.1.6.tgz -P /data/tool/
 
 3，下载完毕后，解压此压缩包
-tar -zxvf mongodb-linux-x86_64-2.6.5.tgz
+tar -zxvf mongodb-linux-x86_64-4.1.6.tgz 
 
 4，移动整个目录至/usr/local下：
-mv mongodb-linux-x86_64-2.6.5 /usr/local/mongodb
+mv mongodb-linux-x86_64-4.1.6 /usr/local/mongodb
 
 5，创建数据保存目录和日志目录
 mkdir -p /data/db/mongodb
@@ -63,8 +63,8 @@ bind_ip=127.0.0.1,172.16.20.126 #只允许通过局域网通过IP：172.16.20.12
 # 如果设置为：bind_ip=10.0.0.4,127.0.0.1 意味着局域网内的所有机器和本机可以访问(如果是云的话绑定到它自己的私有IP)
 # 特别注意，mongodb默认只能本地访问，如果想要远程也能访问，需要配置：bind_ip=0.0.0.0
 noauth=true #不启用验证  相反的：auth = true，启用验证，这样在进行数据库连接的时候需要相应的账号密码才能成功访问。
-nohttpinterface=true
-rest=false
+#nohttpinterface=true # 貌似在高版本里面没有这个参数
+#rest=false # 这个参数也是没有的
 
 设置防火墙，以便局域网内的其它服务器可以访问
 vi /etc/sysconfig/iptables

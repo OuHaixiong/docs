@@ -11,7 +11,9 @@ docker常用的命令
 docker ps -a 显示所有的容器
 docker ps    显示所有正在运行的容器
 docker images 显示所有的镜像
-docker run -d -p 80:80 --name webserver nginx   通过docker image运行一个docker容器[container]
+docker run -d -p 80:80 --name webserver nginx[841a]   通过docker镜像[image]运行一个docker容器[container]
+例如：docker run -dit -p 80:80 --name gyt_develop_1.1.0 gyt_develop:v1.1.0  /bin/bash
+# 841a ：是镜像ID的前四位，也可以写全
 # -d 让Docker容器跑在后台
 # -i 容器的标准输入保持打开
 # -t Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入
@@ -19,9 +21,10 @@ docker run -d -p 80:80 --name webserver nginx   通过docker image运行一个do
 # -v 映射目录
 # -w /XX 设置工作目录；此设置将覆盖dockfile中的WORKDIR设置
 # -p 端口映射
-docker pull node:6.9.2 从官方拉取一个nodejs的镜像
+如果需要有挂载目录：docker run -dit --privileged=true -v /data[宿主机的绝对路径]:/opt[容器里面的绝对路径] --name gyt_develop_1.1.0 gyt_develop:v1.1.0[镜像:版本]  /bin/bash
+docker search gyt_develop 搜索已发布的镜像
+docker pull node:6.9.2 从官方拉取一个nodejs的镜像(docker pull bearou/gyt_develop:v1.1.0)
 docker build -t node_webserver_test . 在DockerFile所在的目录下，构建一个Image（名称为：node_webserver_test）
-docker run -d -p 1337:1337 841a 基于镜像上运行一个容器。-d：在后台运行；-p表示端口映射，841a：是镜像ID的前四位，也可以写全
 docker logs e31 打印容器日记，e31是容器[Container]ID的前三位
 docker exec -i -t e31a /bin/bash 进入容器里面，进去后就像操作普通的linux一样，如果需要退出就执行exit
 docker stop e31a 终止一个容器[docker stop $(docker ps -q):停用全部运行中的容器]
@@ -34,9 +37,10 @@ docker run -it -p 1337:1337 -v /Users/bear/Downloads/www/webserver_test:/data/ww
 docker run -d -it -p 1337:1337 -v /Users/bear/Downloads/www/test/:/data/www/mBlock/ --name mBlock_web-server web-server_node-6.9.2 /bin/bash
 docker save -o node.io[node.tar保存路径] faaadb4aaf9b 通过docker save命令，将镜像保存为tar文件
 docker load -i /root/bear/node.tar 通过docker load命令将tar文件【镜像】加载进来
-
-
-docker login --username=XXX registry.cn-XXX.alixx.com 登录docker云服务器
+docker commit -a 'Bear' -m 'base develop tool' c0588e8fb02b[容器ID或容器名] gyt_develop:v1.1.0[镜像名:标签] 将容器保存为镜像（-a：修改人；-m：备注；）
+docker tag gyt_develop:v1.1.0 bearou/gyt_develop:v1.1.0 修改docker镜像的名称（因为如果要推送到Docker Hub的话需要“注册用户名/镜像名”）
+docker push bearou/gyt_develop:v1.1.0[注册id/镜像名:tag] 推送镜像到Docker Hub（速度会很慢，需要耐心等待，如果失败下次还可以重传，已推送上去的会保留）
+docker login --username=XXX registry.cn-XXX.alixx.com 登录docker云服务器(如果是直接登录hub.docker.com的话用docker login即可，后面会要你输入用户名和密码)
 docker push registry.cn-XXX.XXX.com/makeblock/mblock-webservice-dev 把当前的镜像push到服务器
 
 
