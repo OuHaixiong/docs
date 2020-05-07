@@ -208,6 +208,10 @@ nohup /bin/bash /mnt/data/database_back/shell-postgresql_resto.sh > /mnt/data/lo
 41，清空表数据，并还原自增id：TRUNCATE table_name, table_name RESTART IDENTITY;  或     truncate table table_name;alter sequence seq_name start 1; （不同的数据库版本，可能有一定的差异）
 42，删除可视化视图：drop MATERIALIZED VIEW "public"."view_task_trace" cascade  相关的视图也会删除，如果有相关的视图需要先备份（特别注意）
 43，	explain analyze sql	#解释或分析sql执行过程【解析sql】
+44，如果要like单引号应该怎么写？ select * from tbl_customer where customer_name like '%''%';
+45，查询所有的触发器：SELECT * FROM pg_trigger;
+46，删除某个触发器：DROP TRIGGER delete_student_trigger on student;
+
 
 
 一、日期格式转换

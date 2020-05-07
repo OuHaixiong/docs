@@ -97,16 +97,16 @@ http {
     client_max_body_size 300m; // 允许客户端请求的最大的单个文件字节数
     client_body_buffer_size 128k; // 缓存区代理用户端文件字节数
     client_body_temp_path /tmp/client_body_temp; // 请求试图写入到缓存文件的目录路径
-    proxy_connect_timeout 600; // 和后端服务器连接的超时时间
-    proxy_read_timeout 600; // 连接成功等待后端响应的时间，默认60s
-    proxy_send_timeout 600; // 后端服务器的回传时间，规定服务器在一定的时间内传送完
+    proxy_connect_timeout 600; // 和后端服务器连接的超时时间（代理连接超时时间）
+    proxy_read_timeout 600; // 连接成功等待后端响应的时间，默认60s（代理接收超时时间）
+    proxy_send_timeout 600; // 后端服务器的回传时间，规定服务器在一定的时间内传送完（代理发送超时时间，即后端数据回传时间）
     proxy_buffer_size 12k; // 代理服务器的缓存文件头部文件大小，默认4k
 	proxy_buffers 4 32k;   // 后端真实服务器的数量和大小
-    proxy_busy_buffers_size 42k; //当系统忙时，申请更大 proxy_buffer
+    proxy_busy_buffers_size 64k; //当系统忙时，申请更大 proxy_buffer（高负荷下缓存大小）
     proxy_temp_file_write_size 64k; // 写入临时目录的文件大小
     proxy_temp_path /tmp/proxy_temp; // 指定一个目录来缓存比较大的代理请求
-	
-	
+
+
 	如下是HTTP负载均衡模块upstream 指定设置一群服务器，服务器可以指定不同的权重，默认为1。             Nginx支持5种方式的查询， 
       1、轮询 Nginx默认的查询方式 
       2、Weight 指定分配的轮询方式，根据后端服务器的性能来做权重，在此案例中我们使用这种方式来轮询的 
