@@ -3,6 +3,7 @@
 跨站脚本攻击(Cross Site Scripting)，为不和层叠样式表(Cascading Style Sheets, CSS)的缩写混淆，故将跨站脚本攻击缩写为XSS
 
 CSRF: Cross-Site Request Forgery 跨站请求攻击(伪造跨站请求)
-
+正常的做法是在生成form表单时，生成一个随机字符串（令牌），然后提交表单时跟随一个提交上来，验证提交的随机字符串是否正确，如果正确销毁该字符串，如果不正确直接拒绝请求
+CSRF令牌是临时性的且是会话专属的；
 
 sql注入:

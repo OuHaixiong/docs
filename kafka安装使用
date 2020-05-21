@@ -9,9 +9,9 @@ kafka安装和使用 (官方地址：http://kafka.apache.org)
 3, 启动kafka服务
   cd /usr/local/kafka
   # 需先启动zookeeper
-  # -daemon 可启动后台守护模式
-  bin/zookeeper-server-start.sh config/zookeeper.properties
-  bin/kafka-server-start.sh config/server.properties
+  # -daemon 可启动后台守护模式 ;   /usr/local/kafka/bin/zookeeper-server-start.sh -daemon /usr/local/kafka/config/zookeeper.properties 
+  bin/zookeeper-server-start.sh config/zookeeper.properties    #默认2181端口
+  bin/kafka-server-start.sh config/server.properties  ( /usr/local/kafka/bin/kafka-server-start.sh -daemon /usr/local/kafka/config/server.properties  )
   // 如果需远端生产和消费  vim config/server.properties
   // advertised.listeners=PLAINTEXT://ip:9092 => 这里改为你外网kafka的ip即可
   
@@ -20,6 +20,10 @@ kafka安装和使用 (官方地址：http://kafka.apache.org)
   session连接超时了，即会话超时，当zookeeper还未来得及创建连接，会话时间已到，因此抛出异常认为该节点故障
   修改配置文件：vim /usr/local/kafka/config/server.properties
   zookeeper.connection.timeout.ms=6000 修改为： zookeeper.connection.timeout.ms=15000
+  
+  如果报如下错误：
+  /usr/local/kafka/bin/kafka-run-class.sh: line 299: exec: java: not found
+  需要先安装java环境
   
 4，启动kafka客户端测试
   # 创建一个话题，test话题2个分区
@@ -55,6 +59,8 @@ kafka安装和使用 (官方地址：http://kafka.apache.org)
   # 大家好才是真的好
   
   # 如果不要--from-beginning参数的话，他只会获取最新的消息
+  ########## 特别特别注意了：如果使用--from-beginning获取所有消息时，消息并不是按先后顺序返回，而是随机的
+  （如果在话题中的消息没有删除掉的话，每次--from-beginning都会返回，因为kafka是会把消息保存在硬盘中）
   
   
   
@@ -86,3 +92,14 @@ https://github.com/qkl9527/php-rdkafka-class
 
 PHP下kafka的常用脚本实践
 https://segmentfault.com/a/1190000016106045
+
+
+问题：
+1，如何获取消息队列的长度？
+
+2，如何来集群？
+
+
+
+
+Elasticsearch 

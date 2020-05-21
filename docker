@@ -22,19 +22,18 @@ docker run -d -p 80:80 --name webserver nginx[841a]   通过docker镜像[image]�
 # -w /XX 设置工作目录；此设置将覆盖dockfile中的WORKDIR设置
 # -p 端口映射
 如果需要有挂载目录：docker run -dit --privileged=true -v /data[宿主机的绝对路径]:/opt[容器里面的绝对路径] --name gyt_develop_1.1.0 gyt_develop:v1.1.0[镜像:版本]  /bin/bash
+docker run -dit --privileged=true -p 1337:1337  -v /Users/bear/Downloads/www/webserver_test:/data/www/webserver --name xxx[容器名] 2737dede0818[镜像ID/镜像名] /bin/bash 把一个宿主机上的目录挂载到镜像里
 docker search gyt_develop 搜索已发布的镜像
 docker pull node:6.9.2 从官方拉取一个nodejs的镜像(docker pull bearou/gyt_develop:v1.1.0)
 docker build -t node_webserver_test . 在DockerFile所在的目录下，构建一个Image（名称为：node_webserver_test）
 docker logs e31 打印容器日记，e31是容器[Container]ID的前三位
-docker exec -i -t e31a /bin/bash 进入容器里面，进去后就像操作普通的linux一样，如果需要退出就执行exit
+docker exec -i -t e31a /bin/bash 进入容器里面，进去后就像操作普通的linux一样，如果需要退出就执行exit。启动一个伪终端以交互式的方式进入某个容器（使用exit退出后容器不停止运行）
 docker stop e31a 终止一个容器[docker stop $(docker ps -q):停用全部运行中的容器]
 docker start/restart e31adea47be3 启动和重启一个容器
 docker rm 841a6921f3bc 删除一个容器 【docker rm $(docker ps -aq):删除全部容器】
 docker rmi a7376d9a4848 删除一个镜像
 docker rmi $(docker images --filter dangling=true -q) 删除pull过程或者create过程产生的临时镜像，剩下的都是有用的镜像
 docker stop $(docker ps -q) & docker rm $(docker ps -aq) 停用并删除所有容器
-docker run -it -p 1337:1337 -v /Users/bear/Downloads/www/webserver_test:/data/www/webserver 2737dede0818[镜像ID] /bin/bash 把一个宿主机上的目录挂载到镜像里，并进入容器里
-docker run -d -it -p 1337:1337 -v /Users/bear/Downloads/www/test/:/data/www/mBlock/ --name mBlock_web-server web-server_node-6.9.2 /bin/bash
 docker save -o node.io[node.tar保存路径] faaadb4aaf9b 通过docker save命令，将镜像保存为tar文件
 docker load -i /root/bear/node.tar 通过docker load命令将tar文件【镜像】加载进来
 docker commit -a 'Bear' -m 'base develop tool' c0588e8fb02b[容器ID或容器名] gyt_develop:v1.1.0[镜像名:标签] 将容器保存为镜像（-a：修改人；-m：备注；）
@@ -57,3 +56,20 @@ EXPOSE 1337                      # 暴露端口号给主机，这样我们就能
 CMD ["npm", "start"]             # 运行命令，启动应用
 
 
+docker容器互访
+1，安装好docker后，运行如下明亮创建bridge网络：
+$ docker network create dev_net
+
+2，运行容器连接到dev_net网络
+$ docker run -dit --privileged=true -p 80:80 -v /Users/bear/Downloads/www:/data/www --name c_gyt_develop_v1.1.2 --network dev_net --network-alias gyt_develop bearou/gyt_develop:v1.1.2 /etc/init.d/start_webserver.sh
+开启另一个容器：docker run -dit --name c_kafka_v2.12 --network dev_net --network-alias kafka bearou/kafka:v2.12 /bin/bash
+
+3，在一个容器里ping另一个容器，测试如下：
+$ docker exec -it c_gyt_develop_v1.1.2 /bin/bash
+bash-4.2# ping kafka          
+PING kafka (172.18.0.3) 56(84) bytes of data.
+64 bytes from c_kafka_v2.12.dev_net (172.18.0.3): icmp_seq=1 ttl=64 time=0.078 ms
+64 bytes from c_kafka_v2.12.dev_net (172.18.0.3): icmp_seq=2 ttl=64 time=0.132 ms
+
+4，若访问容器中的服务，可以使用： [网络别名]:[服务端口号]
+推荐使用这种方法：自定义网络。因为使用的是网络别名，可以不需要顾虑IP是否变动，只要连接到docker内部bridge网络即可互访。bridge页可以建立多个，隔离在不同的网段。
