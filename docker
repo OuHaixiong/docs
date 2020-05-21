@@ -23,6 +23,8 @@ docker run -d -p 80:80 --name webserver nginx[841a]   通过docker镜像[image]�
 # -p 端口映射
 如果需要有挂载目录：docker run -dit --privileged=true -v /data[宿主机的绝对路径]:/opt[容器里面的绝对路径] --name gyt_develop_1.1.0 gyt_develop:v1.1.0[镜像:版本]  /bin/bash
 docker run -dit --privileged=true -p 1337:1337  -v /Users/bear/Downloads/www/webserver_test:/data/www/webserver --name xxx[容器名] 2737dede0818[镜像ID/镜像名] /bin/bash 把一个宿主机上的目录挂载到镜像里
+docker run -it -p 1337:1337 -v /Users/bear/Downloads/www/webserver_test:/data/www/webserver 2737dede0818[镜像ID] /bin/bash 把一个宿主机上的目录挂载到镜像里，并进入容器里
+docker run -d -it -p 1337:1337 -v /Users/bear/Downloads/www/test/:/data/www/mBlock/ --name mBlock_web-server web-server_node-6.9.2 /bin/bash
 docker search gyt_develop 搜索已发布的镜像
 docker pull node:6.9.2 从官方拉取一个nodejs的镜像(docker pull bearou/gyt_develop:v1.1.0)
 docker build -t node_webserver_test . 在DockerFile所在的目录下，构建一个Image（名称为：node_webserver_test）
@@ -34,8 +36,8 @@ docker rm 841a6921f3bc 删除一个容器 【docker rm $(docker ps -aq):删除�
 docker rmi a7376d9a4848 删除一个镜像
 docker rmi $(docker images --filter dangling=true -q) 删除pull过程或者create过程产生的临时镜像，剩下的都是有用的镜像
 docker stop $(docker ps -q) & docker rm $(docker ps -aq) 停用并删除所有容器
-docker save -o node.io[node.tar保存路径] faaadb4aaf9b 通过docker save命令，将镜像保存为tar文件
-docker load -i /root/bear/node.tar 通过docker load命令将tar文件【镜像】加载进来
+docker save -o node.io[node.tar保存路径] faaadb4aaf9b[镜像id] 通过docker save命令，将镜像保存为tar文件（或 docker save nginx:latest > /root/docker-images/nginx.tar）
+docker load -i /root/bear/node.tar 通过docker load命令将tar文件【镜像】加载进来（或 docker load --input /root/docker-images/nginx.tar；还有一种符号方式：docker load < /root/docker-images/nginx.tar）
 docker commit -a 'Bear' -m 'base develop tool' c0588e8fb02b[容器ID或容器名] gyt_develop:v1.1.0[镜像名:标签] 将容器保存为镜像（-a：修改人；-m：备注；）
 docker tag gyt_develop:v1.1.0 bearou/gyt_develop:v1.1.0 修改docker镜像的名称（因为如果要推送到Docker Hub的话需要“注册用户名/镜像名”）
 docker push bearou/gyt_develop:v1.1.0[注册id/镜像名:tag] 推送镜像到Docker Hub（速度会很慢，需要耐心等待，如果失败下次还可以重传，已推送上去的会保留）
