@@ -35,8 +35,8 @@ docker rmi $(docker images --filter dangling=true -q) 删除pull过程或者crea
 docker stop $(docker ps -q) & docker rm $(docker ps -aq) 停用并删除所有容器
 docker run -it -p 1337:1337 -v /Users/bear/Downloads/www/webserver_test:/data/www/webserver 2737dede0818[镜像ID] /bin/bash 把一个宿主机上的目录挂载到镜像里，并进入容器里
 docker run -d -it -p 1337:1337 -v /Users/bear/Downloads/www/test/:/data/www/mBlock/ --name mBlock_web-server web-server_node-6.9.2 /bin/bash
-docker save -o node.io[node.tar保存路径] faaadb4aaf9b 通过docker save命令，将镜像保存为tar文件
-docker load -i /root/bear/node.tar 通过docker load命令将tar文件【镜像】加载进来
+docker save -o node.io[node.tar保存路径] faaadb4aaf9b[镜像id] 通过docker save命令，将镜像保存为tar文件（或 docker save nginx:latest > /root/docker-images/nginx.tar）
+docker load -i /root/bear/node.tar 通过docker load命令将tar文件【镜像】加载进来（或 docker load --input /root/docker-images/nginx.tar；还有一种符号方式：docker load < /root/docker-images/nginx.tar）
 docker commit -a 'Bear' -m 'base develop tool' c0588e8fb02b[容器ID或容器名] gyt_develop:v1.1.0[镜像名:标签] 将容器保存为镜像（-a：修改人；-m：备注；）
 docker tag gyt_develop:v1.1.0 bearou/gyt_develop:v1.1.0 修改docker镜像的名称（因为如果要推送到Docker Hub的话需要“注册用户名/镜像名”）
 docker push bearou/gyt_develop:v1.1.0[注册id/镜像名:tag] 推送镜像到Docker Hub（速度会很慢，需要耐心等待，如果失败下次还可以重传，已推送上去的会保留）
