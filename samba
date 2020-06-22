@@ -210,6 +210,10 @@ mount -t cifs //10.0.4.67/myshare /mnt -o username=user1,password=123456
 格式就是这样，要指定-t cifs //IP/共享名本地挂载点  -o后面跟username 和 password
 挂载完后就可以像使用本地的目录一样使用共享的目录了。
 如果需要指定版本和编码的话：mount.cifs //192.168.0.175/www /opt/www -o user=Administrator,password=@Bear123,iocharset=utf8,file_mode=0777,dir_mode=0777,vers=2.0
+如果出现如下错误：
+-bash: mount.cifs: command not found
+请执行如下命令：
+yum install -y cifs-utils
 
 同样linux也可以访问window的共享目录：smbclient -L 192.168.16.XXX -U xiaoxiong
 
