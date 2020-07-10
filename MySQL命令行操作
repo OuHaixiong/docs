@@ -1,4 +1,63 @@
 
+CREATE TABLE `tbl_user` (
+  `ID` int unsigned AUTO_INCREMENT COMMENT '学号',
+  `name` varchar(256) NOT NULL DEFAULT '' COMMENT '姓名',
+  PRIMARY KEY (`ID`) USING BTREE
+) ENGINE=INNODB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='学生表';
+
+CREATE TABLE `tbl_score` (
+    `score_id` INT unsigned auto_increment comment '主键id',  // 默认int长度为10，无符号最多到4294967295
+    `ID` int unsigned default 0 comment '学号',
+    `score` tinyint(3) unsigned default 0 comment '考试成绩',
+    `subject` varchar(64) not null default '' comment '考试科目',
+    primary key (`score_id`) using btree,
+    UNIQUE KEY `u_ID_subject` (`ID`,`subject`)
+) ENGINE=INNODB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT '成绩表';
+
+创建存储过程：
+create procedure p1()
+begin
+    declare _product_id char(12);
+    declare _user_id bigint(20);
+    declare _store_id int;
+    declare _model varchar(100);
+    declare _parent_child enum('parent','child','single');
+    declare _parent_sku varchar(100);
+    declare _sku varchar(100);
+    declare _part_number varchar(100);
+    declare _price varchar(30);
+    declare _quantity varchar(300);
+    
+    declare done int;
+    
+    DECLARE rs_cursor CURSOR FOR SELECT `product_id`,`user_id`,`store_id`,`model`,`parent_child`,`parent_sku`,`sku`,`part_number`,`price`,`quantity` from ck_product_data;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done=1;
+
+    open rs_cursor;
+cursor_loop:loop
+    FETCH rs_cursor into _product_id,_user_id,_store_id,_model,_parent_child,_parent_sku,_sku,_part_number,_price,_quantity; -- 取数据
+    if done=1 then
+        leave cursor_loop;
+    end if;
+
+    INSERT INTO `cukke_product`.`ck_product_data_sku`(`product_id`, `user_id`, `store_id`, `model`, `parent_child`, `parent_sku`, `sku`, `part_number`, `price`, `quantity`) VALUES ( _product_id, _user_id, _store_id, _model, _parent_child, _parent_sku, _sku, _part_number, _price, _quantity);
+  
+end loop cursor_loop;
+close rs_cursor;
+end;
+
+调用存储过程：call p1();
+
+
+查找所有重复的数据：
+SELECT id,sku,product_id,store_id,user_id,model FROM ck_product_data WHERE product_id IN (SELECT product_id FROM ck_product_data GROUP BY product_id HAVING COUNT(product_id)>1)  order by product_id 
+删除重复的数据，删除id小的记录
+delete from ck_product_data where id in (
+select * from (
+SELECT min(id) as id FROM ck_product_data WHERE product_id IN (SELECT product_id FROM ck_product_data GROUP BY product_id HAVING COUNT(product_id)>1) group by product_id 
+) as temp_table
+)
+
 1，查看mysql的连接数；登录mysql后，执行如下命令：
 mysql -h127.0.0.1 -uroot -p
 > show processlist; 查看当前用户的连接数【只列出前100条】（如果是root帐号，你能看到所有用户的当前连接。如果是其它普通帐号，只能看到自己占用的连接）
@@ -76,10 +135,12 @@ filename="0xc_${nowTime}.sql";
 /usr/local/mysql/bin/mysqldump --add-drop-table -h127.0.0.1 -uroot -ppasswd -R -E --triggers 0xc > /home/xxx/${filename}
 # -R:备份存储过程和函数；-E：备份事件；--triggers：备份触发器
 echo 'Dump database 0xc finished!!!!';
+如果想要备份所有的数据库：/usr/local/mysql/bin/mysqldump --all-databases  --add-drop-table -h127.0.0.1 -uroot -p**** -R -E --triggers > /data/database_backup/${filename}
+
   2) 加入定时任务：crontab -e
     30 5 * * * /home/mysql/dump_0xc.sh > /dev/null 2>&1 # 每天凌晨5点30分
     #10 17 * * 5 /mnt/resource/backup/dump_files.sh > /dev/null 2>&1 #每星期一次
-  3) 重启crond:
+  3) 重启crond:  ( CentOS 7 使用 /bin/systemctl stop/start/restart  crond.service ）
     killall crond
     ps aux |grep crond // 查看是否已杀掉
     /usr/sbin/crond

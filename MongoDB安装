@@ -88,8 +88,9 @@ mongorestore -h host:port -d dbname [--drop 恢复时，先删除当前的数据
 第一个用户添加完成后，重启mongo后便需要认证才能继续添加其他用户
 > db.auth("admin", "password")
 添加数据库用户（用来供程序调用用）
-> use testdb //选择数据库
+> use testdb //选择数据库 (如果没有创建完用户之后就会创建数据库)
 > db.createUser({"user":"testname", "pwd":"password", "roles":[{"role":"dbOwner", "db":"testdb"}]}) // 创建用户
+db.createUser({"user":"root", "pwd":"nrYoxSqC", "roles":[{"role":"dbOwner", "db":"mydb"}]})
 > db.system.users.find() // 查看用户
 基本命令
 > db.help() // 查看所有数据级别的操作
