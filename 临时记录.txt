@@ -26,11 +26,6 @@ LEFT JOIN oc_manufacturer m ON (p.manufacturer_id = m.manufacturer_id) WHERE p.p
 AND p.date_available <= NOW() AND p2s.store_id = '0'
 
 
-ALTER TABLE `oc_customer` ADD `billing_addr_id` INT(11) NULL DEFAULT NULL AFTER `newsletter`;
-
-
-
-
 wall-e
 CD1
 ftp://dygod1:dygod1@d062.dygod.cn:2058/机器人总动员.[中英双字.1024分辨率]/[电影天堂www.dygod.cn]机器人总动员.[中英双字.1024分辨率]cd1.rmvb  

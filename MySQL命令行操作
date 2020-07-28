@@ -50,13 +50,40 @@ end;
 
 
 查找所有重复的数据：
-SELECT id,sku,product_id,store_id,user_id,model FROM ck_product_data WHERE product_id IN (SELECT product_id FROM ck_product_data GROUP BY product_id HAVING COUNT(product_id)>1)  order by product_id 
+SELECT id,sku,product_id,store_id,user_id,model FROM ck_product_data WHERE product_id IN (
+    SELECT product_id FROM ck_product_data GROUP BY product_id HAVING COUNT(product_id)>1
+)  order by product_id 
 删除重复的数据，删除id小的记录
 delete from ck_product_data where id in (
 select * from (
 SELECT min(id) as id FROM ck_product_data WHERE product_id IN (SELECT product_id FROM ck_product_data GROUP BY product_id HAVING COUNT(product_id)>1) group by product_id 
 ) as temp_table
 )
+
+-- 删除多余的重复记录(多个字段)，只保留最小id的记录
+DELETE FROM student WHERE id IN (
+    SELECT * FROM (
+        SELECT id FROM student WHERE (stuno,stuname) -- 注意：此处一定要加括号，当成联合字段来处理
+        IN (
+            -- 查找学号和姓名均重复的学生信息
+            SELECT stuno,stuname FROM student GROUP BY stuno,stuname HAVING COUNT(1) > 1
+        ) AND id NOT IN (
+            -- 查询最小id的记录
+            SELECT MIN(id) FROM student GROUP BY stuno,stuname HAVING COUNT(1) > 1
+        )
+    ) AS stu_repeat_copy    
+);
+-- 删除多余的记录，保留最小id的记录
+delete from ck_product_data_sku where sku_id in (
+    select * from (
+		    select sku_id from ck_product_data_sku where (user_id,sku) in (
+				    select user_id,sku from ck_product_data_sku group by `user_id`,`sku` having count(1) > 1
+				) and sku_id not in (
+				    select min(sku_id) from ck_product_data_sku group by `user_id`,`sku` having count(1) > 1
+				) 
+		) as temp_tab
+);
+
 
 1，查看mysql的连接数；登录mysql后，执行如下命令：
 mysql -h127.0.0.1 -uroot -p
@@ -136,7 +163,6 @@ filename="0xc_${nowTime}.sql";
 # -R:备份存储过程和函数；-E：备份事件；--triggers：备份触发器
 echo 'Dump database 0xc finished!!!!';
 如果想要备份所有的数据库：/usr/local/mysql/bin/mysqldump --all-databases  --add-drop-table -h127.0.0.1 -uroot -p**** -R -E --triggers > /data/database_backup/${filename}
-
   2) 加入定时任务：crontab -e
     30 5 * * * /home/mysql/dump_0xc.sh > /dev/null 2>&1 # 每天凌晨5点30分
     #10 17 * * 5 /mnt/resource/backup/dump_files.sh > /dev/null 2>&1 #每星期一次
@@ -145,8 +171,10 @@ echo 'Dump database 0xc finished!!!!';
     ps aux |grep crond // 查看是否已杀掉
     /usr/sbin/crond
 
+
 5，添加和修改字段
 添加：alter table `zh-CN_posts` add  `sort` int(10) NOT NULL DEFAULT 0 COMMENT '排序' after `skipUrl`;
+
 
 6，删除二进制文件
 如果mysql配置(/etc/my.cnf)了如下参数，将产生二进制文件：
@@ -176,39 +204,71 @@ mysql> show binary logs;
 2 rows in set (0.00 sec)
 
 
-下面是添加组合唯一索引
-ALTER TABLE `performance_personnel` ADD UNIQUE( `performanceId`, `distributionUserId`, `appraisePeriodId`);
+7，下面是添加索引
+alter table `t1` add index i_name(`name`); // 普通索引
+ALTER TABLE `performance_personnel` ADD UNIQUE [u_name] ( `performanceId`, `distributionUserId`, `appraisePeriodId`); // 组合唯一索引； 不给名字，默认是字段名 
+// create unique index un_user_id_sku on ck_product_data_sku(`user_id`, `sku`); 创建唯一索引，还可以这样写
+alter table `t1` add primary key(id); // 主键索引（自增才有意义，主键索引不是自增记得改成自增：alter table t1 modify id int unsigned not null auto_increment；）
 
-删除索引
+
+
+
+
+8，删除索引
 DROP INDEX index_name ON talbe_name
 ALTER TABLE table_name DROP INDEX index_name（可以是组合索引名）
-ALTER TABLE table_name DROP PRIMARY KEY
+ALTER TABLE table_name DROP PRIMARY KEY  //  删除主键索引
 
-            一：alter table用来创建普通索引，unique索引或primary key索引
-                普通索引：alter table t1 add index in_name(name)   --t1表中的那么字段添加索引名为in_name
-                唯一索引：alter table t1 add unique(name)   --不给名字，默认是字段名
-       alter table t1 add unique un_name(name)
-                           
-                主键索引(自增才有意义)：alter table t1 add primary key(id)
-                主键索引不是自增记得改成自增：alter table t1 modify id int unsigned not null auto_increment；
+
+9，查看索引
+show index from t1;
+
+
+10，创建数据库
+CREATE DATABASE IF NOT EXISTS db_name DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+                
+
+11，创建数据库对应的用户和密码，以及权限：
+GRANT ALL PRIVILEGES ON shop_api_db.* TO 'user_test_db2'@"%" IDENTIFIED BY '123456' WITH GRANT OPTION;               
+FLUSH PRIVILEGES;                
                  
-                查看索引：show index from t1;
-                删除：alter table t1 drop index in_name;
-                删除索引：      drop index in_name on t1;    --t1表中的in_name索引删除
-                 
-       @*删除主键索引单独处理*
-            二：alter table table_name drop index index_name
-         alter型删除索引:alter table t1 drop index in_name;
-                     
+
+12，同一个实例下，跨库联表查询（能够跨库连表查询的前提条件一定是：在两个数据库中均创建了同样的用户名和密码）
+select s.store_id,s.shop_name,p.title,p.content
+from test_db2.tbl_posts as p
+left join shop_api_db.ck_store as s on p.user_id=s.store_id;
+
+
+13，修改表注释、字段注释、字段类型、添加字段、修改字段名、删除字段
+alter table ck_store_privacy comment '店铺隐私和用户关系表'; // 修改表注释
+alter table ck_product_data modify column `is_privacy` tinyint(1) unsigned DEFAULT '0' COMMENT '是否隐私商品（0.否，1.是）'; // 修改表的字段类型和字段注释都需要这样写(添加字段注释也一样)   
+alter table `tbl_posts` add column `create_time` int(11) default 0 comment '创建时间' after `content`; // 添加字段（增加一个字段）
+alter table `tabelName` add column `fieldName1` dateType default 0 comment 'XXXX' after `xxx`,add columns `fieldName2` dateType; // 添加多个字段
+alter table web_warehouse_bar_code_order change `is_input_warehouse` `status` tinyint(1) unsigned default 1 comment '状态： 1：未入库， 2：已入库， 3：已出库';  // 修改字段名
+alter table `web_warehouse_bar_code_order` drop column `is_output_warehouse`; // 删除字段
+
+
+14，分组后进行筛选
+// 查找user_id和model相同的记录，即user_id和model同时一样的记录数大于1条的
+select user_id,model from ck_product_data  group by `user_id`,`model` having count(1) > 1
+
+
+
+15，锁表后操作
+show OPEN TABLES where In_use > 0  // 查询哪些表锁了
+show full processlist;             // 查看所有进程
+kill 248195;                       // 删除锁表进程
+
+
+
                     @*删除主键索引*：
                     注意：删除主键索引的时候，如果你的主键索引是自增（如：id）删除是会报错的
                           实在想玩的话就把主键的auto_increment消掉
                           alter table t1 modify id int unsigned not null;
                           改成自增：alter table t1 modify id int unsigned not null auto_increment；
                  
-            三：create index（不常用学习下，不能对主键索引操作，只能操作普通和唯一索引）
-               *创建普通索引： create index in_name on t1(name);  --将t1表中的那么字段添加为普通索引
-               *创建唯一索引：  create unique index un_name on t1(name);
+      
+               
 
             创建视图：create view v_t1 as select * from t1 where id>4 and id<11;
 

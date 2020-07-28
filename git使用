@@ -32,6 +32,19 @@ git pull
 # git tag 1.0.0 1b2e1d63ff 创建一个叫做 1.0.0 的标签(提交id可以通过 git log 查看)
 # git checkout -- <filename> 替换掉本地改动
 git clone bear@192.168.17.130:example.git bb  克隆远端仓库到本地文件夹bb
+git diff  xx/xxx.xx  查看本地文件的修改明细
+
+怎么切换不同的版本：
+1、git log 
+查看历史版本号
+英文状态下按Q，退出log
+
+2、git checkout -b audio (历史版本号)
+建立audio分支，并切换到audio分支，现在audio分支上的版本是哪个历史版本的内容。
+
+
+3、git rev-parse HEAD
+查看现在的版本
 
 
 学习网址：
