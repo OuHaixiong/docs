@@ -1,6 +1,9 @@
 win 下区分大小写（表名等区分大小写）
 lower_case_table_names=0
 
+MySQL数据类型：（详见截图）
+
+
 CentOS Linux卸载、安装mysql5.6
 
 一、卸载mysql：

@@ -5,7 +5,7 @@ CREATE TABLE `tbl_user` (
   PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=INNODB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='学生表';
 
-CREATE TABLE `tbl_score` (
+CREATE TABLE IF NOT EXISTS `tbl_score` (
     `score_id` INT unsigned auto_increment comment '主键id',  // 默认int长度为10，无符号最多到4294967295
     `ID` int unsigned default 0 comment '学号',
     `score` tinyint(3) unsigned default 0 comment '考试成绩',
@@ -172,8 +172,7 @@ echo 'Dump database 0xc finished!!!!';
     /usr/sbin/crond
 
 
-5，添加和修改字段
-添加：alter table `zh-CN_posts` add  `sort` int(10) NOT NULL DEFAULT 0 COMMENT '排序' after `skipUrl`;
+5，
 
 
 6，删除二进制文件
@@ -239,10 +238,11 @@ from test_db2.tbl_posts as p
 left join shop_api_db.ck_store as s on p.user_id=s.store_id;
 
 
-13，修改表注释、字段注释、字段类型、添加字段、修改字段名、删除字段
+13，修改表注释、字段注释、字段类型、添加字段（新增字段）、修改字段名、删除字段
 alter table ck_store_privacy comment '店铺隐私和用户关系表'; // 修改表注释
 alter table ck_product_data modify column `is_privacy` tinyint(1) unsigned DEFAULT '0' COMMENT '是否隐私商品（0.否，1.是）'; // 修改表的字段类型和字段注释都需要这样写(添加字段注释也一样)   
 alter table `tbl_posts` add column `create_time` int(11) default 0 comment '创建时间' after `content`; // 添加字段（增加一个字段）
+alter table `zh-CN_posts` add  `sort` int(10) NOT NULL DEFAULT 0 COMMENT '排序' after `skipUrl`; // 新增字段
 alter table `tabelName` add column `fieldName1` dateType default 0 comment 'XXXX' after `xxx`,add columns `fieldName2` dateType; // 添加多个字段
 alter table web_warehouse_bar_code_order change `is_input_warehouse` `status` tinyint(1) unsigned default 1 comment '状态： 1：未入库， 2：已入库， 3：已出库';  // 修改字段名
 alter table `web_warehouse_bar_code_order` drop column `is_output_warehouse`; // 删除字段
