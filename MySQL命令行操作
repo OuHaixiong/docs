@@ -172,7 +172,8 @@ echo 'Dump database 0xc finished!!!!';
     /usr/sbin/crond
 
 
-5，
+5，通过shell脚本恢复数据库：
+mysql -hlocalhost -uroot -p vragon_debug < /data/db/back/vragon_debug_2015-02-04.sql
 
 
 6，删除二进制文件

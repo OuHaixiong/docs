@@ -359,3 +359,11 @@ egrep -in "definer|set @@" your_revised.sql
   原因：貌似logfile文件损坏，导致重新加载时出错
   解决：
   进到数据目录，执行：rm -rf ib_logfile*；然后重新启动mysql即可：service mariadbd start
+
+8，问题：Table is marked as crashed and should be repaired 解决办法
+    首先进入mysql命令台：mysql -u root -p 回车  输入密码
+    查询所有的库：mysql> show databases; 
+    进入数据库“eduyun_2015_sp1”是库名：mysql> use eduyun_2015_sp1;
+    check table newabout（newabout--出现错误的表）用来检查出现问题的表的状态，出现错误就正常
+    然后用repair table newabout
+    再用check table newabout 检查一下就ok了
