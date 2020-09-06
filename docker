@@ -59,7 +59,7 @@ CMD ["npm", "start"]             # 运行命令，启动应用
 
 
 docker容器互访
-1，安装好docker后，运行如下明亮创建bridge网络：
+1，安装好docker后，运行如下命令创建bridge网络：
 $ docker network create dev_net
 
 2，运行容器连接到dev_net网络

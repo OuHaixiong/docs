@@ -15,15 +15,18 @@ samba4-libs-4.0.0-58.el6.rc4.x86_64
 Samba服务器安装完毕，会生成配置文件目录/etc/samba和其它一些samba可执行命令工具，/etc/samba/smb.conf是samba的核心配置文件，/etc/init.d/smb是samba的启动/关闭文件。
 
 3，可以通过/etc/init.d/smb start/stop/restart来启动、关闭、重启Samba服务，启动SMB服务如下所示
-/etc/init.d/smb start 或 /bin/systemctl restart smb.service（centos 7启动方式）
+/etc/init.d/smb start 或 /bin/systemctl restart smb.service（centos 7启动方式；systemctl start/stop smb）
 
 4，查看samba的服务启动情况
-service smb status
+service smb status ( systemctl status smb )
 
 5，设置开机自启动
 # chkconfig --level 35 smb on  //在3、5级别上自动运行samba服务
 # chkconfig --list |grep smb
 smb            	0:关闭	1:关闭	2:关闭	3:启用	4:关闭	5:启用	6:关闭
+( CentOS 7中：
+systemctl enable smb  # 加入开机启动
+systemctl disable smb # 从开机启动中删除 )
 
 6，配置Samba服务
 Samba的主配置文件为/etc/samba/smb.conf

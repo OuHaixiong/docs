@@ -254,6 +254,17 @@ which mysql 查询运行文件所在路径（目录）
     (如果后面带参数的话，可以这样：
     ./scripts/mysql_install_db --user=mysql --datadir=/data/db/mysql/ --defaults-file=/usr/local/mysql/my.cnf
     )
+    centos7 安装 mysql 8 时，没有上面的文件，只能 ： bin/mysqld --initialize --user=root --basedir=/usr/local/mysql --datadir=/data/db/mysql 
+    （安装数据库命令后，会生成临时密码,后续步骤会使用，特别注意保存密码！返回类似如下：
+    2020-09-05T14:35:04.974486Z 6 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: CMsjkBkoI5,C
+    如果报错如下：
+    bin/mysqld: error while loading shared libraries: libaio.so.1: cannot open shared object file: No such file or directory
+    必须安装安装包libaio和libaio-devel，执行如下命令：
+    yum -y install libaio*
+    如果报错如下：
+    bin/mysqld: error while loading shared libraries: libnuma.so.1: cannot open shared object file: No such file or directory
+    执行如下命令：
+    yum -y install numactl.x86_64
  9，复制mysql的服务启动脚本，并添加到chkconfig --list
     cp support-files/mysql.server /etc/init.d/mysqld
     chkconfig --add mysqld  // 添加mysqld开机启动 或 chkconfig --level 345 mysqld on
@@ -262,8 +273,8 @@ which mysql 查询运行文件所在路径（目录）
         在14.04.5上需要用如下命令：
         update-rc.d mysqld defaults // 添加启动项。删除启动项： update-rc.d -f mysqld remove
     )
- 10，复制mysql的默认配置文件到/etc目录下并改名my.cnf
-    cp support-files/my-default.cnf /etc/my.cnf （这里可以用my.cnf主服务器的配置）
+ 10，复制mysql的默认配置文件到/etc目录下并改名my.cnf (在mysql 8.0中没有此配置文件)
+    cp support-files/my-default.cnf /etc/my.cnf （这里可以用my.cnf主服务器的配置） 
  11，设置日记文件目录可写：
      mkdir -p /data/db/mysql/binlog/
      chown mysql.mysql /data/db/mysql/binlog
@@ -281,7 +292,7 @@ which mysql 查询运行文件所在路径（目录）
      ln -sv /usr/local/mysql/include /usr/include/mysql (貌似有问题)
  16，安装完毕。可使用 service mysqld start|stop|restart 来启动和关闭mysql 或 /etc/init.d/mysqld restart
      ( 如果是ubuntu系统需要重启下再来修改密码 )
-          可查看3306端口是否被监控：netstat -ntulp |grep 3306
+          可查看3306端口是否被监控：netstat -ntulp |grep 3306 ；也可以通过：/etc/init.d/mysqld status 来查看是否已经启动mysql
      (重启的命令也可以直接用，如：
      sudo /usr/local/mysql/support-files/mysql.server restart --defaults-file=/usr/local/mysql/my.cnf)
      
@@ -293,7 +304,12 @@ which mysql 查询运行文件所在路径（目录）
      ./bin/mysqladmin -u root [-h 127.0.0.1 -P 3307] password  (这里一定要启动着mysql)
      （./bin/mysqladmin -u root -h localhost.localdomain password 'new-password'）
           输入新密码即可
-          （ 如果出现如下错误：ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/tmp/mysql.sock' (2)，需要输入:-h127.0.0.1 ）
+          （ 如果出现如下错误：ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/tmp/mysql.sock' (2)，需要输入:-h127.0.0.1 
+          如果出现如下错误：mysqladmin: connect to server at '127.0.0.1' failed
+          error: 'Access denied for user 'root'@'localhost' (using password: NO)'
+          需要通过旧密码来修改新密码：./bin/mysqladmin -uroot -h127.0.0.1 -pCMsjkBkoI5,C password 123456
+          /etc/init.d/mysqld restart 重启后在通过新的密码进行登录： ./bin/mysql -h 127.0.0.1 -P 3306 -u root -p
+          ）
           重启服务：service mysqld restart
  18，验证登录
      /usr/local/mysql/bin/mysql [-h127.0.0.1 -P3307] -uroot -p    输入密码
