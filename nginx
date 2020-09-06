@@ -183,6 +183,12 @@ server {
         include        /usr/local/webserver/nginx/conf/fastcgi_params;  # 其实fastcgi_params此文件内容就和下面的fcgi.conf差不多
         # 貌似上面两句可以包含一个文件进来，华南城网的配置就是这样的，fcgi.conf文件内容在底部
     }
+
+    location ~* \.(eot|ttf|woff|svg|otf|woff2)$ { // 如果字体文件也需要跨域请求的话
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Headers X-Requested-With;
+        add_header Access-Control-Allow-Methods GET,POST,OPTIONS;
+    }
     
     location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$ { # 图片缓存
         expires      30d;

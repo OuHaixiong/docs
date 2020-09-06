@@ -19,3 +19,8 @@ composer require monolog/monolog 安装指定的包（这里是安装日志库�
 groupadd data-www
 useradd data-www -g data-www
 su data-www
+
+
+
+composer dump-autoload 重新生成 Composer 的自动加载器(更新缓存)
+composer update 更新依赖包

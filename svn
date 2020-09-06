@@ -1,4 +1,47 @@
 
+CentOS 7 安装SVN：
+1，检查是否安装了svn：rpm -qa subversion
+查看安装SVN版本信息：svnserve --version
+卸载旧版本SVN：yum remove subversion
+
+2，yum命令安装svn：yum -y install subversion
+
+3，创建目录作为项目仓库：mkdir -p /data/db/svn
+
+4，创建版本库:svnadmin create /data/db/svn/erp_prototype
+
+5，进入配置文件，配置用户名和密码
+vim /data/db/svn/erp_prototype/conf/authz 新增 （特别注意：所有语句必须顶格写，左侧不能留空格，否则会报错）
+[groups]
+ui = tangyan       # 用户归属分组
+[/]
+@ui = rw           # 某个目录下的哪些分组或哪个用户有“读写”权限
+vim /data/db/svn/erp_prototype/conf/passwd 新增
+[users]
+tangyan = tangyan  # 用户名和密码
+
+6，设置配置文件：
+vim /data/db/svn/erp_prototype/conf/svnserve.conf 修改下面的参数：
+[general]
+anon-access = none    # 匿名访问权限
+auth-access = write   # 授权用户拥有写的权限
+password-db = passwd  # 密码数据库路径
+authz-db = authz      # 访问权限控制文件路径
+
+7，启动svn服务
+svnserve -d [--list-port 3700] -r /data/db/svn 
+-d：作为守护进程运行
+-r: 指定发布哪个目录下的版本库（即：指定svn服务运行的仓库目录）
+--list-port：指定端口号，默认的端口号为3690
+
+8，需要开启3690端口
+firewall-cmd --permanent --zone=public --add-port=3690/tcp 
+firewall-cmd --reload
+
+9，至此已配置完毕，可以通过 svn://ip/svn/erp_prototype 进行访问
+
+
+
 CentOS 6.5 安装svn：
 yum install subversion
 

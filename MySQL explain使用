@@ -1,65 +1,93 @@
 
 使用EXPLAIN关键字可以让你知道MySQL是如何处理你的SQL语句的。这可以帮你分析你的查询语句或是表结构的性能瓶颈。
 
+分析索引效率
+  方法：在一般的SQL语句前加上explain；
+  分析结果的含义：
+  1）table：表名；
+  2）type：连接的类型，(ALL/Range/Ref)。其中ref是最理想的；
+  3）possible_keys：查询可以利用的索引名；
+  4）key：实际使用的索引；
+  5）key_len：索引中被使用部分的长度（字节）；
+  6）ref：显示列名字或者"const"（不明白什么意思）；
+  7）rows：显示MySQL认为在找到正确结果之前必须扫描的行数；
+  8）extra：MySQL的建议；
+
 1）
 explain SELECT * FROM `performance` where id=888  使用了主键（primary）索引,扫描行数为1
 id 	select_type 	table 	    type 	possible_keys 	key 	   key_len 	 ref 	rows 	Extra 	
-1 	SIMPLE 	     performance 	const 	PRIMARY 	    PRIMARY 	4 	    const 	1 	
+1 	SIMPLE 	     performance 	const 	PRIMARY 	    PRIMARY 	4 	    const 	1 
+
 explain SELECT * FROM `performance` WHERE id=888 or id=999 同样的道理，这里使用到了索引，如下：
 id 	select_type 	table 	    type 	possible_keys 	key 	key_len 	ref 	rows 	Extra 	
 1 	SIMPLE 	      performance 	range 	PRIMARY 	    PRIMARY 	4 	    NULL	2 	    Using where
+
 explain SELECT * FROM `performance` WHERE id=888 or `rateeJobNumber`='10214' 这里就没有用到索引，因为列rateeJobNumber没有添加索引
 id 	select_type 	table 	    type 	possible_keys 	key 	key_len 	ref 	rows 	Extra 	
 1 	SIMPLE 	     performance 	ALL 	PRIMARY 	    NULL	NULL	    NULL	2918 	Using where
+
 接下来我们对`rateeJobNumber`添加普通索引，继续执行上面的sql：
+
 explain SELECT * FROM `performance` WHERE id=888 or `rateeJobNumber`='10214'  这样就使用到了两个索引。
 id 	select_type 	table 	    type 	        possible_keys 	        key 	                key_len 	ref 	rows 	Extra 	
 1 	SIMPLE 	     performance 	index_merge 	PRIMARY,rateeJobNumber 	PRIMARY,rateeJobNumber 	4,61 	    NULL	12  	Using union(PRIMARY,rateeJobNumber); Using where
+
 结论：WHERE条件中有or时，MySQL将无法使用索引；除非or条件的每个列都加了索引。
 
 2）
 explain SELECT * FROM `performance` WHERE  `rateeJobNumber` like '%102%'; 不会使用索引
 id 	select_type 	table 	    type 	possible_keys 	key 	key_len 	ref 	rows 	Extra 	
 1 	SIMPLE 	     performance 	ALL 	NULL	        NULL	NULL	    NULL	2918 	Using where
+
 explain SELECT * FROM `performance` WHERE  `rateeJobNumber` like '102%'; 会使用索引
 id 	select_type 	table 	    type 	possible_keys 	key 	        key_len 	ref 	rows 	Extra 	
 1 	SIMPLE 	     performance 	range 	rateeJobNumber 	rateeJobNumber 	61       	NULL	460 	Using index condition
+
 结论：WHERE子句的查询条件里使用比较操作符LIKE和REGEXP，MySQL只有在搜索模板的第一个字符不是通配符的情况下才能使用索引。
 
 3）
 explain SELECT * FROM `performance` WHERE  id in (888,999,2,30,45); 会使用索引
 id 	select_type 	table 	    type 	possible_keys 	key 	  key_len 	ref 	rows 	Extra 	
 1 	SIMPLE 	     performance 	range 	PRIMARY 	    PRIMARY 	4 	    NULL	5 	    Using where
+
 explain SELECT * FROM `performance` WHERE  id BETWEEN 888 AND 999; 会使用索引，BETWEEN...AND...相当于...>=...and...<=...
 id 	select_type 	table 	    type 	possible_keys 	key 	key_len 	ref 	rows 	Extra 	
 1 	SIMPLE 	      performance 	range 	PRIMARY 	    PRIMARY 	4 	    NULL	111 	Using where
+
 结论：between、in查询，如果该字段添加了索引，会直接使用索引，且不会扫描全表
 
 4)
 EXPLAIN SELECT * FROM `performance` WHERE `rateeJobNumber`=10284; 不会使用索引，因为rateeJobNumber字段是字符型，这里存在转换
 id 	select_type 	table 	    type 	possible_keys 	key 	key_len 	ref 	rows 	Extra 	    
 1 	SIMPLE 	      performance 	ALL 	rateeJobNumber 	NULL	NULL	    NULL	2918 	Using where
+
 EXPLAIN SELECT * FROM `performance` WHERE `rateeJobNumber`='10284'; 使用了索引
 id 	select_type 	table 	        type 	possible_keys 	key 	        key_len 	ref 	rows 	Extra 	
 1 	SIMPLE      	performance 	ref 	rateeJobNumber 	rateeJobNumber 	61 	        const 	11 	    Using index condition
+
 结论：当查询条件存在隐形转换时，索引无效。如果是主键id为int型，如果查询时id='888'是会使用索引的，如果记录不存在，使用索引情况均为null
 
 5）
 EXPLAIN SELECT * FROM `performance` WHERE `appraisePeriodId`=2 AND `rateeJobNumber`='10284'; 使用了索引，这里使用的是rateeJobNumber这个索引
 id 	select_type 	table 	        type 	possible_keys 	                    key 	        key_len 	ref 	rows 	Extra 	
 1 	SIMPLE      	performance 	ref 	appraisePeriodId,rateeJobNumber 	rateeJobNumber 	61 	        const 	11   	Using index condition; Using where
+
 EXPLAIN SELECT * FROM `performance` WHERE `appraisePeriodId`=2 AND `rateeUserId`='051048196927268500' and `appraiserUserId`='051048196927268500'; 会使用索引
 id 	select_type 	table 	        type 	possible_keys 	    key 	            key_len 	ref 	            rows 	Extra 	
 1 	SIMPLE 	        performance 	const 	appraisePeriodId 	appraisePeriodId 	1211 	    const,const,const 	1 这里使用组合索引：appraisePeriodId，rateeUserId，appraiserUserId
+
 EXPLAIN SELECT * FROM `performance` WHERE `appraiserUserId`='051048196927268500' AND `appraisePeriodId`=2 AND `rateeUserId`='051048196927268500'; 使用了索引
 id 	select_type 	table 	        type 	possible_keys    	key 	           key_len 	ref 	            rows 	Extra 	
 1 	SIMPLE 	        performance 	const 	appraisePeriodId 	appraisePeriodId 	1211 	const,const,const 	1 	
+
 EXPLAIN SELECT * FROM `performance` WHERE `appraiserUserId`='051048196927268500' AND `rateeUserId`='051048196927268500'; 没有使用索引，因为没有包含最左边的字段appraisePeriodId
 id 	select_type 	table 	        type 	possible_keys 	key 	key_len 	ref 	rows 	Extra 	     
 1 	SIMPLE       	performance 	ALL 	NULL	        NULL	NULL	    NULL	2917 	Using where
+
 EXPLAIN SELECT * FROM `performance` WHERE  `rateeUserId`='051048196927268500' and `appraisePeriodId`=2; 使用了索引
 id 	select_type 	table 	        type 	possible_keys 	    key 	            key_len 	ref 	        rows 	Extra 	
 1 	SIMPLE 	        performance 	ref 	appraisePeriodId 	appraisePeriodId 	608 	    const,const 	1    	Using index condition
+
 结论：组合索引，遵从“最左前缀(Leftmost Prefixing)”集合原则，即查询字段需要包含组合索引的最左字段才生效。查询时，字段的排序和索引的排序不一样时，只有遵循“最左前缀”就能使用到索引
 
 

@@ -1,0 +1,4 @@
+1， 链接redis
+/usr/local/redis/bin/redis-cli -h 127.0.0.1 -p 6379 -a ouhaixiong  参数-a 为密码，也可以进去后再验证：127.0.0.1:6379> auth ouhaixiong
+
+2，

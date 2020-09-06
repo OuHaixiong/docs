@@ -1,6 +1,9 @@
 win 下区分大小写（表名等区分大小写）
 lower_case_table_names=0
 
+MySQL数据类型：（详见截图）
+
+
 CentOS Linux卸载、安装mysql5.6
 
 一、卸载mysql：
@@ -78,8 +81,7 @@ create database test;       创建数据库
 drop database 库名;         删除数据库
 drop table 表名;            删除表
 
-  增加一个字段：alter table tabelName add column fieldName dateType;
-  增加多个字段：alter table tabelName add column fieldName1 dateType,add columns fieldName2 dateType;
+  
   多行命令输入:注意不能将单词断开;当插入或更改数据时，不能将字段的字符串展开到多行里，否则硬回车将被储存到数据中;
   每条语句输入完毕后要在末尾填加分号';'，或者填加'\g'也可以；
   查询时间：select now();
@@ -148,17 +150,7 @@ select * from oc_information into outfile "/data/db/export/information.csv" fiel
   3）增加查询优化器的负担；
   当查询优化器生成执行计划时，会考虑索引，太多的索引会给查询优化器增加工作量，导致无法选择最优的查询方案；
   
-  16、分析索引效率
-  方法：在一般的SQL语句前加上explain；
-  分析结果的含义：
-  1）table：表名；
-  2）type：连接的类型，(ALL/Range/Ref)。其中ref是最理想的；
-  3）possible_keys：查询可以利用的索引名；
-  4）key：实际使用的索引；
-  5）key_len：索引中被使用部分的长度（字节）；
-  6）ref：显示列名字或者"const"（不明白什么意思）；
-  7）rows：显示MySQL认为在找到正确结果之前必须扫描的行数；
-  8）extra：MySQL的建议；
+
   
   17、使用较短的定长列
   1）尽可能使用较短的数据类型；
@@ -367,3 +359,11 @@ egrep -in "definer|set @@" your_revised.sql
   原因：貌似logfile文件损坏，导致重新加载时出错
   解决：
   进到数据目录，执行：rm -rf ib_logfile*；然后重新启动mysql即可：service mariadbd start
+
+8，问题：Table is marked as crashed and should be repaired 解决办法
+    首先进入mysql命令台：mysql -u root -p 回车  输入密码
+    查询所有的库：mysql> show databases; 
+    进入数据库“eduyun_2015_sp1”是库名：mysql> use eduyun_2015_sp1;
+    check table newabout（newabout--出现错误的表）用来检查出现问题的表的状态，出现错误就正常
+    然后用repair table newabout
+    再用check table newabout 检查一下就ok了
