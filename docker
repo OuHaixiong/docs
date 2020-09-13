@@ -65,6 +65,7 @@ $ docker network create dev_net
 2，运行容器连接到dev_net网络
 $ docker run -dit --privileged=true -p 80:80 -v /Users/bear/Downloads/www:/data/www --name c_gyt_develop_v1.1.2 --network dev_net --network-alias gyt_develop bearou/gyt_develop:v1.1.2 /etc/init.d/start_webserver.sh
 开启另一个容器：docker run -dit --name c_kafka_v2.12 --network dev_net --network-alias kafka bearou/kafka:v2.12 /bin/bash
+开启mysql的容器：docker run -dit --privileged=true -p 3306:3306 --name c_mysql_v1.1.0 --network dev_net --network-alias mysql bearou/mysql_8.0:v1.1.0 "/etc/init.d/start_mysql.sh"
 
 3，在一个容器里ping另一个容器，测试如下：
 $ docker exec -it c_gyt_develop_v1.1.2 /bin/bash
@@ -75,3 +76,16 @@ PING kafka (172.18.0.3) 56(84) bytes of data.
 
 4，若访问容器中的服务，可以使用： [网络别名]:[服务端口号]
 推荐使用这种方法：自定义网络。因为使用的是网络别名，可以不需要顾虑IP是否变动，只要连接到docker内部bridge网络即可互访。bridge页可以建立多个，隔离在不同的网段。
+
+
+docker容器追加端口映射：
+1，查看容器id，并记录下来:docker ps 可以查看对应的容器的id为：feb22a1edc94
+同样也可以通过：docker inspect c_gyt_develop_v1.1.2 查看容器的配置，也可以看到容器id
+
+2，修改配置文件之前先停掉docker：systemcel stop docker
+
+3，找到对应的配置文件hostconfig.json：在 /var/lib/docker/containers/[容器ID]/下找到hostconfig.json
+
+"PortBindings":{"80/tcp":[{"HostIp":"","HostPort":"80"}],"8037/tcp":[{"HostIp":"","HostPort":"8037"}],"8000/tcp":[{"HostIp":"","HostPort":"8000"}]},
+
+

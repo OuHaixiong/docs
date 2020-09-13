@@ -44,7 +44,10 @@ service mysql start
  在主服务器上建立同步帐号
 GRANT REPLICATION SLAVE,FILE ON *.* TO 'replication'@'10.1.1.%' IDENTIFIED BY '123456' WITH GRANT OPTION;
 //GRANT ALL PRIVILEGES ON *.* TO 'mvcUser'@"%" IDENTIFIED BY '123456' WITH GRANT OPTION;
-FLUSH PRIVILEGES; 
+特别注意了：在mysql 8.0+的版本中，不能执行上面的语句，需要分开执行，先创建用户，后授权：
+create user 'docker_root'@'%' identified with mysql_native_password by '123456';
+grant all privileges on *.* to 'docker_root'@'%' with grant option;
+FLUSH PRIVILEGES;  [可以不用重启mysql服务，此帐号就能用了]
 如果有多台需要同步，就需要建立多个账号
 GRANT REPLICATION SLAVE ON *.* TO 'synchronous101'@'10.169.111.66' IDENTIFIED BY 'XXXXXX'  WITH GRANT OPTION;
 FLUSH PRIVILEGES; 
