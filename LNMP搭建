@@ -519,6 +519,9 @@ catch_workers_output = yes                      # 是否输出异常信息，记
 When the track_errors ini setting is enabled, a $php_errormsg variable is created in the local scope when a non-fatal error occurs.
  Given that the preferred way of retrieving such error information is by using error_get_last(), this feature has been deprecated.
 ）
+如果需要带配置启动的话：
+/usr/local/php56/sbin/php-fpm -c /usr/local/php56/lib/php.ini -y /usr/local/php56/etc/php-fpm.conf -t 测试
+/usr/local/php56/sbin/php-fpm -c /usr/local/php56/lib/php.ini -y /usr/local/php56/etc/php-fpm.conf    启动
 
 如果修改了php.ini需要重启php-fpm:
  ps -ef |grep php-fpm  找到php-fpm的主（master）进程

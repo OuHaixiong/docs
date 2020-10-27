@@ -1,4 +1,4 @@
-vscode+XDebug调试远程环境(虚拟机)上的PHP代码
+vscode[Visual Studio Code]+XDebug调试远程环境(虚拟机)上的PHP代码
 
 1，安装php的xdebug扩展，配置php.ini中的xdebug
 [xdebug]
