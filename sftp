@@ -1,0 +1,59 @@
+CentOS 安装sftp
+sftp是Secure File Transfer Protocol的缩写，安全文件传送协议。可以为传输文件提供一种安全的网络的加密方法。sftp 与 ftp 有着几乎一样的语法和功能。
+SFTP 为 SSH的其中一部分，是一种传输档案至 Blogger 服务器的安全方式。其实在SSH软件包中，已经包含了一个叫作SFTP(Secure File Transfer Protocol)的安全文件信息传输子系统，
+SFTP本身没有单独的守护进程，它必须使用sshd守护进程（端口号默认是22）来完成相应的连接和答复操作，所以从某种意义上来说，SFTP并不像一个服务器程序，而更像是一个客户端程序。
+SFTP同样是使用加密传输认证信息和传输的数据，所以，使用SFTP是非常安全的。但是，由于这种传输方式使用了加密/解密技术，所以传输效率比普通的FTP要低得多，
+如果您对网络安全性要求更高时，可以使用SFTP代替FTP。
+
+1，如果没有安装ssh的话，要安装
+yum install openssh*
+
+2，添加sftp用户和组
+mkdir -p /home/sftp
+chmod 0755 /home/sftp # 权限必须为755
+groupadd www                                             # 添加用户组
+useradd -d /home/sftp/test -m -g www -s /bin/false test  # 添加用户test并禁止通过ssh登录 
+-d # 指定用户主目录，省略则为"/home/username"
+-m # 创建用户主目录(家目录)
+-g # 指定用户所属用户组
+-s /bin/false # 禁止用户通过shell登录  或 -s /sbin/nologin
+echo "@Bear123" | passwd test --stdin  # 为test用户设置登录密码
+
+
+3，修改目录的组和权限
+chmod 0755 /home/sftp/test         # 权限必须为755，否则会导致登录报错
+chown root /home/sftp/test         # 修改所属用户，必须为root不然登录不成功
+chgrp www /home/sftp/test          # 修改用户组，修改后： drwxr-xr-x 3 root www 72 12月 20 15:32 test 前面是用户，后面是组
+mkdir /home/sftp/test/upload       # 创建文件上传目录
+chown test. /home/sftp/test/upload # 将权限修改为test用户所拥有
+chmod 0777 /home/sftp/test/upload  # 如果php程序需要写该目录，权限需要为777，drwxrwxrwx 2 test www 6 12月 21 10:23 upload
+
+4，编辑sftp的配置文件(SSH配置) 
+vim /etc/ssh/sshd_config
+PasswordAuthentication yes  # 开启验证
+PermitEmptyPasswords no     # 禁止空密码登录
+# Subsystem sftp /usr/libexec/openssh/sftp-server  # 前面添加#号（注释掉）
+在末尾添加如下配置（对登录用户的限定）
+echo 'Subsystem sftp internal-sftp             # 指定使用sftp服务使用系统自带的internal-sftp
+Match Group www                                # 匹配www组的用户，如果要匹配多个组，多个组之间用逗号分割
+ChrootDirectory /home/sftp/%u                  # 指定sftp用户的根（主）目录，%h：代表用户家目录； %u：代表用户名
+ForceCommand internal-sftp                     # 指定sftp命令；强制使用系统自带的 internal-sftp 服务，这样用户只能使用ftp模式登录
+AllowTcpForwarding no                          # 用户不能使用端口转发
+X11Forwarding no' >> /etc/ssh/sshd_config      # 用户不能使用端口转发
+
+# PermitRootLogin no   是否允许root用户远程登录（貌似这个需要设置为yes）
+
+5，重启服务
+systemctl restart sshd.service
+
+6，使用FileZilla工具进行登录测试
+如果报错：
+错误:	FATAL ERROR: Network error: Software caused connection abort
+错误:	无法连接到服务器
+解决：
+
+如果报错：
+错误:	FATAL ERROR: Remote side unexpectedly closed network connection
+错误:	无法连接到服务器
+解决：这个是权限问题，sftp用户的根目录及以上权限都需要为755和用户群组都要为root，用户也要是root
+同时注意了：sftp不支持软链接，即里面的文件和目录如果为软链接是无法访问的

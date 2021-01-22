@@ -44,6 +44,7 @@ php-cgi进程数不够用、php执行时间长、或者是php-cgi进程死掉，
 当setcookie设置的值过长时，也会报502错误。解决办法是修改nginx配置：fastcgi_buffer_size 16k;fastcgi_buffers 16 16k;适当的增大这两个参数的缓存值
 http://blog.csdn.net/u013474436/article/details/48136023  很值得去认真看的一篇文章
 打开xdebug也可能会出现502的错误
+有时因为xdebug和swoole冲突了，也会导致php进程假死，出现502错误
 
 504：504 Gateway Time-out 表示超时，nginx长时间没有得到php的运行结果
 执行超时，有可能是连接数据库时，无法连接，导致php脚本超时。也可能是程序陷入了死循环。

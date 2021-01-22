@@ -17,3 +17,14 @@ e: ： 进入e盘，进入上级目录：cd ../ ; cd XXX : 进入XXX目录【可
 
 
 mstsc ：打开远程连接
+
+
+
+
+
+
+
+
+
+https://blog.csdn.net/ouyang_peng/article/details/80983996
+【Git学习】Windows系统下如何删除已经保存的账号密码

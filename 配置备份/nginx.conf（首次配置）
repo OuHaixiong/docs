@@ -19,7 +19,7 @@ http {
     include       mime.types;
     default_type  application/octet-stream;
 
-    client_max_body_size                    8M; # 客户端最大文件大小
+    client_max_body_size                    20M; # 客户端最大文件大小
     client_body_buffer_size                 80k;
     fastcgi_read_timeout                    300s; 
     # fastcgi_read_timeout 默认60s
