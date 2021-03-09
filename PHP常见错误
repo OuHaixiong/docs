@@ -20,3 +20,8 @@ extension=/usr/local/php/lib/php/extensions/no-debug-non-zts-20170718/mcrypt.so
 
 重启 php-fpm
 ps -ef |grep php-fpm -> kill -quit xxx -> /usr/local/php/sbin/php-fpm
+
+
+2， Fatal error: Allowed memory size of 134217728 bytes exhausted (tried to allocate 20480 bytes)  
+翻译：致命错误:允许内存大小134217728字节耗尽(尝试分配20480字节)
+解决：PHP默认128M的内存，如果高于这个就会内存溢出

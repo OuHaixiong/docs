@@ -25,6 +25,7 @@ docker run -d -p 80:80 --name webserver nginx[841a]   通过docker镜像[image]�
 docker run -dit --privileged=true -p 1337:1337  -v /Users/bear/Downloads/www/webserver_test:/data/www/webserver --name xxx[容器名] 2737dede0818[镜像ID/镜像名] /bin/bash 把一个宿主机上的目录挂载到镜像里
 docker run -it -p 1337:1337 -v /Users/bear/Downloads/www/webserver_test:/data/www/webserver 2737dede0818[镜像ID] /bin/bash 把一个宿主机上的目录挂载到镜像里，并进入容器里
 docker run -d -it -p 1337:1337 -v /Users/bear/Downloads/www/test/:/data/www/mBlock/ --name mBlock_web-server web-server_node-6.9.2 /bin/bash
+    如果要连续使用端口可以这样写：tcp：-p 31883-31900:31883-31900 ； udp：-p 32883-32900:32883-32900/udp
 docker search gyt_develop 搜索已发布的镜像
 docker pull node:6.9.2 从官方拉取一个nodejs的镜像(docker pull bearou/gyt_develop:v1.1.0)
 docker build -t node_webserver_test . 在DockerFile所在的目录下，构建一个Image（名称为：node_webserver_test）

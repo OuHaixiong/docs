@@ -141,7 +141,7 @@ bigserial == int8 DEFAULT nextval('admin_action_id_seq'::regclass) NOT NULL 自�
 
 命令行：
 1, 删除表：drop table if exists admin_user; 或 drop table admin_action; // 删除表后，或同时把自增id表（admin_action_id_seq）给删除
-2, 增加一列 ：alter table table_name add column_name datatype;alter table feedback add column type smallint default 1;
+2, 增加一列 ：alter table table_name add column_name datatype;alter table feedback add column type smallint default 1;【添加字段】
 3, 删除一列：alter table table_name drop column_name; alter table business drop artificial_person;
 4, 更改列的数据类型: ALTER TABLE table_name ALTER  column_name TYPE datatype; 如果有数据或数据类型不匹配时，基本是修改不成功的。（原因是默认值和数据类型需要分别设置）
                     ALTER TABLE product ALTER  descimgs TYPE jsonb USING descimgs::jsonb[]; 
@@ -221,7 +221,8 @@ nohup /bin/bash /mnt/data/database_back/shell-postgresql_resto.sh > /mnt/data/lo
   上面的查询语句，执行了pg_cancel_backend()函数，该函数是取消后台操作，回滚未提交事物的用途
 49，如果你要建一个可以支持右模糊查询的索引时，需要这样：CREATE INDEX xxx_index ON table_name (xxx varchar_pattern_ops);
 50，按in条件顺序进行排序查询：select * from tb where id in (111, 444, 333, 222) order by strpos(‘111,222,333,444’, id::text);
-
+51，更新一批数据：update tbl_task_list set settle_customer_id = 13172,settle_customer_code = 'XiaoMi'  where  customer_code='XiaoMi'  and settle_customer_code = '';
+52，根据某个表的字段全部更新一个表的数据：update tbl_redundancy r set customer_id = c.customer_id, customer_code = c.customer_code from tbl_cd c where r.cd_id = c.id;
 
 
 一、日期格式转换
@@ -230,8 +231,8 @@ select * from test where endtime >= extract(epoch FROM date('2012-09-03 00:00:00
 
 2.UNIX时间戳转化为字符日期格式
 字段endtime为内容为UNIX时间戳格式，例如1346650755
-select * from test where date(to_timestamp(endtime))>='2012-09-02';
-或查询出字符串如：SELECT to_char(to_timestamp(1234567890), 'YYYY-MM-DD HH24:MI:SS')
+select * from test where date(to_timestamp(endtime))>='2012-09-02';                // 类似：2021-03-01
+或查询出字符串如：SELECT to_char(to_timestamp(1234567890), 'YYYY-MM-DD HH24:MI:SS')  // 类似：2021-03-05 23:59:10
 
 
 

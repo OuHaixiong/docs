@@ -14,3 +14,11 @@ samba-3.5.10-125.el6.x86_64              //服务器端软件，主要提供samb
 /etc/init.d/smb start/stop/restart       启动、关闭、重启Samba服务器
 service smb status                       查看samba的服务启动情况
 chkconfig --level 35 smb on              //在3、5级别上自动运行samba服务
+
+当出现错误：curl: (6) Could not resolve host: xxx.xxx
+解决：可能是谁改了/etc/resolv.conf文件
+打开如下文件：
+$ vim /etc/resolv.conf
+配置Google DNS，在文件中添加下行：
+nameserver 8.8.8.8
+或者 第二个办法：service  network restart
